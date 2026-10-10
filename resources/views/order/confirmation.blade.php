@@ -291,7 +291,7 @@
                 🛒 Cart
             </a>
 
-            <a href="{{ route('customer.orders') }}">
+            <a href="{{ route('orders') }}">
                 My Orders
             </a>
 
@@ -537,7 +537,7 @@
         <div class="actions">
 
             <a
-                href="{{ route('customer.orders') }}"
+               route('orders')
                 class="btn btn-primary"
             >
                 View My Orders

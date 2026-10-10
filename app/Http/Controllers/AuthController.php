@@ -20,7 +20,6 @@ class AuthController extends Controller
         return view('register');
     }
 
-
     /*
     |--------------------------------------------------------------------------
     | REGISTER
@@ -50,42 +49,18 @@ class AuthController extends Controller
             ],
         ]);
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | CREATE CUSTOMER ACCOUNT
-        |--------------------------------------------------------------------------
-        */
-
+        // Create customer account
         $user = User::create([
             'name' => $request->name,
-
             'email' => $request->email,
-
-            'password' => Hash::make(
-                $request->password
-            ),
-
+            'password' => Hash::make($request->password),
             'role' => 'customer',
         ]);
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | LOGIN CUSTOMER AUTOMATICALLY
-        |--------------------------------------------------------------------------
-        */
-
+        // Automatically login the customer
         Auth::login($user);
 
         $request->session()->regenerate();
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | CUSTOMER DASHBOARD
-        |--------------------------------------------------------------------------
-        */
 
         return redirect()
             ->route('customer.dashboard')
@@ -94,7 +69,6 @@ class AuthController extends Controller
                 'Your account has been created successfully!'
             );
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -107,7 +81,6 @@ class AuthController extends Controller
         return view('login');
     }
 
-
     /*
     |--------------------------------------------------------------------------
     | LOGIN
@@ -116,12 +89,7 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        /*
-        |--------------------------------------------------------------------------
-        | VALIDATE LOGIN
-        |--------------------------------------------------------------------------
-        */
-
+        // Validate login credentials
         $credentials = $request->validate([
             'email' => [
                 'required',
@@ -133,38 +101,16 @@ class AuthController extends Controller
             ],
         ]);
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | CHECK EMAIL AND PASSWORD
-        |--------------------------------------------------------------------------
-        */
-
+        // Check email and password
         if (Auth::attempt($credentials)) {
 
-            /*
-            |--------------------------------------------------------------------------
-            | REGENERATE SESSION
-            |--------------------------------------------------------------------------
-            */
-
+            // Regenerate session after successful login
             $request->session()->regenerate();
 
+            $user = Auth::user();
 
-            /*
-            |--------------------------------------------------------------------------
-            | CHECK USER ROLE
-            |--------------------------------------------------------------------------
-            */
-
-            if (Auth::user()->role === 'admin') {
-
-                /*
-                |--------------------------------------------------------------------------
-                | ADMIN
-                |--------------------------------------------------------------------------
-                */
-
+            // ADMIN
+            if ($user->role === 'admin') {
                 return redirect()
                     ->route('admin.dashboard')
                     ->with(
@@ -173,21 +119,38 @@ class AuthController extends Controller
                     );
             }
 
+            // RIDER
+            if ($user->role === 'rider') {
+                return redirect()
+                    ->route('rider.dashboard')
+                    ->with(
+                        'success',
+                        'Welcome to Rider Dashboard!'
+                    );
+            }
 
-            /*
-            |--------------------------------------------------------------------------
-            | CUSTOMER
-            |--------------------------------------------------------------------------
-            */
+            // CUSTOMER
+            if ($user->role === 'customer') {
+                return redirect()
+                    ->route('customer.dashboard')
+                    ->with(
+                        'success',
+                        'Welcome back!'
+                    );
+            }
+
+            // Unknown role: logout safely
+            Auth::logout();
+
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
 
             return redirect()
-                ->route('customer.dashboard')
-                ->with(
-                    'success',
-                    'Welcome back!'
-                );
+                ->route('login')
+                ->withErrors([
+                    'email' => 'Your account role is not recognized.',
+                ]);
         }
-
 
         /*
         |--------------------------------------------------------------------------
@@ -197,14 +160,12 @@ class AuthController extends Controller
 
         return back()
             ->withErrors([
-                'email' =>
-                    'The email or password is incorrect.',
+                'email' => 'The email or password is incorrect.',
             ])
             ->withInput(
                 $request->only('email')
             );
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -214,39 +175,16 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
-        /*
-        |--------------------------------------------------------------------------
-        | LOGOUT USER
-        |--------------------------------------------------------------------------
-        */
-
+        // Logout user
         Auth::logout();
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | INVALIDATE SESSION
-        |--------------------------------------------------------------------------
-        */
-
+        // Invalidate session
         $request->session()->invalidate();
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | REGENERATE CSRF TOKEN
-        |--------------------------------------------------------------------------
-        */
-
+        // Regenerate CSRF token
         $request->session()->regenerateToken();
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | RETURN HOME
-        |--------------------------------------------------------------------------
-        */
-
+        // Return to home page
         return redirect()
             ->route('home')
             ->with(

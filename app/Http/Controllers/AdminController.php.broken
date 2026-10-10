@@ -1,0 +1,1619 @@
+@extends('admin.layout')
+
+@section('content')
+
+<style>
+    .reports-page {
+        padding: 20px;
+        background: #f8fafc;
+        min-height: calc(100vh - 70px);
+    }
+
+    .reports-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+    }
+
+    .reports-title h1 {
+        margin: 0;
+        font-size: 26px;
+        font-weight: 800;
+        color: #1e293b;
+    }
+
+    .reports-title p {
+        margin: 5px 0 0;
+        color: #64748b;
+        font-size: 14px;
+    }
+
+    /* PERIOD NAV */
+    .period-nav {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-bottom: 18px;
+    }
+
+    .period-btn {
+        display: inline-block;
+        padding: 9px 16px;
+        border-radius: 8px;
+        text-decoration: none;
+        color: #475569;
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        font-size: 13px;
+        font-weight: 700;
+        transition: .2s;
+    }
+
+    .period-btn:hover {
+        border-color: #ef4444;
+        color: #ef4444;
+    }
+
+    .period-btn.active {
+        background: #ef4444;
+        color: #ffffff;
+        border-color: #ef4444;
+    }
+
+    /* FILTER */
+    .filter-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 16px;
+        margin-bottom: 18px;
+    }
+
+    .filter-form {
+        display: flex;
+        align-items: end;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .filter-group label {
+        font-size: 12px;
+        font-weight: 700;
+        color: #475569;
+    }
+
+    .filter-input {
+        height: 40px;
+        min-width: 180px;
+        padding: 0 11px;
+        border: 1px solid #cbd5e1;
+        border-radius: 7px;
+        background: #fff;
+        color: #1e293b;
+        font-size: 13px;
+        outline: none;
+    }
+
+    .filter-input:focus {
+        border-color: #ef4444;
+    }
+
+    .generate-btn {
+        height: 40px;
+        padding: 0 17px;
+        border: 0;
+        border-radius: 7px;
+        background: #ef4444;
+        color: white;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+    .generate-btn:hover {
+        background: #dc2626;
+    }
+
+    .report-period {
+        background: #fff7ed;
+        border: 1px solid #fed7aa;
+        color: #9a3412;
+        padding: 11px 14px;
+        border-radius: 8px;
+        margin-bottom: 18px;
+        font-size: 13px;
+    }
+
+    /* MAIN STATS */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 14px;
+        margin-bottom: 14px;
+    }
+
+    .stat-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 17px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .stat-card::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+        background: #ef4444;
+    }
+
+    .stat-card.sales::before {
+        background: #22c55e;
+    }
+
+    .stat-card.delivered::before {
+        background: #3b82f6;
+    }
+
+    .stat-card.cancelled::before {
+        background: #ef4444;
+    }
+
+    .stat-label {
+        font-size: 11px;
+        color: #64748b;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: .4px;
+    }
+
+    .stat-value {
+        font-size: 25px;
+        font-weight: 800;
+        color: #1e293b;
+        margin-top: 7px;
+    }
+
+    .stat-description {
+        color: #94a3b8;
+        font-size: 11px;
+        margin-top: 5px;
+    }
+
+    /* SECONDARY */
+    .secondary-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+        margin-bottom: 18px;
+    }
+
+    .secondary-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 14px;
+    }
+
+    .secondary-card .label {
+        color: #64748b;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .secondary-card .value {
+        margin-top: 5px;
+        font-size: 20px;
+        font-weight: 800;
+        color: #1e293b;
+    }
+
+    /* SUMMARY */
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    .summary-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 14px;
+    }
+
+    .summary-card .summary-title {
+        color: #64748b;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .summary-card .summary-value {
+        margin-top: 5px;
+        font-size: 19px;
+        font-weight: 800;
+        color: #1e293b;
+    }
+
+    /* CHARTS */
+    .charts-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+        margin-bottom: 20px;
+    }
+
+    .chart-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 16px;
+        min-width: 0;
+    }
+
+    .chart-card.wide {
+        grid-column: 1 / -1;
+    }
+
+    .chart-header {
+        margin-bottom: 12px;
+    }
+
+    .chart-title {
+        color: #1e293b;
+        font-size: 15px;
+        font-weight: 800;
+    }
+
+    .chart-subtitle {
+        color: #94a3b8;
+        font-size: 11px;
+        margin-top: 3px;
+    }
+
+    .chart-wrap {
+        position: relative;
+        height: 300px;
+    }
+
+    .chart-wrap.small {
+        height: 280px;
+    }
+
+    /* TABLE */
+    .table-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .table-header {
+        padding: 16px;
+        border-bottom: 1px solid #e2e8f0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .table-title {
+        font-size: 16px;
+        font-weight: 800;
+        color: #1e293b;
+    }
+
+    .transaction-count {
+        font-size: 12px;
+        color: #64748b;
+    }
+
+    .table-wrap {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    .transactions-table {
+        width: 100%;
+        min-width: 850px;
+        border-collapse: collapse;
+    }
+
+    .transactions-table th {
+        background: #f8fafc;
+        color: #64748b;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: .3px;
+        text-align: left;
+        padding: 12px;
+        white-space: nowrap;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .transactions-table td {
+        padding: 12px;
+        border-bottom: 1px solid #f1f5f9;
+        color: #334155;
+        font-size: 12px;
+        vertical-align: middle;
+    }
+
+    .transactions-table tbody tr:hover {
+        background: #fafafa;
+    }
+
+    .order-number {
+        font-weight: 800;
+        color: #1e293b;
+    }
+
+    .amount {
+        font-weight: 800;
+        color: #16a34a;
+    }
+
+    .date-text {
+        line-height: 1.5;
+    }
+
+    .date-text .time {
+        color: #94a3b8;
+        font-size: 11px;
+    }
+
+    /* STATUS */
+    .status-badge {
+        display: inline-block;
+        padding: 5px 9px;
+        border-radius: 999px;
+        font-size: 10px;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+    .status-pending {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .status-confirmed {
+        background: #dbeafe;
+        color: #1d4ed8;
+    }
+
+    .status-preparing {
+        background: #ede9fe;
+        color: #6d28d9;
+    }
+
+    .status-ready {
+        background: #cffafe;
+        color: #0e7490;
+    }
+
+    .status-out {
+        background: #ffedd5;
+        color: #c2410c;
+    }
+
+    .status-delivered {
+        background: #dcfce7;
+        color: #15803d;
+    }
+
+    .status-cancelled {
+        background: #fee2e2;
+        color: #b91c1c;
+    }
+
+    .view-button {
+        display: inline-block;
+        padding: 6px 11px;
+        background: #ef4444;
+        color: #fff;
+        border-radius: 6px;
+        text-decoration: none;
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    .view-button:hover {
+        background: #dc2626;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 45px 20px;
+        color: #64748b;
+    }
+
+    .empty-state .icon {
+        font-size: 38px;
+        margin-bottom: 8px;
+    }
+
+    .empty-state h3 {
+        margin: 0 0 5px;
+        color: #334155;
+    }
+
+    .empty-state p {
+        margin: 0;
+        font-size: 13px;
+    }
+
+    @media (max-width: 1100px) {
+        .stats-grid,
+        .secondary-grid,
+        .summary-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 800px) {
+        .reports-page {
+            padding: 14px;
+        }
+
+        .charts-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .chart-card.wide {
+            grid-column: auto;
+        }
+
+        .stats-grid,
+        .secondary-grid,
+        .summary-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+
+    @media (max-width: 550px) {
+        .stats-grid,
+        .secondary-grid,
+        .summary-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .filter-form {
+            align-items: stretch;
+            flex-direction: column;
+        }
+
+        .filter-input,
+        .generate-btn {
+            width: 100%;
+        }
+
+        .period-nav {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .period-btn {
+            text-align: center;
+        }
+    }
+</style>
+
+
+<div class="reports-page">
+
+    {{-- HEADER --}}
+    <div class="reports-header">
+        <div class="reports-title">
+            <h1>📊 Reports</h1>
+            <p>Sales, orders, customers, payments and delivery reports.</p>
+        </div>
+    </div>
+
+
+    {{-- PERIOD BUTTONS --}}
+    <div class="period-nav">
+
+        <a href="{{ route('admin.reports', [
+            'period' => 'daily',
+            'date' => request('date', now()->format('Y-m-d'))
+        ]) }}"
+           class="period-btn {{ $period === 'daily' ? 'active' : '' }}">
+            Daily
+        </a>
+
+        <a href="{{ route('admin.reports', [
+            'period' => 'weekly',
+            'date' => request('date', now()->format('Y-m-d'))
+        ]) }}"
+           class="period-btn {{ $period === 'weekly' ? 'active' : '' }}">
+            Weekly
+        </a>
+
+        <a href="{{ route('admin.reports', [
+            'period' => 'monthly',
+            'month' => request('month', now()->format('Y-m'))
+        ]) }}"
+           class="period-btn {{ $period === 'monthly' ? 'active' : '' }}">
+            Monthly
+        </a>
+
+        <a href="{{ route('admin.reports', [
+            'period' => 'yearly',
+            'year' => request('year', now()->format('Y'))
+        ]) }}"
+           class="period-btn {{ $period === 'yearly' ? 'active' : '' }}">
+            Yearly
+        </a>
+
+        <a href="{{ route('admin.reports', [
+            'period' => 'manual'
+        ]) }}"
+           class="period-btn {{ $period === 'manual' ? 'active' : '' }}">
+            Manual
+        </a>
+
+    </div>
+
+
+    {{-- FILTER --}}
+    <div class="filter-card">
+
+        @if($period === 'daily')
+
+            <form method="GET"
+                  action="{{ route('admin.reports') }}"
+                  class="filter-form">
+
+                <input type="hidden" name="period" value="daily">
+
+                <div class="filter-group">
+                    <label>Select Date</label>
+
+                    <input
+                        type="date"
+                        name="date"
+                        value="{{ request('date', now()->format('Y-m-d')) }}"
+                        class="filter-input"
+                    >
+                </div>
+
+                <button type="submit" class="generate-btn">
+                    Generate Report
+                </button>
+
+            </form>
+
+
+        @elseif($period === 'weekly')
+
+            <form method="GET"
+                  action="{{ route('admin.reports') }}"
+                  class="filter-form">
+
+                <input type="hidden" name="period" value="weekly">
+
+                <div class="filter-group">
+                    <label>Week Date</label>
+
+                    <input
+                        type="date"
+                        name="date"
+                        value="{{ request('date', now()->format('Y-m-d')) }}"
+                        class="filter-input"
+                    >
+                </div>
+
+                <button type="submit" class="generate-btn">
+                    Generate Weekly Report
+                </button>
+
+            </form>
+
+
+        @elseif($period === 'monthly')
+
+            <form method="GET"
+                  action="{{ route('admin.reports') }}"
+                  class="filter-form">
+
+                <input type="hidden" name="period" value="monthly">
+
+                <div class="filter-group">
+                    <label>Select Month</label>
+
+                    <input
+                        type="month"
+                        name="month"
+                        value="{{ request('month', now()->format('Y-m')) }}"
+                        class="filter-input"
+                    >
+                </div>
+
+                <button type="submit" class="generate-btn">
+                    Generate Monthly Report
+                </button>
+
+            </form>
+
+
+        @elseif($period === 'yearly')
+
+            <form method="GET"
+                  action="{{ route('admin.reports') }}"
+                  class="filter-form">
+
+                <input type="hidden" name="period" value="yearly">
+
+                <div class="filter-group">
+                    <label>Select Year</label>
+
+                    <select name="year" class="filter-input">
+
+                        @for(
+                            $year = now()->year;
+                            $year >= now()->year - 10;
+                            $year--
+                        )
+
+                            <option
+                                value="{{ $year }}"
+                                {{ (string) request('year', now()->year) === (string) $year ? 'selected' : '' }}
+                            >
+                                {{ $year }}
+                            </option>
+
+                        @endfor
+
+                    </select>
+
+                </div>
+
+                <button type="submit" class="generate-btn">
+                    Generate Yearly Report
+                </button>
+
+            </form>
+
+
+        @else
+
+            <form method="GET"
+                  action="{{ route('admin.reports') }}"
+                  class="filter-form">
+
+                <input type="hidden" name="period" value="manual">
+
+                <div class="filter-group">
+                    <label>Start Date</label>
+
+                    <input
+                        type="date"
+                        name="start_date"
+                        value="{{ request('start_date', now()->startOfMonth()->format('Y-m-d')) }}"
+                        class="filter-input"
+                    >
+                </div>
+
+                <div class="filter-group">
+                    <label>End Date</label>
+
+                    <input
+                        type="date"
+                        name="end_date"
+                        value="{{ request('end_date', now()->format('Y-m-d')) }}"
+                        class="filter-input"
+                    >
+                </div>
+
+                <button type="submit" class="generate-btn">
+                    Generate Custom Report
+                </button>
+
+            </form>
+
+        @endif
+
+    </div>
+
+
+    {{-- PERIOD DISPLAY --}}
+    <div class="report-period">
+        <strong>Report Period:</strong>
+        {{ $reportPeriodText }}
+    </div>
+
+
+    {{-- MAIN STATS --}}
+    <div class="stats-grid">
+
+        <div class="stat-card">
+            <div class="stat-label">Total Transactions</div>
+
+            <div class="stat-value">
+                {{ number_format($totalOrders) }}
+            </div>
+
+            <div class="stat-description">
+                Orders included in this report
+            </div>
+        </div>
+
+
+        <div class="stat-card sales">
+            <div class="stat-label">Total Sales</div>
+
+            <div class="stat-value">
+                ₱{{ number_format($totalSales, 2) }}
+            </div>
+
+            <div class="stat-description">
+                Confirmed and completed sales
+            </div>
+        </div>
+
+
+        <div class="stat-card delivered">
+            <div class="stat-label">Delivered</div>
+
+            <div class="stat-value">
+                {{ number_format($deliveredOrders) }}
+            </div>
+
+            <div class="stat-description">
+                Successfully delivered orders
+            </div>
+        </div>
+
+
+        <div class="stat-card cancelled">
+            <div class="stat-label">Cancelled</div>
+
+            <div class="stat-value">
+                {{ number_format($cancelledOrders) }}
+            </div>
+
+            <div class="stat-description">
+                Cancelled orders
+            </div>
+        </div>
+
+    </div>
+
+
+    {{-- SECONDARY STATS --}}
+    <div class="secondary-grid">
+
+        <div class="secondary-card">
+            <div class="label">Pending Orders</div>
+
+            <div class="value">
+                {{ number_format($pendingOrders) }}
+            </div>
+        </div>
+
+
+        <div class="secondary-card">
+            <div class="label">Customers</div>
+
+            <div class="value">
+                {{ number_format($totalCustomers) }}
+            </div>
+        </div>
+
+
+        <div class="secondary-card">
+            <div class="label">Pizza Products</div>
+
+            <div class="value">
+                {{ number_format($totalPizzas) }}
+            </div>
+        </div>
+
+
+        <div class="secondary-card">
+            <div class="label">Average Sale</div>
+
+            <div class="value">
+                ₱{{ number_format(
+                    $totalOrders > 0
+                        ? $totalSales / $totalOrders
+                        : 0,
+                    2
+                ) }}
+            </div>
+        </div>
+
+    </div>
+
+
+    {{-- SALES SUMMARY --}}
+    <div class="summary-grid">
+
+        <div class="summary-card">
+            <div class="summary-title">💵 Cash Sales</div>
+
+            <div class="summary-value">
+                ₱{{ number_format($cashSales, 2) }}
+            </div>
+        </div>
+
+
+        <div class="summary-card">
+            <div class="summary-title">📱 GCash Sales</div>
+
+            <div class="summary-value">
+                ₱{{ number_format($gcashSales, 2) }}
+            </div>
+        </div>
+
+
+        <div class="summary-card">
+            <div class="summary-title">🚚 Delivery Sales</div>
+
+            <div class="summary-value">
+                ₱{{ number_format($deliverySales, 2) }}
+            </div>
+        </div>
+
+
+        <div class="summary-card">
+            <div class="summary-title">🛵 Pickup Sales</div>
+
+            <div class="summary-value">
+                ₱{{ number_format($pickupSales, 2) }}
+            </div>
+        </div>
+
+    </div>
+
+
+    {{-- CHARTS --}}
+    <div class="charts-grid">
+
+        {{-- SALES TREND --}}
+        <div class="chart-card wide">
+
+            <div class="chart-header">
+                <div class="chart-title">
+                    📈 Sales & Orders Trend
+                </div>
+
+                <div class="chart-subtitle">
+                    {{ ucfirst($period) }} Report
+                </div>
+            </div>
+
+            <div class="chart-wrap">
+                <canvas id="salesTrendChart"></canvas>
+            </div>
+
+        </div>
+
+
+        {{-- ORDER STATUS --}}
+        <div class="chart-card">
+
+            <div class="chart-header">
+                <div class="chart-title">
+                    📦 Order Status
+                </div>
+
+                <div class="chart-subtitle">
+                    {{ number_format($totalOrders) }} orders
+                </div>
+            </div>
+
+            <div class="chart-wrap small">
+                <canvas id="statusChart"></canvas>
+            </div>
+
+        </div>
+
+
+        {{-- PAYMENT --}}
+        <div class="chart-card">
+
+            <div class="chart-header">
+                <div class="chart-title">
+                    💳 Payment Method
+                </div>
+
+                <div class="chart-subtitle">
+                    Sales distribution
+                </div>
+            </div>
+
+            <div class="chart-wrap small">
+                <canvas id="paymentChart"></canvas>
+            </div>
+
+        </div>
+
+
+        {{-- DELIVERY --}}
+        <div class="chart-card">
+
+            <div class="chart-header">
+                <div class="chart-title">
+                    🚚 Delivery vs Pickup
+                </div>
+
+                <div class="chart-subtitle">
+                    Order type
+                </div>
+            </div>
+
+            <div class="chart-wrap small">
+                <canvas id="deliveryChart"></canvas>
+            </div>
+
+        </div>
+
+
+        {{-- TOP PIZZAS --}}
+        <div class="chart-card">
+
+            <div class="chart-header">
+                <div class="chart-title">
+                    🍕 Top Pizza Products
+                </div>
+
+                <div class="chart-subtitle">
+                    Quantity sold
+                </div>
+            </div>
+
+            <div class="chart-wrap small">
+                <canvas id="topPizzaChart"></canvas>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    {{-- TRANSACTIONS --}}
+    <div class="table-card">
+
+        <div class="table-header">
+
+            <div class="table-title">
+                🧾 Transactions
+            </div>
+
+            <div class="transaction-count">
+                {{ $transactions->count() }} transaction(s)
+            </div>
+
+        </div>
+
+
+        @if($transactions->count() > 0)
+
+            <div class="table-wrap">
+
+                <table class="transactions-table">
+
+                    <thead>
+                        <tr>
+                            <th>Order Number</th>
+                            <th>Customer</th>
+                            <th>Date</th>
+                            <th>Amount</th>
+                            <th>Payment</th>
+                            <th>Order Type</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+
+
+                    <tbody>
+
+                        @foreach($transactions as $transaction)
+
+                            @php
+
+                                $statusClass = match($transaction->status) {
+
+                                    'pending' =>
+                                        'status-pending',
+
+                                    'confirmed' =>
+                                        'status-confirmed',
+
+                                    'preparing' =>
+                                        'status-preparing',
+
+                                    'ready_for_delivery' =>
+                                        'status-ready',
+
+                                    'out_for_delivery' =>
+                                        'status-out',
+
+                                    'delivered' =>
+                                        'status-delivered',
+
+                                    'cancelled' =>
+                                        'status-cancelled',
+
+                                    default =>
+                                        'status-pending',
+
+                                };
+
+
+                                $statusText = match($transaction->status) {
+
+                                    'pending' =>
+                                        'Pending',
+
+                                    'confirmed' =>
+                                        'Confirmed',
+
+                                    'preparing' =>
+                                        'Preparing',
+
+                                    'ready_for_delivery' =>
+                                        'Ready',
+
+                                    'out_for_delivery' =>
+                                        'Out for Delivery',
+
+                                    'delivered' =>
+                                        'Delivered',
+
+                                    'cancelled' =>
+                                        'Cancelled',
+
+                                    default =>
+                                        ucfirst(
+                                            str_replace(
+                                                '_',
+                                                ' ',
+                                                $transaction->status
+                                            )
+                                        ),
+
+                                };
+
+                            @endphp
+
+
+                            <tr>
+
+                                <td>
+                                    <span class="order-number">
+                                        {{ $transaction->order_number }}
+                                    </span>
+                                </td>
+
+
+                                <td>
+                                    {{ $transaction->user->name ?? 'Guest' }}
+                                </td>
+
+
+                                <td>
+                                    <div class="date-text">
+
+                                        {{ $transaction->created_at->format('M d, Y') }}
+
+                                        <div class="time">
+                                            {{ $transaction->created_at->format('h:i A') }}
+                                        </div>
+
+                                    </div>
+                                </td>
+
+
+                                <td>
+                                    <span class="amount">
+                                        ₱{{ number_format($transaction->total_amount, 2) }}
+                                    </span>
+                                </td>
+
+
+                                <td>
+
+                                    @if($transaction->payment_method === 'gcash')
+
+                                        📱 GCash
+
+                                    @elseif($transaction->payment_method === 'cash_on_pickup')
+
+                                        💵 Cash on Pickup
+
+                                    @else
+
+                                        💵 Cash
+
+                                    @endif
+
+                                </td>
+
+
+                                <td>
+
+                                    @if($transaction->delivery_option === 'delivery')
+
+                                        🚚 Delivery
+
+                                    @else
+
+                                        🛵 Pickup
+
+                                    @endif
+
+                                </td>
+
+
+                                <td>
+
+                                    <span class="status-badge {{ $statusClass }}">
+                                        {{ $statusText }}
+                                    </span>
+
+                                </td>
+
+
+                                <td>
+
+                                    <a
+                                        href="{{ route('admin.orders.show', $transaction->id) }}"
+                                        class="view-button"
+                                    >
+                                        View
+                                    </a>
+
+                                </td>
+
+                            </tr>
+
+                        @endforeach
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        @else
+
+            <div class="empty-state">
+
+                <div class="icon">
+                    📊
+                </div>
+
+                <h3>
+                    No Transactions Found
+                </h3>
+
+                <p>
+                    There are no transactions available for the selected report period.
+                </p>
+
+            </div>
+
+        @endif
+
+    </div>
+
+</div>
+
+
+{{-- CHART.JS --}}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    const chartLabels = @json($chartLabels ?? []);
+    const chartSales = @json($chartSales ?? []);
+    const chartOrders = @json($chartOrders ?? []);
+
+    const statusLabels = @json($statusLabels ?? []);
+    const statusData = @json($statusData ?? []);
+
+    const paymentLabels = @json($paymentLabels ?? []);
+    const paymentData = @json($paymentData ?? []);
+
+    const deliveryLabels = @json($deliveryLabels ?? []);
+    const deliveryData = @json($deliveryData ?? []);
+
+    const topPizzaLabels = @json($topPizzaLabels ?? []);
+    const topPizzaData = @json($topPizzaData ?? []);
+
+
+    Chart.defaults.font.family =
+        'Inter, Arial, sans-serif';
+
+    Chart.defaults.color =
+        '#64748b';
+
+
+    /* SALES & ORDERS */
+    const salesCanvas =
+        document.getElementById('salesTrendChart');
+
+    if (salesCanvas) {
+
+        new Chart(salesCanvas, {
+
+            type: 'bar',
+
+            data: {
+
+                labels: chartLabels,
+
+                datasets: [
+
+                    {
+                        label: 'Sales (₱)',
+                        data: chartSales,
+
+                        backgroundColor:
+                            'rgba(239, 68, 68, 0.75)',
+
+                        borderColor:
+                            '#ef4444',
+
+                        borderWidth: 1,
+
+                        borderRadius: 5,
+
+                        yAxisID: 'sales'
+                    },
+
+                    {
+                        label: 'Orders',
+
+                        data: chartOrders,
+
+                        type: 'line',
+
+                        borderColor:
+                            '#f59e0b',
+
+                        backgroundColor:
+                            'rgba(245, 158, 11, 0.12)',
+
+                        tension: 0.35,
+
+                        fill: true,
+
+                        pointRadius: 3,
+
+                        pointHoverRadius: 5,
+
+                        yAxisID: 'orders'
+                    }
+
+                ]
+
+            },
+
+            options: {
+
+                responsive: true,
+
+                maintainAspectRatio: false,
+
+                interaction: {
+                    mode: 'index',
+                    intersect: false
+                },
+
+                plugins: {
+
+                    legend: {
+                        position: 'top'
+                    }
+
+                },
+
+                scales: {
+
+                    sales: {
+
+                        beginAtZero: true,
+
+                        position: 'left',
+
+                        grid: {
+                            color: '#e5e7eb'
+                        },
+
+                        ticks: {
+
+                            callback: function(value) {
+                                return '₱' +
+                                    Number(value).toLocaleString();
+                            }
+
+                        }
+
+                    },
+
+                    orders: {
+
+                        beginAtZero: true,
+
+                        position: 'right',
+
+                        grid: {
+                            drawOnChartArea: false
+                        },
+
+                        ticks: {
+                            precision: 0
+                        }
+
+                    }
+
+                }
+
+            }
+
+        });
+
+    }
+
+
+    /* ORDER STATUS */
+    const statusCanvas =
+        document.getElementById('statusChart');
+
+    if (statusCanvas) {
+
+        new Chart(statusCanvas, {
+
+            type: 'doughnut',
+
+            data: {
+
+                labels: statusLabels,
+
+                datasets: [
+
+                    {
+                        data: statusData,
+
+                        backgroundColor: [
+                            '#f59e0b',
+                            '#3b82f6',
+                            '#8b5cf6',
+                            '#06b6d4',
+                            '#f97316',
+                            '#22c55e',
+                            '#ef4444'
+                        ],
+
+                        borderWidth: 2,
+
+                        borderColor: '#ffffff'
+                    }
+
+                ]
+
+            },
+
+            options: {
+
+                responsive: true,
+
+                maintainAspectRatio: false,
+
+                cutout: '62%',
+
+                plugins: {
+
+                    legend: {
+                        position: 'bottom'
+                    }
+
+                }
+
+            }
+
+        });
+
+    }
+
+
+    /* PAYMENT METHOD */
+    const paymentCanvas =
+        document.getElementById('paymentChart');
+
+    if (paymentCanvas) {
+
+        new Chart(paymentCanvas, {
+
+            type: 'doughnut',
+
+            data: {
+
+                labels: paymentLabels,
+
+                datasets: [
+
+                    {
+                        data: paymentData,
+
+                        backgroundColor: [
+                            '#22c55e',
+                            '#3b82f6'
+                        ],
+
+                        borderWidth: 2,
+
+                        borderColor: '#ffffff'
+                    }
+
+                ]
+
+            },
+
+            options: {
+
+                responsive: true,
+
+                maintainAspectRatio: false,
+
+                cutout: '62%',
+
+                plugins: {
+
+                    legend: {
+                        position: 'bottom'
+                    }
+
+                }
+
+            }
+
+        });
+
+    }
+
+
+    /* DELIVERY / PICKUP */
+    const deliveryCanvas =
+        document.getElementById('deliveryChart');
+
+    if (deliveryCanvas) {
+
+        new Chart(deliveryCanvas, {
+
+            type: 'pie',
+
+            data: {
+
+                labels: deliveryLabels,
+
+                datasets: [
+
+                    {
+                        data: deliveryData,
+
+                        backgroundColor: [
+                            '#ef4444',
+                            '#f59e0b'
+                        ],
+
+                        borderWidth: 2,
+
+                        borderColor: '#ffffff'
+                    }
+
+                ]
+
+            },
+
+            options: {
+
+                responsive: true,
+
+                maintainAspectRatio: false,
+
+                plugins: {
+
+                    legend: {
+                        position: 'bottom'
+                    }
+
+                }
+
+            }
+
+        });
+
+    }
+
+
+    /* TOP PIZZAS */
+    const pizzaCanvas =
+        document.getElementById('topPizzaChart');
+
+    if (pizzaCanvas) {
+
+        new Chart(pizzaCanvas, {
+
+            type: 'bar',
+
+            data: {
+
+                labels: topPizzaLabels,
+
+                datasets: [
+
+                    {
+                        label: 'Quantity Sold',
+
+                        data: topPizzaData,
+
+                        backgroundColor:
+                            '#ef4444',
+
+                        borderRadius: 6
+                    }
+
+                ]
+
+            },
+
+            options: {
+
+                indexAxis: 'y',
+
+                responsive: true,
+
+                maintainAspectRatio: false,
+
+                plugins: {
+
+                    legend: {
+                        display: false
+                    }
+
+                },
+
+                scales: {
+
+                    x: {
+
+                        beginAtZero: true,
+
+                        ticks: {
+                            precision: 0
+                        }
+
+                    }
+
+                }
+
+            }
+
+        });
+
+    }
+
+});
+</script>
+
+@endsection

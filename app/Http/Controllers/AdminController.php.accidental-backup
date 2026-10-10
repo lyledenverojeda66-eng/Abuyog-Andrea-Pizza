@@ -1,0 +1,331 @@
+@extends('admin.layout')
+
+@section('title', 'Deliveries')
+
+@section('content')
+
+<style>
+    .deliveries-page {
+        width: 100%;
+    }
+
+    .deliveries-page .page-header {
+        margin-bottom: 20px;
+    }
+
+    .deliveries-page .page-header h1 {
+        margin: 0 0 6px;
+        line-height: 1.4;
+    }
+
+    .deliveries-page .page-header p {
+        margin: 0;
+        color: #6b7280;
+    }
+
+    .deliveries-page .card {
+        width: 100%;
+        overflow: hidden;
+    }
+
+    .deliveries-page .table-wrapper {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    .deliveries-page table {
+        width: 100%;
+        min-width: 1450px;
+        border-collapse: collapse;
+    }
+
+    .deliveries-page th,
+    .deliveries-page td {
+        padding: 14px;
+        text-align: left;
+        vertical-align: top;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .deliveries-page th {
+        white-space: nowrap;
+        background: #f9fafb;
+    }
+
+    .delivery-order {
+        color: #15803d;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+    .delivery-customer {
+        color: #374151;
+        font-weight: 600;
+    }
+
+    .delivery-datetime {
+        color: #4b5563;
+        white-space: nowrap;
+        font-size: 13px;
+    }
+
+    .delivery-form {
+        min-width: 180px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .delivery-form input,
+    .delivery-form select {
+        width: 100%;
+        padding: 9px 10px;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        background: #fff;
+        color: #374151;
+        box-sizing: border-box;
+    }
+
+    .delivery-form button {
+        width: 100%;
+        padding: 9px 12px;
+        border: none;
+        border-radius: 6px;
+        background: #15803d;
+        color: #fff;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+    .delivery-form button:hover {
+        background: #166534;
+    }
+
+    .delivery-badge {
+        display: inline-block;
+        padding: 5px 9px;
+        border-radius: 20px;
+        background: #f3f4f6;
+        color: #374151;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: capitalize;
+        white-space: nowrap;
+    }
+
+    .empty-deliveries {
+        text-align: center !important;
+        padding: 35px 20px !important;
+        color: #6b7280;
+    }
+
+    .delivery-help {
+        display: block;
+        margin-top: 5px;
+        color: #6b7280;
+        font-size: 12px;
+    }
+
+    @media (max-width: 900px) {
+        .deliveries-page th,
+        .deliveries-page td {
+            padding: 10px;
+        }
+    }
+</style>
+
+<div class="deliveries-page">
+
+    <div class="page-header">
+        <h1>🚚 Deliveries</h1>
+        <p>Assign riders, monitor delivery progress, and verify customer payments.</p>
+    </div>
+
+    <div class="card">
+        <div class="table-wrapper">
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Order</th>
+                        <th>Customer</th>
+                        <th>Assign Rider</th>
+                        <th>Delivery Status</th>
+                        <th>Picked Up</th>
+                        <th>Delivered</th>
+                        <th>Payment Status</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @forelse($deliveries as $delivery)
+
+                        @php
+                            $deliveryStatuses = [
+                                'pending' => 'Pending',
+                                'preparing' => 'Preparing',
+                                'ready_for_pickup' => 'Ready for Pickup',
+                                'picked_up' => 'Picked Up',
+                                'out_for_delivery' => 'Out for Delivery',
+                                'delivered' => 'Delivered',
+                            ];
+
+                            $currentStatus = $delivery->status ?? 'pending';
+                            $payment = $delivery->order?->payment;
+                            $paymentStatus = $payment?->status
+                                ?? $delivery->payment_status
+                                ?? 'pending';
+                        @endphp
+
+                        <tr>
+                            <td>
+                                <span class="delivery-order">
+                                    {{ $delivery->order?->order_number ?? 'N/A' }}
+                                </span>
+                            </td>
+
+                            <td>
+                                <span class="delivery-customer">
+                                    {{ $delivery->order?->user?->name ?? 'Customer' }}
+                                </span>
+                            </td>
+
+                            <td>
+                                <form
+                                    class="delivery-form"
+                                    method="POST"
+                                    action="{{ route('admin.deliveries.assign-rider', $delivery->id) }}"
+                                >
+                                    @csrf
+                                    @method('PUT')
+
+                                    <input
+                                        type="text"
+                                        name="rider_name"
+                                        placeholder="Rider name"
+                                        value="{{ $delivery->rider_name }}"
+                                        maxlength="255"
+                                        required
+                                    >
+
+                                    <input
+                                        type="text"
+                                        name="rider_contact"
+                                        placeholder="Contact number"
+                                        value="{{ $delivery->rider_contact }}"
+                                        maxlength="50"
+                                        required
+                                    >
+
+                                    <button type="submit">Save Rider</button>
+                                </form>
+                            </td>
+
+                            <td>
+                                <form
+                                    class="delivery-form"
+                                    method="POST"
+                                    action="{{ route('admin.deliveries.update-status', $delivery->id) }}"
+                                >
+                                    @csrf
+                                    @method('PUT')
+
+                                    <select name="status" required>
+                                        @foreach($deliveryStatuses as $value => $label)
+                                            <option
+                                                value="{{ $value }}"
+                                                @selected($currentStatus === $value)
+                                            >
+                                                {{ $label }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+
+                                    <button type="submit">Update Status</button>
+
+                                    <span class="delivery-help">
+                                        Current: {{ $deliveryStatuses[$currentStatus] ?? $currentStatus }}
+                                    </span>
+                                </form>
+                            </td>
+
+                            <td>
+                                <span class="delivery-datetime">
+                                    {{ $delivery->picked_up_at
+                                        ? $delivery->picked_up_at->format('M d, Y h:i A')
+                                        : '—'
+                                    }}
+                                </span>
+                            </td>
+
+                            <td>
+                                <span class="delivery-datetime">
+                                    {{ $delivery->delivered_at
+                                        ? $delivery->delivered_at->format('M d, Y h:i A')
+                                        : '—'
+                                    }}
+                                </span>
+                            </td>
+
+                            <td>
+                                <form
+                                    class="delivery-form"
+                                    method="POST"
+                                    action="{{ route('admin.deliveries.update-payment', $delivery->id) }}"
+                                >
+                                    @csrf
+                                    @method('PUT')
+
+                                    <span class="delivery-badge">
+                                        {{ ucfirst($paymentStatus) }}
+                                    </span>
+
+                                    <select name="payment_status" required>
+                                        <option value="pending" @selected($paymentStatus === 'pending')>
+                                            Pending
+                                        </option>
+
+                                        <option value="paid" @selected($paymentStatus === 'paid')>
+                                            Paid / Received
+                                        </option>
+
+                                        <option value="failed" @selected($paymentStatus === 'failed')>
+                                            Failed
+                                        </option>
+                                    </select>
+
+                                    <button type="submit">Update Payment</button>
+
+                                    @if($delivery->payment_received_at)
+                                        <span class="delivery-help">
+                                            Received:
+                                            {{ $delivery->payment_received_at->format('M d, Y h:i A') }}
+                                        </span>
+                                    @endif
+
+                                    @if(!$payment)
+                                        <span class="delivery-help">
+                                            No payment record found.
+                                        </span>
+                                    @endif
+                                </form>
+                            </td>
+                        </tr>
+
+                    @empty
+                        <tr>
+                            <td colspan="7" class="empty-deliveries">
+                                No delivery records found.
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+
+</div>
+
+@endsection

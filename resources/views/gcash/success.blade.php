@@ -240,26 +240,18 @@
         </div>
 
 
-        {{-- BUTTONS --}}
+       {{-- BUTTONS --}}
+<div class="buttons">
 
-        <div class="buttons">
+    <a href="{{ route('orders') }}" class="btn btn-primary">
+        View My Orders
+    </a>
 
-            <a
-                href="{{ route('customer.orders') }}"
-                class="btn btn-primary"
-            >
-                View My Orders
-            </a>
+    <a href="{{ route('menu') }}" class="btn btn-secondary">
+        Continue Shopping
+    </a>
 
-
-            <a
-                href="{{ route('menu') }}"
-                class="btn btn-secondary"
-            >
-                Back to Menu
-            </a>
-
-        </div>
+</div>
 
 
     </div>

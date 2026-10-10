@@ -32,9 +32,13 @@ class Feedback extends Model
     | Customer
     |--------------------------------------------------------------------------
     */
+
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(
+            User::class,
+            'user_id'
+        );
     }
 
     /*
@@ -42,8 +46,12 @@ class Feedback extends Model
     | Order
     |--------------------------------------------------------------------------
     */
+
     public function order(): BelongsTo
     {
-        return $this->belongsTo(Order::class);
+        return $this->belongsTo(
+            Order::class,
+            'order_id'
+        );
     }
 }

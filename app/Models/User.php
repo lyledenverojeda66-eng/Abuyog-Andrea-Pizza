@@ -14,7 +14,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'name',
     'email',
     'password',
-    'role'
+    'role',
+    'profile_picture',
+    'phone',
+    'address',
 ])]
 #[Hidden([
     'password',

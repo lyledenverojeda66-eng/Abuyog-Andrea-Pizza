@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Delivery;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Payment;
@@ -13,12 +14,21 @@ use Illuminate\Support\Str;
 
 class CheckoutController extends Controller
 {
+    /*
+    |--------------------------------------------------------------------------
+    | CHECKOUT PAGE
+    |--------------------------------------------------------------------------
+    */
+
     public function index()
     {
-        $cart = session()->get(
-            'cart',
-            []
-        );
+        /*
+        |--------------------------------------------------------------------------
+        | GET CART
+        |--------------------------------------------------------------------------
+        */
+
+        $cart = session()->get('cart', []);
 
         if (empty($cart)) {
             return redirect()
@@ -29,42 +39,53 @@ class CheckoutController extends Controller
                 );
         }
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | GET ORDER OPTIONS
+        |--------------------------------------------------------------------------
+        */
+
         $deliveryOption = session(
             'delivery_option',
-            null
+            'delivery'
         );
 
         $paymentMethod = session(
             'payment_method',
-            null
+            'cash_on_delivery'
         );
+
 
         /*
         |--------------------------------------------------------------------------
-        | REQUIRE CART OPTIONS FIRST
+        | CALCULATE SUBTOTAL
         |--------------------------------------------------------------------------
         */
-
-        if (
-            !$deliveryOption ||
-            !$paymentMethod
-        ) {
-            return redirect()
-                ->route('cart')
-                ->with(
-                    'error',
-                    'Please select your delivery and payment option first.'
-                );
-        }
 
         $subtotal = 0;
 
         foreach ($cart as $item) {
 
-            $subtotal +=
-                (float) $item['price'] *
-                (int) $item['quantity'];
+            $price = (float) ($item['price'] ?? 0);
+
+            $quantity = (int) ($item['quantity'] ?? 0);
+
+            $subtotal += $price * $quantity;
         }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | KEEP $total FOR EXISTING CHECKOUT BLADE
+        |--------------------------------------------------------------------------
+        |
+        | Your existing checkout.blade.php uses $total.
+        | Therefore, we provide it here.
+        |
+        */
+
+        $total = $subtotal;
 
 
         /*
@@ -75,36 +96,183 @@ class CheckoutController extends Controller
 
         $deliveryFee =
             $deliveryOption === 'delivery'
-            ? 50.00
-            : 0.00;
+                ? 50
+                : 0;
 
 
-        $total =
-            $subtotal +
-            $deliveryFee;
+        /*
+        |--------------------------------------------------------------------------
+        | GRAND TOTAL
+        |--------------------------------------------------------------------------
+        */
 
+        $totalAmount =
+            $subtotal + $deliveryFee;
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | RETURN CHECKOUT VIEW
+        |--------------------------------------------------------------------------
+        */
 
         return view(
             'checkout',
             compact(
                 'cart',
-                'subtotal',
-                'deliveryFee',
                 'total',
+                'subtotal',
                 'deliveryOption',
-                'paymentMethod'
+                'paymentMethod',
+                'deliveryFee',
+                'totalAmount'
             )
         );
     }
 
 
-    public function store(
-        Request $request
-    ) {
+    /*
+    |--------------------------------------------------------------------------
+    | PLACE ORDER
+    |--------------------------------------------------------------------------
+    */
 
-        $request->validate([
+    public function store(Request $request)
+    {
+        /*
+        |--------------------------------------------------------------------------
+        | GET CART
+        |--------------------------------------------------------------------------
+        */
+
+        $cart = session()->get('cart', []);
+
+        if (empty($cart)) {
+            return redirect()
+                ->route('cart')
+                ->with(
+                    'error',
+                    'Your cart is empty.'
+                );
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | GET ORDER OPTIONS
+        |--------------------------------------------------------------------------
+        */
+
+        $deliveryOption = session(
+            'delivery_option',
+            'delivery'
+        );
+
+        $paymentMethod = session(
+            'payment_method',
+            'cash_on_delivery'
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | VALID DELIVERY OPTION
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            !in_array(
+                $deliveryOption,
+                [
+                    'delivery',
+                    'pickup',
+                ],
+                true
+            )
+        ) {
+
+            return redirect()
+                ->route('cart')
+                ->with(
+                    'error',
+                    'Please select a valid delivery option.'
+                );
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | VALID PAYMENT METHOD
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            !in_array(
+                $paymentMethod,
+                [
+                    'cash_on_delivery',
+                    'cash_on_pickup',
+                    'gcash',
+                ],
+                true
+            )
+        ) {
+
+            return redirect()
+                ->route('cart')
+                ->with(
+                    'error',
+                    'Please select a valid payment method.'
+                );
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | CHECK DELIVERY / PAYMENT COMBINATION
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            $deliveryOption === 'delivery'
+            &&
+            $paymentMethod === 'cash_on_pickup'
+        ) {
+
+            return redirect()
+                ->route('cart')
+                ->with(
+                    'error',
+                    'Cash on Pickup is only available for pickup orders.'
+                );
+        }
+
+
+        if (
+            $deliveryOption === 'pickup'
+            &&
+            $paymentMethod === 'cash_on_delivery'
+        ) {
+
+            return redirect()
+                ->route('cart')
+                ->with(
+                    'error',
+                    'Cash on Delivery is only available for delivery orders.'
+                );
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | VALIDATE CUSTOMER INFORMATION
+        |--------------------------------------------------------------------------
+        */
+
+        $validated = $request->validate([
+
             'delivery_address' => [
-                'required',
+                'nullable',
                 'string',
                 'max:1000',
             ],
@@ -118,237 +286,128 @@ class CheckoutController extends Controller
             'notes' => [
                 'nullable',
                 'string',
-                'max:1000',
+                'max:2000',
             ],
+
         ]);
 
 
-        $cart = session()->get(
-            'cart',
-            []
-        );
+        /*
+        |--------------------------------------------------------------------------
+        | DELIVERY ADDRESS
+        |--------------------------------------------------------------------------
+        */
 
+        if ($deliveryOption === 'delivery') {
 
-        if (empty($cart)) {
+            $deliveryAddress = trim(
+                $validated['delivery_address'] ?? ''
+            );
 
-            return redirect()
-                ->route('cart')
-                ->with(
-                    'error',
-                    'Your cart is empty.'
-                );
+            if ($deliveryAddress === '') {
+
+                return back()
+                    ->with(
+                        'error',
+                        'Please enter your delivery address.'
+                    )
+                    ->withInput();
+            }
+
+        } else {
+
+            $deliveryAddress =
+                'Pickup at Abuyog Andrea Pizza';
         }
 
 
         /*
         |--------------------------------------------------------------------------
-        | GET OPTIONS FROM CART
+        | CALCULATE SUBTOTAL
         |--------------------------------------------------------------------------
         */
 
-        $deliveryOption =
-            session(
-                'delivery_option'
-            );
+        $subtotal = 0;
 
-        $paymentMethod =
-            session(
-                'payment_method'
-            );
+        foreach ($cart as $item) {
 
+            $price = (float) ($item['price'] ?? 0);
 
-        if (
-            !$deliveryOption ||
-            !$paymentMethod
-        ) {
+            $quantity = (int) ($item['quantity'] ?? 0);
 
-            return redirect()
-                ->route('cart')
-                ->with(
-                    'error',
-                    'Please select your delivery and payment option first.'
-                );
+            if ($quantity < 1) {
+                continue;
+            }
+
+            $subtotal +=
+                $price * $quantity;
         }
 
 
         /*
         |--------------------------------------------------------------------------
-        | VALIDATE PAYMENT
+        | DELIVERY FEE
         |--------------------------------------------------------------------------
         */
 
-        if (
-            $deliveryOption ===
-            'delivery'
-        ) {
-
-            if (
-                !in_array(
-                    $paymentMethod,
-                    [
-                        'cash_on_delivery',
-                        'gcash',
-                    ]
-                )
-            ) {
-
-                return redirect()
-                    ->route('cart')
-                    ->with(
-                        'error',
-                        'Invalid payment method for delivery.'
-                    );
-            }
-        }
+        $deliveryFee =
+            $deliveryOption === 'delivery'
+                ? 50
+                : 0;
 
 
-        if (
-            $deliveryOption ===
-            'pickup'
-        ) {
+        /*
+        |--------------------------------------------------------------------------
+        | TOTAL AMOUNT
+        |--------------------------------------------------------------------------
+        */
 
-            if (
-                !in_array(
-                    $paymentMethod,
-                    [
-                        'cash_on_pickup',
-                        'gcash',
-                    ]
-                )
-            ) {
+        $totalAmount =
+            $subtotal + $deliveryFee;
 
-                return redirect()
-                    ->route('cart')
-                    ->with(
-                        'error',
-                        'Invalid payment method for pickup.'
-                    );
-            }
-        }
 
+        /*
+        |--------------------------------------------------------------------------
+        | CREATE ORDER
+        |--------------------------------------------------------------------------
+        */
 
         try {
 
             $order = DB::transaction(
                 function () use (
-                    $request,
                     $cart,
                     $deliveryOption,
-                    $paymentMethod
+                    $paymentMethod,
+                    $deliveryAddress,
+                    $validated,
+                    $subtotal,
+                    $deliveryFee,
+                    $totalAmount
                 ) {
 
-                    $subtotal = 0;
-
-
                     /*
                     |--------------------------------------------------------------------------
-                    | CHECK STOCK
+                    | GENERATE ORDER NUMBER
                     |--------------------------------------------------------------------------
                     */
 
-                    foreach (
-                        $cart
-                        as $item
-                    ) {
+                    do {
 
-                        $pizza =
-                            Pizza::lockForUpdate()
-                                ->find(
-                                    $item['id']
-                                );
-
-
-                        if (!$pizza) {
-
-                            throw new \Exception(
-                                'A pizza in your cart no longer exists.'
+                        $orderNumber =
+                            'AAP-' .
+                            now()->format('YmdHis') .
+                            '-' .
+                            strtoupper(
+                                Str::random(5)
                             );
-                        }
 
-
-                        if (
-                            !$pizza->status
-                        ) {
-
-                            throw new \Exception(
-                                $pizza->name .
-                                ' is currently unavailable.'
-                            );
-                        }
-
-
-                        $quantity =
-                            (int)
-                            $item['quantity'];
-
-
-                        if (
-                            $quantity < 1
-                        ) {
-
-                            throw new \Exception(
-                                'Invalid quantity for ' .
-                                $pizza->name .
-                                '.'
-                            );
-                        }
-
-
-                        if (
-                            $pizza->stock <
-                            $quantity
-                        ) {
-
-                            throw new \Exception(
-                                'Only ' .
-                                $pizza->stock .
-                                ' ' .
-                                $pizza->name .
-                                ' available.'
-                            );
-                        }
-
-
-                        $subtotal +=
-                            (float)
-                            $pizza->price *
-                            $quantity;
-                    }
-
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | DELIVERY FEE
-                    |--------------------------------------------------------------------------
-                    */
-
-                    $deliveryFee =
-                        $deliveryOption ===
-                        'delivery'
-                        ? 50.00
-                        : 0.00;
-
-
-                    $total =
-                        $subtotal +
-                        $deliveryFee;
-
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | ORDER NUMBER
-                    |--------------------------------------------------------------------------
-                    */
-
-                    $orderNumber =
-                        'AAP-' .
-                        now()->format(
-                            'YmdHis'
-                        ) .
-                        '-' .
-                        strtoupper(
-                            Str::random(5)
-                        );
+                    } while (
+                        Order::where(
+                            'order_number',
+                            $orderNumber
+                        )->exists()
+                    );
 
 
                     /*
@@ -357,78 +416,173 @@ class CheckoutController extends Controller
                     |--------------------------------------------------------------------------
                     */
 
-                    $order =
-                        Order::create([
+                    $order = Order::create([
 
-                            'user_id' =>
-                                Auth::id(),
+                        'user_id' =>
+                            Auth::id(),
 
-                            'order_number' =>
-                                $orderNumber,
+                        'order_number' =>
+                            $orderNumber,
 
-                            'subtotal' =>
-                                $subtotal,
+                        'subtotal' =>
+                            $subtotal,
 
-                            'delivery_fee' =>
-                                $deliveryFee,
+                        'delivery_fee' =>
+                            $deliveryFee,
 
-                            'delivery_option' =>
-                                $deliveryOption,
+                        /*
+                        |--------------------------------------------------------------------------
+                        | DELIVERY OPTION
+                        |--------------------------------------------------------------------------
+                        */
 
-                            'total_amount' =>
-                                $total,
+                        'delivery_option' =>
+                            $deliveryOption,
 
-                            'delivery_address' =>
-                                $request
-                                    ->delivery_address,
+                        /*
+                        |--------------------------------------------------------------------------
+                        | DELIVERY METHOD
+                        |--------------------------------------------------------------------------
+                        |
+                        | Your current database also has
+                        | delivery_method, so we keep it.
+                        |
+                        */
 
-                            'contact_number' =>
-                                $request
-                                    ->contact_number,
+                        'delivery_method' =>
+                            $deliveryOption,
 
-                            'payment_method' =>
-                                $paymentMethod,
+                        'delivery_address' =>
+                            $deliveryAddress,
 
-                            'status' =>
-                                'pending',
+                        'contact_number' =>
+                            $validated[
+                                'contact_number'
+                            ],
 
-                            'notes' =>
-                                $request->notes,
-                        ]);
+                        'payment_method' =>
+                            $paymentMethod,
+
+                        /*
+                        |--------------------------------------------------------------------------
+                        | ORDER STATUS
+                        |--------------------------------------------------------------------------
+                        */
+
+                        'status' =>
+                            'pending',
+
+                        'total_amount' =>
+                            $totalAmount,
+
+                        'notes' =>
+                            $validated[
+                                'notes'
+                            ] ?? null,
+
+                    ]);
 
 
                     /*
                     |--------------------------------------------------------------------------
-                    | ORDER ITEMS
+                    | CREATE ORDER ITEMS
                     |--------------------------------------------------------------------------
                     */
 
                     foreach (
                         $cart
-                        as $item
+                        as $pizzaId => $item
                     ) {
+
+                        $pizzaId =
+                            (int) $pizzaId;
+
+                        $quantity =
+                            (int) (
+                                $item['quantity']
+                                ?? 0
+                            );
+
+
+                        if ($quantity < 1) {
+                            continue;
+                        }
+
+
+                        /*
+                        |--------------------------------------------------------------------------
+                        | GET FRESH PIZZA DATA
+                        |--------------------------------------------------------------------------
+                        */
 
                         $pizza =
                             Pizza::lockForUpdate()
-                                ->find(
-                                    $item['id']
-                                );
+                                ->find($pizzaId);
 
 
-                        $quantity =
-                            (int)
-                            $item['quantity'];
+                        if (!$pizza) {
 
+                            throw new \RuntimeException(
+                                'One of the selected pizzas no longer exists.'
+                            );
+                        }
+
+
+                        /*
+                        |--------------------------------------------------------------------------
+                        | CHECK PIZZA STATUS
+                        |--------------------------------------------------------------------------
+                        */
+
+                        if (!$pizza->status) {
+
+                            throw new \RuntimeException(
+                                $pizza->name .
+                                ' is currently unavailable.'
+                            );
+                        }
+
+
+                        /*
+                        |--------------------------------------------------------------------------
+                        | CHECK STOCK
+                        |--------------------------------------------------------------------------
+                        */
+
+                        if (
+                            $pizza->stock
+                            < $quantity
+                        ) {
+
+                            throw new \RuntimeException(
+                                'Only ' .
+                                $pizza->stock .
+                                ' stock is available for ' .
+                                $pizza->name .
+                                '.'
+                            );
+                        }
+
+
+                        /*
+                        |--------------------------------------------------------------------------
+                        | GET DATABASE PRICE
+                        |--------------------------------------------------------------------------
+                        */
 
                         $price =
-                            (float)
-                            $pizza->price;
+                            (float) $pizza->price;
 
 
                         $itemSubtotal =
-                            $price *
-                            $quantity;
+                            $price * $quantity;
 
+
+                        /*
+                        |--------------------------------------------------------------------------
+                        | CREATE ORDER ITEM
+                        |--------------------------------------------------------------------------
+                        */
 
                         OrderItem::create([
 
@@ -446,12 +600,13 @@ class CheckoutController extends Controller
 
                             'subtotal' =>
                                 $itemSubtotal,
+
                         ]);
 
 
                         /*
                         |--------------------------------------------------------------------------
-                        | DEDUCT STOCK
+                        | REDUCE STOCK
                         |--------------------------------------------------------------------------
                         */
 
@@ -460,6 +615,33 @@ class CheckoutController extends Controller
                             $quantity
                         );
                     }
+
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | PAYMENT METHOD
+                    |--------------------------------------------------------------------------
+                    */
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | IMPORTANT
+                    |--------------------------------------------------------------------------
+                    |
+                    | payments.method only accepts:
+                    |
+                    | cash_on_delivery
+                    | gcash
+                    |
+                    | Therefore cash_on_pickup is saved as
+                    | cash_on_delivery internally.
+                    |
+                    */
+
+                    $databasePaymentMethod =
+                        $paymentMethod === 'gcash'
+                            ? 'gcash'
+                            : 'cash_on_delivery';
 
 
                     /*
@@ -474,13 +656,23 @@ class CheckoutController extends Controller
                             $order->id,
 
                         'amount' =>
-                            $total,
+                            $totalAmount,
 
                         'method' =>
-                            $paymentMethod ===
-                            'cash_on_pickup'
-                            ? 'cash_on_delivery'
-                            : $paymentMethod,
+                            $databasePaymentMethod,
+
+                        /*
+                        |--------------------------------------------------------------------------
+                        | IMPORTANT
+                        |--------------------------------------------------------------------------
+                        |
+                        | GCash starts as PENDING.
+                        |
+                        | It becomes PAID only after the
+                        | customer submits the GCash
+                        | reference number.
+                        |
+                        */
 
                         'status' =>
                             'pending',
@@ -490,79 +682,139 @@ class CheckoutController extends Controller
 
                         'paid_at' =>
                             null,
+
                     ]);
 
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | CREATE DELIVERY RECORD
+                    |--------------------------------------------------------------------------
+                    */
+
+                    if (
+                        $deliveryOption
+                        === 'delivery'
+                    ) {
+
+                        Delivery::create([
+
+                            'order_id' =>
+                                $order->id,
+
+                            'rider_name' =>
+                                null,
+
+                            'rider_contact' =>
+                                null,
+
+                            'picked_up_at' =>
+                                null,
+
+                            'delivered_at' =>
+                                null,
+
+                            'delivery_notes' =>
+                                null,
+
+                        ]);
+                    }
+
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | RETURN ORDER
+                    |--------------------------------------------------------------------------
+                    */
 
                     return $order;
                 }
             );
 
-
-            /*
-            |--------------------------------------------------------------------------
-            | CLEAR CART OPTIONS
-            |--------------------------------------------------------------------------
-            */
-
-            session()->forget(
-                'cart'
-            );
-
-            session()->forget(
-                'delivery_option'
-            );
-
-            session()->forget(
-                'payment_method'
-            );
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | GCASH
-            |--------------------------------------------------------------------------
-            */
-
-            if (
-                $paymentMethod ===
-                'gcash'
-            ) {
-
-                return redirect()
-                    ->route(
-                        'gcash.payment',
-                        $order
-                    );
-            }
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | CASH
-            |--------------------------------------------------------------------------
-            */
-
-            return redirect()
-                ->route(
-                    'order.confirmation',
-                    $order
-                )
-                ->with(
-                    'success',
-                    'Your order has been placed successfully!'
-                );
-
-
-        } catch (
-            \Exception $e
-        ) {
+        } catch (\RuntimeException $e) {
 
             return back()
-                ->withInput()
                 ->with(
                     'error',
                     $e->getMessage()
+                )
+                ->withInput();
+
+        } catch (\Throwable $e) {
+
+            report($e);
+
+            return back()
+                ->with(
+                    'error',
+                    'Something went wrong while placing your order. Please try again.'
+                )
+                ->withInput();
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | CLEAR CART
+        |--------------------------------------------------------------------------
+        */
+
+        session()->forget('cart');
+
+        session()->forget([
+            'delivery_option',
+            'payment_method',
+        ]);
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | GCASH FLOW
+        |--------------------------------------------------------------------------
+        |
+        | IMPORTANT:
+        |
+        | DO NOT redirect to order confirmation
+        | immediately when GCash is selected.
+        |
+        | First show the QR payment page.
+        |
+        */
+
+        if (
+            $paymentMethod === 'gcash'
+        ) {
+
+            return redirect()
+                ->route(
+                    'customer.gcash',
+                    $order->id
+                )
+                ->with(
+                    'success',
+                    'Your order has been created. Please complete your GCash payment.'
                 );
         }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | CASH FLOW
+        |--------------------------------------------------------------------------
+        |
+        | Cash orders can immediately proceed
+        | to the order confirmation page.
+        |
+        */
+
+        return redirect()
+            ->route(
+                'customer.orders.confirmation',
+                $order->id
+            )
+            ->with(
+                'success',
+                'Your order has been placed successfully!'
+            );
     }
 }

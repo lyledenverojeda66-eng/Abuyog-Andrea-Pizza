@@ -107,6 +107,14 @@
             padding-left: 20px;
         }
 
+        .success-box {
+            background: #e8f8ee;
+            color: #15803d;
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 18px;
+        }
+
         .order-item {
             display: flex;
             justify-content: space-between;
@@ -179,6 +187,20 @@
             color: #444;
         }
 
+        .selected-order-option {
+            background: #e8f8ee;
+            border: 1px solid #b9e8ca;
+            color: #087a36;
+            padding: 14px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            line-height: 1.7;
+        }
+
+        .selected-order-option strong {
+            color: #087a36;
+        }
+
         @media (max-width: 800px) {
             .checkout-layout {
                 grid-template-columns: 1fr;
@@ -186,6 +208,21 @@
 
             .checkout-title h1 {
                 font-size: 30px;
+            }
+        }
+
+        @media (max-width: 500px) {
+            .checkout-page {
+                padding: 20px 12px 40px;
+            }
+
+            .checkout-card,
+            .summary-card {
+                padding: 18px;
+            }
+
+            .order-item {
+                font-size: 14px;
             }
         }
     </style>
@@ -203,6 +240,7 @@
             <p>Complete your order details below.</p>
         </div>
 
+        {{-- Validation Errors --}}
         @if ($errors->any())
             <div class="error-box">
                 <ul>
@@ -213,13 +251,28 @@
             </div>
         @endif
 
+        {{-- Error Message --}}
         @if (session('error'))
             <div class="error-box">
                 {{ session('error') }}
             </div>
         @endif
 
-        <form action="{{ route('checkout.store') }}" method="POST">
+        {{-- Success Message --}}
+        @if (session('success'))
+            <div class="success-box">
+                {{ session('success') }}
+            </div>
+        @endif
+
+        {{-- IMPORTANT:
+             Actual route name is checkout.store
+        --}}
+        <form
+            action="{{ route('checkout.store') }}"
+            method="POST"
+        >
+
             @csrf
 
             <div class="checkout-layout">
@@ -229,12 +282,41 @@
 
                     <h2>Order Details</h2>
 
-                    {{-- Delivery / Payment are already selected in Cart --}}
                     <div class="selected-info">
                         Your delivery and payment options have already been selected in your cart.
                     </div>
 
+                    {{-- Selected Delivery and Payment --}}
+                    <div class="selected-order-option">
+
+                        <strong>Delivery Option:</strong>
+
+                        @if (($deliveryOption ?? 'delivery') === 'delivery')
+                            🚚 Delivery
+                        @else
+                            🏪 Pickup
+                        @endif
+
+                        <br>
+
+                        <strong>Payment Method:</strong>
+
+                        @if (($paymentMethod ?? '') === 'cash_on_delivery')
+                            💵 Cash on Delivery
+                        @elseif (($paymentMethod ?? '') === 'cash_on_pickup')
+                            💵 Cash on Pickup
+                        @elseif (($paymentMethod ?? '') === 'gcash')
+                            📱 GCash
+                        @else
+                            Not selected
+                        @endif
+
+                    </div>
+
+
+                    {{-- Delivery Address --}}
                     <div class="form-group">
+
                         <label for="delivery_address">
                             Delivery Address
                         </label>
@@ -245,9 +327,13 @@
                             placeholder="Enter your complete delivery address"
                             required
                         >{{ old('delivery_address') }}</textarea>
+
                     </div>
 
+
+                    {{-- Contact Number --}}
                     <div class="form-group">
+
                         <label for="contact_number">
                             Contact Number
                         </label>
@@ -260,9 +346,13 @@
                             placeholder="09XXXXXXXXX"
                             required
                         >
+
                     </div>
 
+
+                    {{-- Order Notes --}}
                     <div class="form-group">
+
                         <label for="notes">
                             Order Notes
                         </label>
@@ -272,17 +362,23 @@
                             name="notes"
                             placeholder="Optional notes..."
                         >{{ old('notes') }}</textarea>
+
                     </div>
 
                 </div>
+
 
                 {{-- RIGHT SIDE --}}
                 <div class="summary-card">
 
                     <h2>Order Summary</h2>
 
+
+                    {{-- Cart Items --}}
                     @foreach ($cart as $item)
+
                         <div class="order-item">
+
                             <span>
                                 {{ $item['name'] }}
                                 × {{ $item['quantity'] }}
@@ -294,30 +390,55 @@
                                     2
                                 ) }}
                             </span>
+
                         </div>
+
                     @endforeach
 
+
+                    {{-- Subtotal --}}
                     <div class="summary-row">
-                        <span>Subtotal</span>
+
+                        <span>
+                            Subtotal
+                        </span>
+
                         <span>
                             ₱{{ number_format($subtotal, 2) }}
                         </span>
+
                     </div>
 
+
+                    {{-- Delivery Fee --}}
                     <div class="summary-row">
-                        <span>Delivery Fee</span>
+
+                        <span>
+                            Delivery Fee
+                        </span>
+
                         <span>
                             ₱{{ number_format($deliveryFee, 2) }}
                         </span>
+
                     </div>
 
+
+                    {{-- Total --}}
                     <div class="summary-total">
-                        <span>Total</span>
+
+                        <span>
+                            Total
+                        </span>
+
                         <span>
                             ₱{{ number_format($total, 2) }}
                         </span>
+
                     </div>
 
+
+                    {{-- Place Order --}}
                     <button
                         type="submit"
                         class="place-order-btn"
@@ -325,6 +446,8 @@
                         Place Order
                     </button>
 
+
+                    {{-- Back to Cart --}}
                     <a
                         href="{{ route('cart') }}"
                         class="back-btn"
@@ -335,6 +458,7 @@
                 </div>
 
             </div>
+
         </form>
 
     </div>

@@ -45,7 +45,7 @@
             border-radius: 10px;
             padding: 18px;
             margin-bottom: 18px;
-            box-shadow: 0 3px 12px rgba(0,0,0,.07);
+            box-shadow: 0 3px 12px rgba(0, 0, 0, .07);
         }
 
         .order-header {
@@ -143,6 +143,7 @@
         .item {
             display: flex;
             justify-content: space-between;
+            gap: 15px;
             padding: 7px 0;
             border-bottom: 1px solid #f0f0f0;
         }
@@ -180,9 +181,17 @@
             color: white;
         }
 
+        .track-btn:hover {
+            background: #117642;
+        }
+
         .pay-btn {
             background: #007bff;
             color: white;
+        }
+
+        .pay-btn:hover {
+            background: #0069d9;
         }
 
         .empty {
@@ -190,7 +199,7 @@
             border-radius: 10px;
             padding: 40px;
             text-align: center;
-            box-shadow: 0 3px 12px rgba(0,0,0,.07);
+            box-shadow: 0 3px 12px rgba(0, 0, 0, .07);
         }
 
         .menu-btn {
@@ -203,7 +212,20 @@
             border-radius: 6px;
         }
 
-        @media(max-width: 700px) {
+        .menu-btn:hover {
+            background: #117642;
+        }
+
+        @media (max-width: 700px) {
+
+            .container {
+                width: 94%;
+                margin: 20px auto;
+            }
+
+            h1 {
+                font-size: 25px;
+            }
 
             .order-header {
                 flex-direction: column;
@@ -212,6 +234,15 @@
 
             .order-info {
                 grid-template-columns: 1fr;
+            }
+
+            .item {
+                flex-direction: column;
+                gap: 3px;
+            }
+
+            .item span:last-child {
+                font-weight: bold;
             }
 
         }
@@ -420,16 +451,18 @@
 
                     <div class="actions">
 
-                        <a
-                            href="{{ route(
-                                'customer.order.tracking',
-                                $order->id
-                            ) }}"
-                            class="btn track-btn"
-                        >
-                            Track Order
-                        </a>
 
+                        {{-- TRACK ORDER --}}
+
+                        <a
+    href="{{ route('orders.tracking', ['orderId' => $order->id]) }}"
+    class="btn track-btn"
+>
+    Track Order
+</a>
+
+
+                        {{-- GCASH PAYMENT --}}
 
                         @if(
                             $order->payment_method === 'gcash'
@@ -441,7 +474,7 @@
 
                             <a
                                 href="{{ route(
-                                    'gcash.payment',
+                                    'customer.gcash',
                                     $order->id
                                 ) }}"
                                 class="btn pay-btn"
@@ -450,6 +483,7 @@
                             </a>
 
                         @endif
+
 
                     </div>
 

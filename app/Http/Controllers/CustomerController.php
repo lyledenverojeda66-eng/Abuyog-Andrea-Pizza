@@ -67,4 +67,23 @@ class CustomerController extends Controller
             compact('order')
         );
     }
+
+
+    public function confirmation($orderId)
+    {
+        $user = Auth::user();
+
+        $order = $user->orders()
+            ->with([
+                'orderItems.pizza',
+                'payment',
+                'delivery',
+            ])
+            ->findOrFail($orderId);
+
+        return view(
+            'order-confirmation',
+            compact('order')
+        );
+    }
 }

@@ -1,5 +1,3 @@
-@include('partials.navbar')
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -12,7 +10,7 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>GCash Payment</title>
+    <title>GCash Payment - Abuyog Andrea Pizza</title>
 
     <style>
 
@@ -321,6 +319,11 @@
 
 <body>
 
+    {{-- NAVBAR --}}
+
+    @include('partials.navbar')
+
+
     <main class="payment-container">
 
 
@@ -486,10 +489,29 @@
             @endif
 
 
+            <!-- VALIDATION ERRORS -->
+
+            @if($errors->any())
+
+                <div class="alert">
+
+                    @foreach($errors->all() as $error)
+
+                        <div>
+                            {{ $error }}
+                        </div>
+
+                    @endforeach
+
+                </div>
+
+            @endif
+
+
             <!-- PAYMENT FORM -->
 
             <form
-                action="{{ route('gcash.pay', $order) }}"
+                action="{{ route('gcash.pay', $order->id) }}"
                 method="POST"
                 class="payment-form"
             >
@@ -509,19 +531,8 @@
                     value="{{ old('reference_number') }}"
                     placeholder="Enter your GCash reference number"
                     required
+                    maxlength="100"
                 >
-
-
-                @error('reference_number')
-
-                    <div
-                        class="alert"
-                        style="margin-top: 8px;"
-                    >
-                        {{ $message }}
-                    </div>
-
-                @enderror
 
 
                 <button

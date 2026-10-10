@@ -27,7 +27,6 @@
             color: #222;
         }
 
-
         /* =========================================
            DASHBOARD CONTAINER
         ========================================= */
@@ -35,10 +34,8 @@
         .dashboard-container {
             width: 90%;
             max-width: 1280px;
-
             margin: 42px auto 50px;
         }
-
 
         /* =========================================
            WELCOME HEADER
@@ -70,42 +67,34 @@
                 rgba(22, 163, 74, 0.20);
         }
 
-
         .welcome-content {
             flex: 1;
         }
-
 
         .welcome-content h1 {
             margin: 0 0 12px;
 
             font-size: 34px;
-
             line-height: 1.2;
 
             color: #ffffff;
         }
 
-
         .welcome-content p {
             margin: 0;
 
             font-size: 16px;
-
             line-height: 1.5;
 
             color: #ffffff;
         }
 
-
         .welcome-icon {
             font-size: 75px;
-
             line-height: 1;
 
             flex-shrink: 0;
         }
-
 
         /* =========================================
            QUICK ACTIONS
@@ -121,7 +110,6 @@
 
             margin-top: 30px;
         }
-
 
         .action-card {
             background: #ffffff;
@@ -150,7 +138,6 @@
                 box-shadow 0.2s ease;
         }
 
-
         .action-card:hover {
             transform: translateY(-3px);
 
@@ -158,7 +145,6 @@
                 0 7px 18px
                 rgba(0, 0, 0, 0.10);
         }
-
 
         .action-icon {
             width: 58px;
@@ -177,7 +163,6 @@
             flex-shrink: 0;
         }
 
-
         .action-content h3 {
             margin: 0 0 5px;
 
@@ -185,7 +170,6 @@
 
             font-size: 19px;
         }
-
 
         .action-content p {
             margin: 0;
@@ -197,7 +181,6 @@
             line-height: 1.4;
         }
 
-
         /* =========================================
            RECENT ORDERS HEADER
         ========================================= */
@@ -208,14 +191,11 @@
             margin-bottom: 18px;
 
             display: flex;
-
             align-items: center;
-
             justify-content: space-between;
 
             gap: 15px;
         }
-
 
         .recent-header h2 {
             margin: 0;
@@ -225,11 +205,9 @@
             color: #222;
         }
 
-
         .recent-header h2 span {
             color: #16a34a;
         }
-
 
         .order-again {
             color: #16a34a;
@@ -241,11 +219,9 @@
             font-size: 14px;
         }
 
-
         .order-again:hover {
             text-decoration: underline;
         }
-
 
         /* =========================================
            ORDER CARD
@@ -258,7 +234,6 @@
 
             gap: 12px;
         }
-
 
         .order-card {
             background: #ffffff;
@@ -283,7 +258,6 @@
                 rgba(0, 0, 0, 0.06);
         }
 
-
         .order-number {
             color: #168b42;
 
@@ -294,13 +268,11 @@
             margin-bottom: 6px;
         }
 
-
         .order-date {
             color: #777;
 
             font-size: 13px;
         }
-
 
         .order-label {
             color: #888;
@@ -312,7 +284,6 @@
             margin-bottom: 5px;
         }
 
-
         .order-total {
             color: #16a34a;
 
@@ -320,7 +291,6 @@
 
             font-weight: 800;
         }
-
 
         /* =========================================
            STATUS
@@ -340,55 +310,40 @@
             text-transform: capitalize;
         }
 
-
         .status.pending {
             background: #fff3cd;
-
             color: #996c00;
         }
 
-
         .status.confirmed {
             background: #cff4fc;
-
             color: #087990;
         }
 
-
         .status.preparing {
             background: #e2d9f3;
-
             color: #59359a;
         }
 
-
         .status.ready_for_delivery {
             background: #d1e7dd;
-
             color: #0f5132;
         }
-
 
         .status.out_for_delivery {
             background: #cfe2ff;
-
             color: #084298;
         }
 
-
         .status.delivered {
             background: #d1e7dd;
-
             color: #0f5132;
         }
 
-
         .status.cancelled {
             background: #f8d7da;
-
             color: #842029;
         }
-
 
         /* =========================================
            VIEW ORDER BUTTON
@@ -417,11 +372,9 @@
                 background 0.2s ease;
         }
 
-
         .view-order:hover {
             background: #12833c;
         }
-
 
         /* =========================================
            EMPTY ORDERS
@@ -441,13 +394,11 @@
                 rgba(0, 0, 0, 0.06);
         }
 
-
         .empty-orders .empty-icon {
             font-size: 45px;
 
             margin-bottom: 10px;
         }
-
 
         .empty-orders h3 {
             margin: 0 0 8px;
@@ -457,7 +408,6 @@
             font-size: 20px;
         }
 
-
         .empty-orders p {
             margin: 0 0 18px;
 
@@ -465,7 +415,6 @@
 
             font-size: 14px;
         }
-
 
         .menu-button {
             display: inline-block;
@@ -485,7 +434,6 @@
             font-weight: 700;
         }
 
-
         /* =========================================
            TABLET
         ========================================= */
@@ -498,40 +446,33 @@
                 margin-top: 30px;
             }
 
-
             .welcome-box {
                 padding: 30px;
 
                 min-height: 160px;
             }
 
-
             .welcome-content h1 {
                 font-size: 28px;
             }
-
 
             .welcome-content p {
                 font-size: 14px;
             }
 
-
             .welcome-icon {
                 font-size: 60px;
             }
 
-
             .quick-actions {
                 gap: 15px;
             }
-
 
             .action-card {
                 padding: 18px;
 
                 gap: 12px;
             }
-
 
             .action-icon {
                 width: 50px;
@@ -540,16 +481,13 @@
                 font-size: 24px;
             }
 
-
             .action-content h3 {
                 font-size: 16px;
             }
 
-
             .action-content p {
                 font-size: 12px;
             }
-
 
             .order-card {
                 grid-template-columns:
@@ -558,15 +496,12 @@
                 padding: 18px;
             }
 
-
             .view-order {
                 grid-column: 1 / -1;
 
                 width: fit-content;
             }
-
         }
-
 
         /* =========================================
            MOBILE
@@ -580,7 +515,6 @@
                 margin-top: 22px;
             }
 
-
             .welcome-box {
                 padding: 25px;
 
@@ -589,21 +523,17 @@
                 border-radius: 14px;
             }
 
-
             .welcome-content h1 {
                 font-size: 24px;
             }
-
 
             .welcome-content p {
                 font-size: 13px;
             }
 
-
             .welcome-icon {
                 font-size: 45px;
             }
-
 
             .quick-actions {
                 grid-template-columns: 1fr;
@@ -613,11 +543,9 @@
                 margin-top: 20px;
             }
 
-
             .action-card {
                 padding: 17px;
             }
-
 
             .recent-header {
                 margin-top: 30px;
@@ -627,11 +555,9 @@
                 flex-direction: column;
             }
 
-
             .recent-header h2 {
                 font-size: 23px;
             }
-
 
             .order-card {
                 grid-template-columns: 1fr;
@@ -641,7 +567,6 @@
                 padding: 18px;
             }
 
-
             .view-order {
                 grid-column: auto;
 
@@ -649,9 +574,7 @@
 
                 text-align: center;
             }
-
         }
-
 
         /* =========================================
            SMALL MOBILE
@@ -663,38 +586,30 @@
                 padding: 20px;
             }
 
-
             .welcome-content h1 {
                 font-size: 21px;
             }
-
 
             .welcome-content p {
                 font-size: 12px;
             }
 
-
             .welcome-icon {
                 font-size: 38px;
             }
 
-
             .recent-header h2 {
                 font-size: 21px;
             }
-
         }
 
     </style>
 
 </head>
 
-
 <body>
 
-
     <main class="dashboard-container">
-
 
         <!-- =====================================
              WELCOME SECTION
@@ -716,7 +631,6 @@
 
             </div>
 
-
             <div class="welcome-icon">
                 🍕
             </div>
@@ -729,7 +643,6 @@
         ====================================== -->
 
         <section class="quick-actions">
-
 
             <!-- ORDER PIZZA -->
 
@@ -808,12 +721,11 @@
 
             </a>
 
-
         </section>
 
 
         <!-- =====================================
-             RECENT ORDERS
+             RECENT ORDERS HEADER
         ====================================== -->
 
         <section class="recent-header">
@@ -844,7 +756,6 @@
 
                     <div class="order-card">
 
-
                         <!-- ORDER -->
 
                         <div>
@@ -856,6 +767,7 @@
                             <div class="order-date">
 
                                 Ordered:
+
                                 {{ $order->created_at->format('M d, Y h:i A') }}
 
                             </div>
@@ -872,7 +784,9 @@
                             </div>
 
                             <div class="order-total">
+
                                 ₱{{ number_format($order->total_amount, 2) }}
+
                             </div>
 
                         </div>
@@ -889,28 +803,26 @@
                             <span
                                 class="status {{ $order->status }}"
                             >
+
                                 {{ str_replace('_', ' ', $order->status) }}
+
                             </span>
 
                         </div>
 
 
-                        <!-- VIEW -->
+                        <!-- VIEW ORDER -->
 
                         <div>
 
                             <a
-                                href="{{ route(
-                                    'customer.order.tracking',
-                                    $order
-                                ) }}"
+                               href="{{ route('orders.tracking', ['orderId' => $order->id]) }}"
                                 class="view-order"
                             >
                                 View Order
                             </a>
 
                         </div>
-
 
                     </div>
 
@@ -919,7 +831,6 @@
             </section>
 
         @else
-
 
             <!-- =================================
                  NO ORDERS
@@ -949,12 +860,9 @@
 
             </section>
 
-
         @endif
 
-
     </main>
-
 
 </body>
 

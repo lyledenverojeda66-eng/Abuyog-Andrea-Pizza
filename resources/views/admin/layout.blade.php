@@ -11,8 +11,7 @@
     >
 
     <title>
-        @yield('title', 'Admin')
-        - Abuyog Andrea Pizza
+        @yield('title', 'Admin Dashboard') - Abuyog Andrea Pizza
     </title>
 
     <style>
@@ -21,450 +20,226 @@
             box-sizing: border-box;
         }
 
+        html,
         body {
             margin: 0;
-
-            font-family:
-                Arial,
-                Helvetica,
-                sans-serif;
-
-            background: #fff8ee;
-
-            color: #222;
+            padding: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f5f7f6;
+            color: #1f2937;
         }
 
-        /* NAVBAR */
+        body {
+            min-height: 100vh;
+        }
 
-        .navbar {
+
+        /* =========================
+           ADMIN NAVBAR
+        ========================= */
+
+        .admin-navbar {
             background: #15803d;
-
             color: white;
-
-            padding: 0 30px;
-
-            min-height: 72px;
-
+            min-height: 64px;
             display: flex;
-
             align-items: center;
-
-            justify-content: space-between;
-
-            gap: 20px;
-
-            box-shadow:
-                0 3px 10px
-                rgba(0, 0, 0, .12);
-
-            position: sticky;
-
-            top: 0;
-
-            z-index: 1000;
+            padding: 0 28px;
+            gap: 25px;
         }
 
-        .brand {
-            color: white;
-
+        .admin-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
             text-decoration: none;
-
-            font-size: 18px;
-
-            font-weight: 900;
-
-            line-height: 1.1;
-
+            color: white;
+            font-weight: 800;
             white-space: nowrap;
         }
 
-        .brand span {
-            display: block;
+        .admin-brand-main {
+            font-size: 18px;
+            line-height: 1;
+            letter-spacing: .4px;
+        }
 
+        .admin-brand-sub {
             font-size: 10px;
-
-            letter-spacing: 3px;
-
+            opacity: .85;
+            letter-spacing: 1px;
             margin-top: 3px;
         }
 
-        .nav-links {
+
+        /* =========================
+           ADMIN NAVIGATION
+        ========================= */
+
+        .admin-nav {
             display: flex;
-
             align-items: center;
-
-            justify-content: center;
-
-            gap: 3px;
-
+            gap: 5px;
+            flex: 1;
             flex-wrap: wrap;
         }
 
-        .nav-links a {
-            color: white;
-
+        .admin-nav a {
+            color: rgba(255,255,255,.95);
             text-decoration: none;
-
-            padding: 10px 11px;
-
-            border-radius: 8px;
-
-            font-size: 12px;
-
+            font-size: 13px;
             font-weight: 600;
-
-            transition: .2s;
+            padding: 9px 11px;
+            border-radius: 7px;
+            transition:
+                background .15s ease,
+                color .15s ease;
         }
 
-        .nav-links a:hover {
-            background: #16a34a;
+        .admin-nav a:hover {
+            background: rgba(255,255,255,.13);
+            color: white;
         }
 
-        .nav-links a.active {
-            background: #16a34a;
-
-            font-weight: 800;
+        .admin-nav a.active {
+            background: white;
+            color: #15803d;
         }
 
-        .admin-area {
+
+        /* =========================
+           ADMIN ACCOUNT
+        ========================= */
+
+        .admin-account {
             display: flex;
-
             align-items: center;
-
-            gap: 10px;
-
+            gap: 12px;
             white-space: nowrap;
         }
 
         .admin-name {
             font-size: 12px;
-
             font-weight: 700;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | CLICKABLE ADMIN PROFILE
+        |--------------------------------------------------------------------------
+        */
+
+        .admin-profile-link {
+            color: white;
+            text-decoration: none;
+            cursor: pointer;
+            transition: .15s ease;
+        }
+
+        .admin-profile-link:hover {
+            color: #dcfce7;
+            text-decoration: underline;
         }
 
         .logout-form {
             margin: 0;
         }
 
-        .logout-btn {
-            border: 1px solid
-                rgba(255,255,255,.5);
-
+        .logout-button {
+            border: 1px solid rgba(255,255,255,.45);
             background: transparent;
-
             color: white;
-
             padding: 8px 11px;
-
-            border-radius: 8px;
-
-            cursor: pointer;
-
-            font-size: 11px;
-
+            border-radius: 7px;
+            font-size: 12px;
             font-weight: 700;
+            cursor: pointer;
         }
 
-        .logout-btn:hover {
-            background: white;
-
-            color: #15803d;
+        .logout-button:hover {
+            background: rgba(255,255,255,.12);
         }
 
-        /* CONTAINER */
+
+        /* =========================
+           MAIN CONTAINER
+        ========================= */
 
         .container {
-            max-width: 1400px;
-
             width: 100%;
-
-            margin: auto;
-
-            padding: 30px 25px 50px;
+            max-width: 1250px;
+            margin: 0 auto;
+            padding: 25px 22px 40px;
         }
+
+
+        /* =========================
+           PAGE HEADER
+        ========================= */
 
         .page-header {
             display: flex;
-
-            align-items: center;
-
             justify-content: space-between;
-
+            align-items: center;
             gap: 20px;
-
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
 
         .page-header h1 {
             margin: 0;
-
-            color: #15803d;
-
-            font-size: 28px;
+            font-size: 25px;
+            color: #111827;
         }
 
         .page-header p {
             margin: 6px 0 0;
-
             color: #6b7280;
-
             font-size: 13px;
         }
 
-        /* CARD */
+
+        /* =========================
+           CARD
+        ========================= */
 
         .card {
             background: white;
-
             border: 1px solid #e5e7eb;
-
-            border-radius: 15px;
-
+            border-radius: 12px;
             padding: 20px;
-
-            box-shadow:
-                0 5px 18px
-                rgba(0,0,0,.05);
+            box-shadow: 0 2px 8px rgba(0,0,0,.04);
         }
 
-        /* TABLE */
 
-        .table-wrapper {
-            width: 100%;
-
-            overflow-x: auto;
-        }
-
-        table {
-            width: 100%;
-
-            border-collapse: collapse;
-
-            min-width: 700px;
-        }
-
-        th {
-            background: #f0fdf4;
-
-            color: #4b5563;
-
-            text-align: left;
-
-            padding: 12px;
-
-            font-size: 11px;
-
-            border-bottom:
-                1px solid #bbf7d0;
-        }
-
-        td {
-            padding: 13px 12px;
-
-            font-size: 12px;
-
-            border-bottom:
-                1px solid #f1f5f9;
-        }
-
-        tr:last-child td {
-            border-bottom: none;
-        }
-
-        /* STATUS */
-
-        .status {
-            display: inline-block;
-
-            padding: 6px 9px;
-
-            border-radius: 20px;
-
-            font-size: 10px;
-
-            font-weight: 800;
-
-            text-transform: uppercase;
-        }
-
-        .pending {
-            background: #fef3c7;
-
-            color: #92400e;
-        }
-
-        .confirmed {
-            background: #dbeafe;
-
-            color: #1e40af;
-        }
-
-        .preparing {
-            background: #ede9fe;
-
-            color: #6d28d9;
-        }
-
-        .ready_for_delivery {
-            background: #cffafe;
-
-            color: #155e75;
-        }
-
-        .out_for_delivery {
-            background: #e0e7ff;
-
-            color: #3730a3;
-        }
-
-        .delivered {
-            background: #dcfce7;
-
-            color: #166534;
-        }
-
-        .cancelled {
-            background: #fee2e2;
-
-            color: #991b1b;
-        }
-
-        /* BUTTON */
-
-        .btn {
-            display: inline-block;
-
-            padding: 9px 13px;
-
-            border-radius: 8px;
-
-            text-decoration: none;
-
-            border: none;
-
-            cursor: pointer;
-
-            font-size: 12px;
-
-            font-weight: 800;
-        }
-
-        .btn-green {
-            background: #16a34a;
-
-            color: white;
-        }
-
-        .btn-green:hover {
-            background: #15803d;
-        }
-
-        .btn-outline {
-            background: white;
-
-            color: #15803d;
-
-            border: 1px solid #16a34a;
-        }
-
-        .btn-danger {
-            background: #dc2626;
-
-            color: white;
-        }
-
-        /* ALERT */
-
-        .alert {
-            padding: 13px 16px;
-
-            border-radius: 10px;
-
-            margin-bottom: 20px;
-
-            font-size: 13px;
-        }
-
-        .alert-success {
-            background: #dcfce7;
-
-            color: #166534;
-
-            border: 1px solid #bbf7d0;
-        }
-
-        .alert-error {
-            background: #fee2e2;
-
-            color: #991b1b;
-
-            border: 1px solid #fecaca;
-        }
-
-        /* GRID */
+        /* =========================
+           GRIDS
+        ========================= */
 
         .grid-2 {
             display: grid;
-
             grid-template-columns:
-                repeat(2, 1fr);
-
-            gap: 20px;
+                repeat(2, minmax(0, 1fr));
+            gap: 18px;
         }
 
         .grid-3 {
             display: grid;
-
             grid-template-columns:
-                repeat(3, 1fr);
-
-            gap: 20px;
+                repeat(3, minmax(0, 1fr));
+            gap: 18px;
         }
 
         .grid-4 {
             display: grid;
-
             grid-template-columns:
-                repeat(4, 1fr);
-
+                repeat(4, minmax(0, 1fr));
             gap: 18px;
         }
 
-        /* STAT */
 
-        .stat-card {
-            background: white;
-
-            border: 1px solid #e5e7eb;
-
-            border-radius: 14px;
-
-            padding: 20px;
-
-            box-shadow:
-                0 5px 18px
-                rgba(0,0,0,.05);
-        }
-
-        .stat-label {
-            color: #6b7280;
-
-            font-size: 11px;
-
-            font-weight: 800;
-        }
-
-        .stat-number {
-            color: #15803d;
-
-            font-size: 28px;
-
-            font-weight: 900;
-
-            margin-top: 8px;
-        }
-
-        /* FORM */
+        /* =========================
+           FORM
+        ========================= */
 
         .form-group {
             margin-bottom: 18px;
@@ -472,81 +247,343 @@
 
         .form-group label {
             display: block;
-
             margin-bottom: 7px;
-
             font-size: 12px;
-
             font-weight: 800;
+            color: #374151;
         }
 
         .form-control {
             width: 100%;
-
-            padding: 11px 12px;
-
             border: 1px solid #d1d5db;
-
+            background: white;
+            color: #111827;
             border-radius: 8px;
-
+            padding: 10px 12px;
             font-size: 13px;
+            outline: none;
+            transition:
+                border-color .15s ease,
+                box-shadow .15s ease;
+        }
 
+        .form-control:focus {
+            border-color: #16a34a;
+            box-shadow:
+                0 0 0 3px rgba(22,163,74,.10);
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 90px;
+        }
+
+        input[type="file"].form-control {
+            padding: 8px;
+        }
+
+
+        /* =========================
+           BUTTONS
+        ========================= */
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            text-decoration: none;
+            border-radius: 8px;
+            padding: 9px 14px;
+            font-size: 12px;
+            font-weight: 800;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition:
+                background .15s ease,
+                border-color .15s ease,
+                color .15s ease;
+        }
+
+        .btn-green {
+            background: #16a34a;
+            color: white;
+            border-color: #16a34a;
+        }
+
+        .btn-green:hover {
+            background: #15803d;
+            border-color: #15803d;
+        }
+
+        .btn-outline {
+            background: white;
+            color: #374151;
+            border-color: #d1d5db;
+        }
+
+        .btn-outline:hover {
+            background: #f9fafb;
+            border-color: #9ca3af;
+        }
+
+        .btn-danger {
+            background: #dc2626;
+            color: white;
+            border-color: #dc2626;
+        }
+
+        .btn-danger:hover {
+            background: #b91c1c;
+            border-color: #b91c1c;
+        }
+
+        .btn-warning {
+            background: #f59e0b;
+            color: white;
+            border-color: #f59e0b;
+        }
+
+        .btn-warning:hover {
+            background: #d97706;
+            border-color: #d97706;
+        }
+
+        .btn-small {
+            padding: 7px 10px;
+            font-size: 11px;
+        }
+
+
+        /* =========================
+           ALERTS
+        ========================= */
+
+        .alert {
+            padding: 12px 14px;
+            border-radius: 9px;
+            margin-bottom: 18px;
+            font-size: 13px;
+            border: 1px solid transparent;
+        }
+
+        .alert-success {
+            background: #f0fdf4;
+            color: #166534;
+            border-color: #bbf7d0;
+        }
+
+        .alert-error {
+            background: #fef2f2;
+            color: #991b1b;
+            border-color: #fecaca;
+        }
+
+        .alert-warning {
+            background: #fffbeb;
+            color: #92400e;
+            border-color: #fde68a;
+        }
+
+        .alert-info {
+            background: #eff6ff;
+            color: #1e40af;
+            border-color: #bfdbfe;
+        }
+
+
+        /* =========================
+           TABLE
+        ========================= */
+
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
             background: white;
         }
 
-        /* RESPONSIVE */
+        .table th {
+            background: #f9fafb;
+            color: #374151;
+            font-size: 11px;
+            font-weight: 800;
+            text-align: left;
+            padding: 11px 12px;
+            border-bottom:
+                1px solid #e5e7eb;
+            white-space: nowrap;
+        }
 
-        @media(max-width:1100px) {
+        .table td {
+            padding: 11px 12px;
+            border-bottom:
+                1px solid #f0f1f2;
+            font-size: 12px;
+            color: #374151;
+            vertical-align: middle;
+        }
 
-            .navbar {
+        .table tr:hover td {
+            background: #fafafa;
+        }
+
+
+        /* =========================
+           BADGES
+        ========================= */
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 8px;
+            border-radius: 999px;
+            font-size: 10px;
+            font-weight: 800;
+        }
+
+        .badge-green {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .badge-red {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .badge-yellow {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge-blue {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .badge-gray {
+            background: #f3f4f6;
+            color: #4b5563;
+        }
+
+
+        /* =========================
+           STAT CARDS
+        ========================= */
+
+        .stat-card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 18px;
+        }
+
+        .stat-label {
+            color: #6b7280;
+            font-size: 11px;
+            font-weight: 700;
+            margin-bottom: 7px;
+        }
+
+        .stat-value {
+            color: #111827;
+            font-size: 25px;
+            font-weight: 800;
+        }
+
+
+        /* =========================
+           ACTIONS
+        ========================= */
+
+        .actions {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            flex-wrap: wrap;
+        }
+
+
+        /* =========================
+           IMAGES
+        ========================= */
+
+        .admin-image {
+            display: block;
+            max-width: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+
+        /* =========================
+           RESPONSIVE
+        ========================= */
+
+        @media (max-width: 1050px) {
+
+            .admin-navbar {
+                padding: 12px 18px;
                 flex-wrap: wrap;
-
-                padding: 15px 20px;
             }
 
-            .nav-links {
+            .admin-nav {
                 order: 3;
-
                 width: 100%;
+                overflow-x: auto;
+                padding-bottom: 2px;
             }
 
-            .grid-4 {
-                grid-template-columns:
-                    repeat(2,1fr);
+            .admin-account {
+                margin-left: auto;
             }
 
         }
 
-        @media(max-width:700px) {
+
+        @media (max-width: 750px) {
 
             .container {
-                padding: 22px 15px;
+                padding: 20px 15px 30px;
+            }
+
+            .page-header {
+                align-items: flex-start;
+                flex-direction: column;
             }
 
             .grid-2,
-            .grid-3 {
+            .grid-3,
+            .grid-4 {
                 grid-template-columns: 1fr;
             }
 
-            .grid-4 {
-                grid-template-columns:
-                    repeat(2,1fr);
+            .admin-brand {
+                width: 100%;
             }
 
-            .admin-name {
-                display: none;
+            .admin-account {
+                width: 100%;
+                margin-left: 0;
+                justify-content: space-between;
             }
 
-            .nav-links {
-                overflow-x: auto;
-
-                flex-wrap: nowrap;
-
-                justify-content: flex-start;
+            .admin-nav {
+                gap: 3px;
             }
 
-            .nav-links a {
-                white-space: nowrap;
+            .admin-nav a {
+                font-size: 11px;
+                padding: 8px 9px;
+            }
+
+            .card {
+                padding: 15px;
             }
 
         }
@@ -557,126 +594,199 @@
 
 </head>
 
+
 <body>
 
-<nav class="navbar">
 
-    <a
-        href="{{ route('admin.dashboard') }}"
-        class="brand"
-    >
-        ABUYOG ANDREA
-        <span>PIZZA</span>
-    </a>
+    <nav class="admin-navbar">
 
 
-    <div class="nav-links">
+        {{-- BRAND --}}
 
         <a
             href="{{ route('admin.dashboard') }}"
-            class="{{ request()->routeIs('admin.dashboard') ? 'active' : '' }}"
+            class="admin-brand"
         >
-            🏠 Dashboard
+
+            <div>
+
+                <div class="admin-brand-main">
+                    ABUYOG ANDREA
+                </div>
+
+                <div class="admin-brand-sub">
+                    PIZZA ADMIN
+                </div>
+
+            </div>
+
         </a>
 
-        <a
-            href="{{ route('admin.pizzas') }}"
-            class="{{ request()->routeIs('admin.pizzas') ? 'active' : '' }}"
-        >
-            🍕 Pizza Menu
-        </a>
 
-        <a
-            href="{{ route('admin.orders') }}"
-            class="{{ request()->routeIs('admin.orders*') ? 'active' : '' }}"
-        >
-            📦 Orders
-        </a>
+        {{-- NAVIGATION --}}
 
-        <a
-            href="{{ route('admin.customers') }}"
-            class="{{ request()->routeIs('admin.customers') ? 'active' : '' }}"
-        >
-            👥 Customers
-        </a>
-
-        <a
-            href="{{ route('admin.payments') }}"
-            class="{{ request()->routeIs('admin.payments') ? 'active' : '' }}"
-        >
-            💳 Payments
-        </a>
-
-        <a
-            href="{{ route('admin.deliveries') }}"
-            class="{{ request()->routeIs('admin.deliveries') ? 'active' : '' }}"
-        >
-            🚚 Deliveries
-        </a>
-
-        <a
-            href="{{ route('admin.reports') }}"
-            class="{{ request()->routeIs('admin.reports') ? 'active' : '' }}"
-        >
-            📊 Reports
-        </a>
-
-    </div>
+        <div class="admin-nav">
 
 
-    <div class="admin-area">
+            {{-- DASHBOARD --}}
 
-        <span class="admin-name">
-            👤 {{ auth()->user()->name }}
-        </span>
-
-        <form
-            action="{{ route('logout') }}"
-            method="POST"
-            class="logout-form"
-        >
-
-            @csrf
-
-            <button
-                type="submit"
-                class="logout-btn"
+            <a
+                href="{{ route('admin.dashboard') }}"
+                class="{{ request()->routeIs('admin.dashboard') ? 'active' : '' }}"
             >
-                Logout
-            </button>
-
-        </form>
-
-    </div>
-
-</nav>
+                🏠 Dashboard
+            </a>
 
 
-<main class="container">
+            {{-- PIZZA MENU --}}
 
-    @if(session('success'))
+            <a
+                href="{{ route('admin.pizzas') }}"
+                class="{{ request()->routeIs('admin.pizzas') || request()->routeIs('admin.pizzas.*') ? 'active' : '' }}"
+            >
+                🍕 Pizza Menu
+            </a>
 
-        <div class="alert alert-success">
-            {{ session('success') }}
+
+            {{-- BANNERS --}}
+
+            <a
+                href="{{ route('admin.banners.index') }}"
+                class="{{ request()->routeIs('admin.banners.*') ? 'active' : '' }}"
+            >
+                🖼️ Banners
+            </a>
+
+
+            {{-- ORDERS --}}
+
+            <a
+                href="{{ route('admin.orders') }}"
+                class="{{ request()->routeIs('admin.orders') || request()->routeIs('admin.orders.*') ? 'active' : '' }}"
+            >
+                📦 Orders
+            </a>
+
+
+            {{-- CUSTOMERS --}}
+
+            <a
+                href="{{ route('admin.customers') }}"
+                class="{{ request()->routeIs('admin.customers') ? 'active' : '' }}"
+            >
+                👥 Customers
+            </a>
+
+
+            {{-- PAYMENTS --}}
+
+            <a
+                href="{{ route('admin.payments') }}"
+                class="{{ request()->routeIs('admin.payments') ? 'active' : '' }}"
+            >
+                💳 Payments
+            </a>
+
+
+            {{-- DELIVERIES --}}
+
+            <a
+                href="{{ route('admin.deliveries') }}"
+                class="{{ request()->routeIs('admin.deliveries') ? 'active' : '' }}"
+            >
+                🚚 Deliveries
+            </a>
+
+
+            {{-- REPORTS --}}
+
+            <a
+                href="{{ route('admin.reports') }}"
+                class="{{ request()->routeIs('admin.reports') ? 'active' : '' }}"
+            >
+                📊 Reports
+            </a>
+
+
         </div>
 
-    @endif
+
+        {{-- ADMIN ACCOUNT --}}
+
+        <div class="admin-account">
 
 
-    @if(session('error'))
+            {{-- CLICKABLE ADMIN NAME --}}
 
-        <div class="alert alert-error">
-            {{ session('error') }}
+            <a
+                href="{{ route('admin.profile') }}"
+                class="admin-name admin-profile-link"
+            >
+                {{ auth()->user()->name ?? 'Administrator' }}
+            </a>
+
+
+            {{-- LOGOUT --}}
+
+            <form
+                action="{{ route('logout') }}"
+                method="POST"
+                class="logout-form"
+            >
+
+                @csrf
+
+                <button
+                    type="submit"
+                    class="logout-button"
+                >
+                    Logout
+                </button>
+
+            </form>
+
         </div>
 
-    @endif
+
+    </nav>
 
 
-    @yield('content')
+    <main class="container">
 
-</main>
 
-@stack('scripts')
+        {{-- SUCCESS MESSAGE --}}
+
+        @if(session('success'))
+
+            <div class="alert alert-success">
+                {{ session('success') }}
+            </div>
+
+        @endif
+
+
+        {{-- ERROR MESSAGE --}}
+
+        @if(session('error'))
+
+            <div class="alert alert-error">
+                {{ session('error') }}
+            </div>
+
+        @endif
+
+
+        {{-- PAGE CONTENT --}}
+
+        @yield('content')
+
+
+    </main>
+
+
+    @stack('scripts')
+@include('partials.chatbot')
+
 
 </body>
 

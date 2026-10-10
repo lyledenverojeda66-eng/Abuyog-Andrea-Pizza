@@ -11,217 +11,210 @@ class CartController extends Controller
     {
         $cart = session()->get('cart', []);
 
+        /*
+        |--------------------------------------------------------------------------
+        | Refresh cart data from database
+        |--------------------------------------------------------------------------
+        | This fixes old cart session data where image was saved as null.
+        */
+        foreach ($cart as $pizzaId => &$item) {
+
+            $pizza = Pizza::find($pizzaId);
+
+            if ($pizza) {
+                // Always get the latest pizza information from database
+                $item['name'] = $pizza->name;
+                $item['price'] = (float) $pizza->price;
+                $item['image'] = $pizza->image;
+            }
+        }
+
+        unset($item);
+
+        // Save the refreshed cart back into the session
+        session()->put('cart', $cart);
+
         $total = 0;
 
         foreach ($cart as $item) {
-            $total +=
-                $item['price'] *
-                $item['quantity'];
+            $total += (float) $item['price'] * (int) $item['quantity'];
         }
 
-        $deliveryOption = session(
-            'delivery_option',
-            'delivery'
-        );
+        $deliveryOption = session('delivery_option', 'delivery');
+        $paymentMethod = session('payment_method', 'cash_on_delivery');
 
-        $paymentMethod = session(
-            'payment_method',
-            'cash_on_delivery'
-        );
-
-        $deliveryFee = $deliveryOption === 'delivery'
-            ? 50.00
-            : 0.00;
+        $deliveryFee = $deliveryOption === 'delivery' ? 50 : 0;
 
         $grandTotal = $total + $deliveryFee;
 
-        return view(
+        return view('cart', compact(
             'cart',
-            compact(
-                'cart',
-                'total',
-                'deliveryOption',
-                'paymentMethod',
-                'deliveryFee',
-                'grandTotal'
-            )
-        );
+            'total',
+            'deliveryOption',
+            'paymentMethod',
+            'deliveryFee',
+            'grandTotal'
+        ));
     }
 
-    public function add(Pizza $pizza)
+
+    public function add(Request $request, Pizza $pizza)
     {
         if (!$pizza->status) {
             return back()->with(
                 'error',
-                $pizza->name .
-                ' is currently unavailable.'
+                'This pizza is currently unavailable.'
             );
         }
 
         if ($pizza->stock <= 0) {
             return back()->with(
                 'error',
-                $pizza->name .
-                ' is out of stock.'
+                $pizza->name . ' is currently out of stock.'
             );
         }
 
-        $cart = session()->get(
-            'cart',
-            []
-        );
-
-        $currentQuantity = isset(
-            $cart[$pizza->id]
-        )
-            ? $cart[$pizza->id]['quantity']
-            : 0;
-
-        if (
-            $currentQuantity + 1 >
-            $pizza->stock
-        ) {
-            return back()->with(
-                'error',
-                'You can only add up to ' .
-                $pizza->stock .
-                ' ' .
-                $pizza->name .
-                ' to your cart.'
-            );
-        }
-
-        if (isset($cart[$pizza->id])) {
-
-            $cart[$pizza->id]['quantity']++;
-
-        } else {
-
-            $cart[$pizza->id] = [
-                'id' =>
-                    $pizza->id,
-
-                'name' =>
-                    $pizza->name,
-
-                'price' =>
-                    (float) $pizza->price,
-
-                'image' =>
-                    $pizza->image,
-
-                'quantity' =>
-                    1,
-            ];
-        }
-
-        session()->put(
-            'cart',
-            $cart
-        );
-
-        return redirect()
-            ->route('cart')
-            ->with(
-                'success',
-                $pizza->name .
-                ' has been added to your cart!'
-            );
-    }
-
-    public function update(
-        Request $request,
-        Pizza $pizza
-    ) {
-        $cart = session()->get(
-            'cart',
-            []
-        );
-
-        $quantity = (int)
-            $request->quantity;
+        $quantity = (int) $request->input('quantity', 1);
 
         if ($quantity < 1) {
             $quantity = 1;
         }
 
-        if (
-            $quantity >
-            $pizza->stock
-        ) {
+        if ($quantity > $pizza->stock) {
             return back()->with(
                 'error',
-                'Only ' .
-                $pizza->stock .
-                ' ' .
-                $pizza->name .
-                ' available.'
+                'Only ' . $pizza->stock .
+                ' stock is available for ' . $pizza->name . '.'
             );
         }
 
-        if (
-            isset($cart[$pizza->id])
-        ) {
-            $cart[$pizza->id]['quantity']
-                = $quantity;
+        $cart = session()->get('cart', []);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Existing item
+        |--------------------------------------------------------------------------
+        */
+        if (isset($cart[$pizza->id])) {
+
+            $newQuantity =
+                (int) $cart[$pizza->id]['quantity'] + $quantity;
+
+            if ($newQuantity > $pizza->stock) {
+                return back()->with(
+                    'error',
+                    'You cannot add more than the available stock.'
+                );
+            }
+
+            $cart[$pizza->id]['quantity'] = $newQuantity;
+
+            // Refresh latest pizza information
+            $cart[$pizza->id]['name'] = $pizza->name;
+            $cart[$pizza->id]['price'] = (float) $pizza->price;
+            $cart[$pizza->id]['image'] = $pizza->image;
+
+        } else {
+
+            /*
+            |--------------------------------------------------------------------------
+            | New item
+            |--------------------------------------------------------------------------
+            */
+            $cart[$pizza->id] = [
+                'name' => $pizza->name,
+                'price' => (float) $pizza->price,
+                'quantity' => $quantity,
+                'image' => $pizza->image,
+            ];
         }
 
-        session()->put(
-            'cart',
-            $cart
+        session()->put('cart', $cart);
+
+        return back()->with(
+            'success',
+            $pizza->name . ' has been added to your cart!'
         );
-
-        return redirect()
-            ->route('cart')
-            ->with(
-                'success',
-                'Cart updated successfully!'
-            );
     }
 
-    public function remove(
-        Pizza $pizza
-    ) {
-        $cart = session()->get(
-            'cart',
-            []
-        );
 
-        if (
-            isset($cart[$pizza->id])
-        ) {
-            unset(
-                $cart[$pizza->id]
+    public function update(Request $request, Pizza $pizza)
+    {
+        $request->validate([
+            'quantity' => [
+                'required',
+                'integer',
+                'min:1'
+            ]
+        ]);
+
+        $quantity = (int) $request->quantity;
+
+        $cart = session()->get('cart', []);
+
+        if (!isset($cart[$pizza->id])) {
+            return back()->with(
+                'error',
+                'This pizza is not in your cart.'
             );
         }
 
-        session()->put(
-            'cart',
-            $cart
-        );
-
-        return redirect()
-            ->route('cart')
-            ->with(
-                'success',
-                $pizza->name .
-                ' has been removed from your cart.'
+        if ($pizza->stock <= 0) {
+            return back()->with(
+                'error',
+                $pizza->name . ' is currently out of stock.'
             );
+        }
+
+        if ($quantity > $pizza->stock) {
+            return back()->with(
+                'error',
+                'Only ' . $pizza->stock .
+                ' stock is available for ' . $pizza->name . '.'
+            );
+        }
+
+        $cart[$pizza->id]['quantity'] = $quantity;
+
+        // Refresh latest pizza information
+        $cart[$pizza->id]['name'] = $pizza->name;
+        $cart[$pizza->id]['price'] = (float) $pizza->price;
+        $cart[$pizza->id]['image'] = $pizza->image;
+
+        session()->put('cart', $cart);
+
+        return back()->with(
+            'success',
+            'Cart updated successfully!'
+        );
     }
+
+
+    public function remove(Pizza $pizza)
+    {
+        $cart = session()->get('cart', []);
+
+        if (isset($cart[$pizza->id])) {
+            unset($cart[$pizza->id]);
+        }
+
+        session()->put('cart', $cart);
+
+        return back()->with(
+            'success',
+            $pizza->name . ' has been removed from your cart.'
+        );
+    }
+
 
     public function clear()
     {
-        session()->forget(
-            'cart'
-        );
+        session()->forget('cart');
 
-        session()->forget(
-            'delivery_option'
-        );
-
-        session()->forget(
+        session()->forget([
+            'delivery_option',
             'payment_method'
-        );
+        ]);
 
         return redirect()
             ->route('cart')
@@ -231,96 +224,55 @@ class CartController extends Controller
             );
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | SAVE DELIVERY AND PAYMENT OPTION
-    |--------------------------------------------------------------------------
-    */
 
-    public function saveOptions(
-        Request $request
-    ) {
-        $request->validate([
+    public function options(Request $request)
+    {
+        $validated = $request->validate([
             'delivery_option' => [
                 'required',
-                'in:delivery,pickup',
+                'in:delivery,pickup'
             ],
-
             'payment_method' => [
                 'required',
-                'in:cash_on_delivery,cash_on_pickup,gcash',
+                'in:cash_on_delivery,cash_on_pickup,gcash'
             ],
         ]);
 
-        /*
-        |--------------------------------------------------------------------------
-        | DELIVERY
-        |--------------------------------------------------------------------------
-        */
+        $deliveryOption = $validated['delivery_option'];
+        $paymentMethod = $validated['payment_method'];
 
         if (
-            $request->delivery_option ===
-            'delivery'
+            $deliveryOption === 'delivery' &&
+            $paymentMethod === 'cash_on_pickup'
         ) {
-
-            if (
-                !in_array(
-                    $request->payment_method,
-                    [
-                        'cash_on_delivery',
-                        'gcash',
-                    ]
-                )
-            ) {
-                return back()->with(
+            return back()
+                ->with(
                     'error',
-                    'Please select a valid payment method for delivery.'
-                );
-            }
+                    'Cash on Pickup is only available for pickup orders.'
+                )
+                ->withInput();
         }
-
-        /*
-        |--------------------------------------------------------------------------
-        | PICKUP
-        |--------------------------------------------------------------------------
-        */
 
         if (
-            $request->delivery_option ===
-            'pickup'
+            $deliveryOption === 'pickup' &&
+            $paymentMethod === 'cash_on_delivery'
         ) {
-
-            if (
-                !in_array(
-                    $request->payment_method,
-                    [
-                        'cash_on_pickup',
-                        'gcash',
-                    ]
-                )
-            ) {
-                return back()->with(
+            return back()
+                ->with(
                     'error',
-                    'Please select a valid payment method for pickup.'
-                );
-            }
+                    'Cash on Delivery is only available for delivery orders.'
+                )
+                ->withInput();
         }
 
-        session()->put(
-            'delivery_option',
-            $request->delivery_option
-        );
+        session([
+            'delivery_option' => $deliveryOption,
+            'payment_method' => $paymentMethod,
+        ]);
 
-        session()->put(
-            'payment_method',
-            $request->payment_method
+        return back()->with(
+            'success',
+            'Order options saved successfully!'
         );
-
-        return redirect()
-            ->route('cart')
-            ->with(
-                'success',
-                'Delivery and payment options saved!'
-            );
     }
 }

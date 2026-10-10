@@ -1,90 +1,99 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>Your Cart - Abuyog Andrea Pizza</title>
 
     <style>
+
         * {
             box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
         body {
-            margin: 0;
-            font-family: Arial, sans-serif;
+            font-family: Arial, Helvetica, sans-serif;
             background: #fff8ee;
             color: #222;
         }
 
-        .cart-page {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 28px 20px 50px;
+        a {
+            text-decoration: none;
         }
 
-        .cart-title {
+        button,
+        input,
+        select {
+            font-family: inherit;
+        }
+
+
+        /* =========================
+           PAGE HEADER
+        ========================= */
+
+        .cart-header {
             text-align: center;
-            margin-bottom: 26px;
+            padding: 35px 20px 25px;
         }
 
-        .cart-title h1 {
-            margin: 0;
-            color: #ed1c24;
-            font-size: 36px;
+        .cart-header h1 {
+            color: #e51b23;
+            font-size: 38px;
+            margin-bottom: 8px;
         }
 
-        .cart-title p {
-            margin-top: 8px;
+        .cart-header p {
             color: #666;
-            font-size: 17px;
+            font-size: 16px;
         }
 
-        .success-message {
-            max-width: 900px;
-            margin: 0 auto 20px;
-            padding: 12px 16px;
-            background: #e8f8ee;
-            border: 1px solid #b9e8ca;
-            color: #15803d;
-            border-radius: 8px;
-            font-weight: bold;
-        }
 
-        .error-message {
-            max-width: 900px;
-            margin: 0 auto 20px;
-            padding: 12px 16px;
-            background: #ffe8e8;
-            border: 1px solid #f3b5b5;
-            color: #c40000;
-            border-radius: 8px;
-            font-weight: bold;
+        /* =========================
+           MAIN CONTAINER
+        ========================= */
+
+        .cart-container {
+            width: 92%;
+            max-width: 1250px;
+            margin: 0 auto 50px;
         }
 
         .cart-layout {
             display: grid;
-            grid-template-columns: 1fr 365px;
+            grid-template-columns: minmax(0, 1fr) 390px;
             gap: 25px;
             align-items: start;
         }
 
-        .cart-items-card,
-        .summary-card,
-        .options-card {
-            background: white;
-            border-radius: 14px;
+
+        /* =========================
+           CART CARD
+        ========================= */
+
+        .cart-card {
+            background: #fff;
+            border-radius: 16px;
             padding: 22px;
-            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.07);
         }
 
         .cart-item {
             display: flex;
-            gap: 18px;
-            padding: 10px 0 20px;
-            margin-bottom: 20px;
-            border-bottom: 1px solid #ddd;
+            align-items: center;
+            gap: 20px;
+            padding: 12px 0 22px;
+            margin-bottom: 18px;
+            border-bottom: 1px solid #e5e5e5;
         }
 
         .cart-item:last-child {
@@ -93,181 +102,284 @@
             padding-bottom: 5px;
         }
 
-        .pizza-image {
-            width: 120px;
-            height: 120px;
-            background: #f5f5f5;
-            border-radius: 10px;
+
+        /* =========================
+           PIZZA IMAGE
+        ========================= */
+
+        .cart-image {
+            width: 130px;
+            height: 130px;
+            flex-shrink: 0;
+
+            border-radius: 12px;
+            overflow: hidden;
+
+            background: #f3f3f3;
+
             display: flex;
             align-items: center;
             justify-content: center;
-            overflow: hidden;
-            flex-shrink: 0;
         }
 
-        .pizza-image img {
+        .cart-image img {
             width: 100%;
             height: 100%;
-            object-fit: contain;
+            object-fit: cover;
+            display: block;
         }
 
-        .pizza-image .no-image {
+        .no-image {
             color: #999;
-            font-size: 13px;
+            font-size: 14px;
             text-align: center;
         }
 
-        .item-details {
+
+        /* =========================
+           ITEM DETAILS
+        ========================= */
+
+        .cart-details {
             flex: 1;
             min-width: 0;
         }
 
-        .item-details h2 {
-            margin: 0 0 6px;
-            font-size: 22px;
+        .cart-details h2 {
+            font-size: 23px;
+            color: #111;
+            margin-bottom: 6px;
         }
 
-        .item-price {
-            color: #ed1c24;
+        .cart-price {
+            color: #e51b23;
+            font-size: 19px;
             font-weight: bold;
-            font-size: 18px;
             margin-bottom: 7px;
         }
 
-        .item-subtotal {
+        .cart-subtotal {
             color: #555;
+            font-size: 16px;
             margin-bottom: 12px;
         }
+
+
+        /* =========================
+           ACTIONS
+        ========================= */
 
         .cart-actions {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 9px;
             flex-wrap: wrap;
         }
 
-        .update-form {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin: 0;
-        }
-
-        .quantity-label {
+        .qty-label {
             font-weight: bold;
-            margin-right: 2px;
+            color: #222;
         }
 
-        .quantity-input {
-            width: 65px;
-            height: 38px;
-            padding: 7px;
+        .qty-input {
+            width: 70px;
+            height: 42px;
+
             border: 1px solid #ccc;
-            border-radius: 6px;
+            border-radius: 7px;
+
+            padding: 7px 10px;
+
             font-size: 15px;
             text-align: center;
-        }
 
-        .quantity-input:focus {
             outline: none;
-            border-color: #159447;
         }
 
-        .update-btn,
-        .remove-btn {
+        .qty-input:focus {
+            border-color: #16a34a;
+        }
+
+        .btn {
             border: none;
-            padding: 9px 15px;
-            border-radius: 6px;
+            border-radius: 7px;
+
+            min-height: 42px;
+
+            padding: 9px 17px;
+
             font-size: 14px;
             font-weight: bold;
+
             cursor: pointer;
-            height: 38px;
+            transition: 0.2s;
         }
 
         .update-btn {
-            background: #159447;
+            background: #16a34a;
             color: white;
         }
 
         .update-btn:hover {
-            background: #117a3a;
+            background: #15803d;
         }
 
         .remove-btn {
-            background: #ed1c24;
+            background: #ef1b25;
             color: white;
         }
 
         .remove-btn:hover {
-            background: #c9141b;
+            background: #c9151d;
         }
 
-        .remove-form {
-            margin: 0;
+
+        /* =========================
+           EMPTY CART
+        ========================= */
+
+        .empty-cart {
+            background: white;
+            border-radius: 16px;
+            padding: 55px 25px;
+
+            text-align: center;
+
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.07);
         }
+
+        .empty-cart-icon {
+            font-size: 55px;
+            margin-bottom: 12px;
+        }
+
+        .empty-cart h2 {
+            font-size: 25px;
+            margin-bottom: 8px;
+        }
+
+        .empty-cart p {
+            color: #777;
+            margin-bottom: 22px;
+        }
+
+        .shop-btn {
+            display: inline-block;
+
+            background: #16a34a;
+            color: white;
+
+            padding: 12px 25px;
+            border-radius: 8px;
+
+            font-weight: bold;
+        }
+
+        .shop-btn:hover {
+            background: #15803d;
+        }
+
+
+        /* =========================
+           ORDER SUMMARY
+        ========================= */
 
         .summary-card {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.07);
+
             position: sticky;
             top: 20px;
         }
 
-        .summary-card h2,
-        .options-card h2 {
-            margin: 0 0 20px;
-            font-size: 25px;
+        .summary-card h2 {
+            font-size: 27px;
+            margin-bottom: 22px;
+            color: #222;
         }
 
         .summary-row {
             display: flex;
             justify-content: space-between;
-            gap: 15px;
-            padding: 11px 0;
+            align-items: center;
+
+            padding: 12px 0;
+
             border-bottom: 1px solid #ddd;
+
+            font-size: 17px;
+        }
+
+        .summary-row:last-of-type {
+            border-bottom: none;
         }
 
         .summary-total {
             display: flex;
             justify-content: space-between;
-            gap: 15px;
-            padding-top: 18px;
-            font-size: 23px;
+            align-items: center;
+
+            padding: 17px 0 12px;
+
+            color: #e51b23;
+
+            font-size: 25px;
             font-weight: bold;
-            color: #ed1c24;
         }
 
+
+        /* =========================
+           SUMMARY BUTTONS
+        ========================= */
+
         .checkout-btn {
-            display: block;
             width: 100%;
-            margin-top: 22px;
-            padding: 14px;
-            background: #159447;
+
+            display: block;
+
+            background: #16a34a;
             color: white;
+
             text-align: center;
-            text-decoration: none;
+
+            padding: 14px 15px;
+
             border-radius: 8px;
-            font-size: 16px;
+
+            font-size: 17px;
             font-weight: bold;
+
+            margin-top: 8px;
         }
 
         .checkout-btn:hover {
-            background: #117a3a;
+            background: #15803d;
         }
 
-        .shopping-btn {
-            display: block;
+        .continue-btn {
             width: 100%;
-            margin-top: 10px;
-            padding: 14px;
+
+            display: block;
+
             background: #222;
             color: white;
+
             text-align: center;
-            text-decoration: none;
+
+            padding: 14px 15px;
+
             border-radius: 8px;
+
             font-size: 16px;
             font-weight: bold;
+
+            margin-top: 12px;
         }
 
-        .shopping-btn:hover {
+        .continue-btn:hover {
             background: #000;
         }
 
@@ -278,118 +390,181 @@
 
         .clear-btn {
             border: none;
-            background: none;
-            color: #ed1c24;
+            background: transparent;
+
+            color: #e51b23;
+
             font-weight: bold;
-            cursor: pointer;
             font-size: 14px;
+
+            cursor: pointer;
         }
 
         .clear-btn:hover {
             text-decoration: underline;
         }
 
+
+        /* =========================
+           ORDER OPTION
+        ========================= */
+
         .options-card {
+            background: white;
+
+            border-radius: 16px;
+
+            padding: 25px;
+
             margin-top: 25px;
+
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.07);
         }
 
-        .current-selection {
-            background: #e8f8ee;
-            border: 1px solid #b9e8ca;
-            color: #087a36;
-            padding: 12px 14px;
-            border-radius: 8px;
+        .options-card h2 {
+            font-size: 25px;
             margin-bottom: 20px;
-            line-height: 1.6;
         }
 
-        .option-title {
-            font-size: 17px;
+        .option-group {
+            margin-bottom: 20px;
+        }
+
+        .option-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .option-group label.title {
+            display: block;
+
             font-weight: bold;
-            margin: 0 0 10px;
+
+            font-size: 16px;
+
+            margin-bottom: 10px;
         }
 
-        .option-box {
+        .option-list {
             display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 13px 15px;
-            margin-bottom: 9px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            cursor: pointer;
-            background: #fff;
+            gap: 12px;
+            flex-wrap: wrap;
         }
 
-        .option-box:hover {
-            border-color: #159447;
-            background: #f8fff9;
-        }
-
-        .option-box input {
-            width: 16px;
-            height: 16px;
-            accent-color: #159447;
-        }
-
-        .option-box label {
-            cursor: pointer;
+        .option-item {
             flex: 1;
-            font-size: 15px;
+            min-width: 190px;
         }
 
-        .payment-section {
-            margin-top: 20px;
+        .option-item input {
+            display: none;
+        }
+
+        .option-item label {
+            display: block;
+
+            padding: 14px 15px;
+
+            border: 1px solid #d5d5d5;
+
+            border-radius: 9px;
+
+            cursor: pointer;
+
+            background: #fff;
+
+            transition: 0.2s;
+        }
+
+        .option-item label:hover {
+            border-color: #16a34a;
+            background: #f0fdf4;
+        }
+
+        .option-item input:checked + label {
+            border-color: #16a34a;
+            background: #dcfce7;
+            color: #166534;
+            font-weight: bold;
+        }
+
+        .option-item strong {
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .option-item span {
+            display: block;
+            font-size: 13px;
+            color: #777;
+        }
+
+        .option-item input:checked + label span {
+            color: #166534;
         }
 
         .save-options-btn {
             width: 100%;
+
             border: none;
-            padding: 13px;
-            margin-top: 10px;
-            border-radius: 8px;
-            background: #159447;
+
+            background: #16a34a;
             color: white;
-            font-size: 16px;
+
+            padding: 13px;
+
+            border-radius: 8px;
+
             font-weight: bold;
+            font-size: 15px;
+
             cursor: pointer;
         }
 
         .save-options-btn:hover {
-            background: #117a3a;
+            background: #15803d;
         }
 
-        .empty-cart {
-            max-width: 650px;
-            margin: 60px auto;
-            background: white;
-            border-radius: 14px;
-            padding: 45px 25px;
-            text-align: center;
-            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.08);
-        }
 
-        .empty-cart h2 {
-            margin-top: 0;
-            font-size: 28px;
-        }
+        /* =========================
+           ALERTS
+        ========================= */
 
-        .empty-cart p {
-            color: #666;
-            margin-bottom: 25px;
-        }
+        .alert {
+            width: 92%;
+            max-width: 1250px;
 
-        .empty-cart a {
-            display: inline-block;
-            padding: 13px 22px;
-            background: #159447;
-            color: white;
-            text-decoration: none;
+            margin: 20px auto 0;
+
+            padding: 13px 17px;
+
             border-radius: 8px;
-            font-weight: bold;
+
+            font-size: 14px;
         }
 
-        @media (max-width: 850px) {
+        .alert-success {
+            background: #dcfce7;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+
+        .alert-error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        .alert ul {
+            margin-left: 18px;
+        }
+
+
+        /* =========================
+           RESPONSIVE
+        ========================= */
+
+        @media (max-width: 950px) {
+
             .cart-layout {
                 grid-template-columns: 1fr;
             }
@@ -397,185 +572,397 @@
             .summary-card {
                 position: static;
             }
+
         }
 
-        @media (max-width: 600px) {
-            .cart-page {
-                padding: 20px 12px 40px;
+
+        @media (max-width: 650px) {
+
+            .cart-header {
+                padding: 28px 15px 20px;
             }
 
-            .cart-title h1 {
-                font-size: 30px;
+            .cart-header h1 {
+                font-size: 31px;
+            }
+
+            .cart-header p {
+                font-size: 14px;
+            }
+
+            .cart-container {
+                width: 94%;
+            }
+
+            .cart-card {
+                padding: 17px;
             }
 
             .cart-item {
-                gap: 12px;
+                align-items: flex-start;
+                gap: 14px;
             }
 
-            .pizza-image {
-                width: 90px;
-                height: 90px;
+            .cart-image {
+                width: 95px;
+                height: 95px;
             }
 
-            .item-details h2 {
+            .cart-details h2 {
                 font-size: 19px;
             }
 
-            .cart-actions {
-                align-items: flex-start;
+            .cart-price {
+                font-size: 17px;
             }
 
-            .update-form {
-                flex-wrap: wrap;
+            .cart-subtotal {
+                font-size: 14px;
             }
+
+            .cart-actions {
+                gap: 7px;
+            }
+
+            .qty-input {
+                width: 58px;
+            }
+
+            .btn {
+                padding: 8px 12px;
+                font-size: 13px;
+            }
+
+            .summary-card {
+                padding: 20px;
+            }
+
+            .options-card {
+                padding: 20px;
+            }
+
+            .option-item {
+                min-width: 100%;
+            }
+
         }
+
+
+        @media (max-width: 450px) {
+
+            .cart-item {
+                display: grid;
+                grid-template-columns: 80px 1fr;
+            }
+
+            .cart-image {
+                width: 80px;
+                height: 80px;
+            }
+
+            .cart-details {
+                width: 100%;
+            }
+
+            .cart-actions {
+                grid-column: 1 / -1;
+            }
+
+            .qty-input {
+                width: 60px;
+            }
+
+        }
+
     </style>
+
 </head>
+
 
 <body>
 
-    {{-- Existing shared navbar --}}
+
+    {{-- =========================
+         NAVIGATION
+    ========================= --}}
+
     @include('partials.navbar')
 
-    <div class="cart-page">
 
-        <div class="cart-title">
-            <h1>Your Cart</h1>
-            <p>Review your selected pizzas before checking out.</p>
+    {{-- =========================
+         ALERTS
+    ========================= --}}
+
+    @if(session('success'))
+
+        <div class="alert alert-success">
+
+            {{ session('success') }}
+
         </div>
 
-        {{-- Success message --}}
-        @if (session('success'))
-            <div class="success-message">
-                {{ session('success') }}
-            </div>
-        @endif
+    @endif
 
-        {{-- Error message --}}
-        @if (session('error'))
-            <div class="error-message">
-                {{ session('error') }}
-            </div>
-        @endif
 
-        @if (empty($cart))
+    @if(session('error'))
+
+        <div class="alert alert-error">
+
+            {{ session('error') }}
+
+        </div>
+
+    @endif
+
+
+    @if($errors->any())
+
+        <div class="alert alert-error">
+
+            <ul>
+
+                @foreach($errors->all() as $error)
+
+                    <li>
+                        {{ $error }}
+                    </li>
+
+                @endforeach
+
+            </ul>
+
+        </div>
+
+    @endif
+
+
+    {{-- =========================
+         PAGE HEADER
+    ========================= --}}
+
+    <section class="cart-header">
+
+        <h1>
+            Your Cart
+        </h1>
+
+        <p>
+            Review your selected pizzas before checking out.
+        </p>
+
+    </section>
+
+
+    {{-- =========================
+         CART CONTENT
+    ========================= --}}
+
+    <main class="cart-container">
+
+
+        @if(empty($cart))
+
+
+            {{-- =========================
+                 EMPTY CART
+            ========================= --}}
 
             <div class="empty-cart">
 
-                <h2>Your cart is empty.</h2>
+                <div class="empty-cart-icon">
+                    🛒
+                </div>
+
+                <h2>
+                    Your cart is empty
+                </h2>
 
                 <p>
-                    Add some delicious pizzas before checking out.
+                    Add some delicious pizzas to your cart.
                 </p>
 
-                <a href="{{ route('menu') }}">
-                    Browse Pizza Menu
+                <a
+                    href="{{ route('menu') }}"
+                    class="shop-btn"
+                >
+                    🍕 Browse Pizza Menu
                 </a>
 
             </div>
 
+
         @else
+
+
+            {{-- =========================
+                 CART + SUMMARY
+            ========================= --}}
 
             <div class="cart-layout">
 
-                {{-- LEFT SIDE --}}
+
+                {{-- =========================
+                     CART ITEMS
+                ========================= --}}
+
                 <div>
 
-                    {{-- CART ITEMS --}}
-                    <div class="cart-items-card">
+                    <div class="cart-card">
 
-                        @foreach ($cart as $pizzaId => $item)
+
+                        @foreach($cart as $pizzaId => $item)
 
                             <div class="cart-item">
 
-                                <div class="pizza-image">
 
-                                    @if (!empty($item['image']))
+                                {{-- PIZZA IMAGE --}}
+
+                                <div class="cart-image">
+
+                                    @if(!empty($item['image']))
+
+                                        @php
+
+                                            $pizzaImage = $item['image'];
+
+                                            if (
+                                                str_starts_with(
+                                                    $pizzaImage,
+                                                    'http://'
+                                                ) ||
+                                                str_starts_with(
+                                                    $pizzaImage,
+                                                    'https://'
+                                                )
+                                            ) {
+
+                                                $pizzaImageUrl =
+                                                    $pizzaImage;
+
+                                            } else {
+
+                                                $pizzaImageUrl =
+                                                    asset(
+                                                        'image/pizzas/' .
+                                                        ltrim(
+                                                            $pizzaImage,
+                                                            '/'
+                                                        )
+                                                    );
+
+                                            }
+
+                                        @endphp
+
 
                                         <img
-                                            src="{{ asset($item['image']) }}"
+                                            src="{{ $pizzaImageUrl }}"
                                             alt="{{ $item['name'] }}"
+                                            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
                                         >
+
+                                        <div
+                                            class="no-image"
+                                            style="display:none;"
+                                        >
+                                            No Image
+                                        </div>
 
                                     @else
 
-                                        <span class="no-image">
+                                        <div class="no-image">
                                             No Image
-                                        </span>
+                                        </div>
 
                                     @endif
 
                                 </div>
 
-                                <div class="item-details">
+
+                                {{-- PIZZA DETAILS --}}
+
+                                <div class="cart-details">
 
                                     <h2>
                                         {{ $item['name'] }}
                                     </h2>
 
-                                    <div class="item-price">
-                                        ₱{{ number_format($item['price'], 2) }}
-                                    </div>
+                                    <div class="cart-price">
 
-                                    <div class="item-subtotal">
-                                        Subtotal:
                                         ₱{{ number_format(
-                                            $item['price'] * $item['quantity'],
+                                            $item['price'],
                                             2
                                         ) }}
+
                                     </div>
 
-                                    {{-- UPDATE + REMOVE --}}
+                                    <div class="cart-subtotal">
+
+                                        Subtotal:
+
+                                        ₱{{ number_format(
+                                            $item['price'] *
+                                            $item['quantity'],
+                                            2
+                                        ) }}
+
+                                    </div>
+
+
+                                    {{-- ACTIONS --}}
+
                                     <div class="cart-actions">
+
+
+                                        <span class="qty-label">
+                                            Qty:
+                                        </span>
+
 
                                         <form
                                             action="{{ route('cart.update', $pizzaId) }}"
                                             method="POST"
-                                            class="update-form"
+                                            style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;"
                                         >
 
                                             @csrf
-                                            @method('PUT')
-
-                                            <span class="quantity-label">
-                                                Qty:
-                                            </span>
 
                                             <input
                                                 type="number"
                                                 name="quantity"
                                                 value="{{ $item['quantity'] }}"
                                                 min="1"
-                                                class="quantity-input"
+                                                class="qty-input"
                                                 required
                                             >
 
+
                                             <button
                                                 type="submit"
-                                                class="update-btn"
+                                                class="btn update-btn"
                                             >
                                                 Update
                                             </button>
 
                                         </form>
 
+
                                         <form
                                             action="{{ route('cart.remove', $pizzaId) }}"
                                             method="POST"
-                                            class="remove-form"
                                         >
 
                                             @csrf
-                                            @method('DELETE')
 
                                             <button
                                                 type="submit"
-                                                class="remove-btn"
+                                                class="btn remove-btn"
                                             >
                                                 Remove
                                             </button>
 
                                         </form>
+
 
                                     </div>
 
@@ -585,57 +972,19 @@
 
                         @endforeach
 
+
                     </div>
 
 
-                    {{-- ORDER OPTIONS --}}
+                    {{-- =========================
+                         ORDER OPTION
+                    ========================= --}}
+
                     <div class="options-card">
 
                         <h2>
                             Order Option
                         </h2>
-
-                        <div class="current-selection">
-
-                            <strong>
-                                Your selection:
-                            </strong>
-
-                            <br>
-
-                            @if ($deliveryOption === 'delivery')
-
-                                🚚 Delivery
-
-                            @else
-
-                                🏪 Pickup
-
-                            @endif
-
-                            <br>
-
-                            Payment:
-
-                            @if ($paymentMethod === 'cash_on_delivery')
-
-                                Cash on Delivery
-
-                            @elseif ($paymentMethod === 'cash_on_pickup')
-
-                                Cash on Pickup
-
-                            @elseif ($paymentMethod === 'gcash')
-
-                                GCash
-
-                            @else
-
-                                Not selected
-
-                            @endif
-
-                        </div>
 
 
                         <form
@@ -645,102 +994,168 @@
 
                             @csrf
 
+
                             {{-- DELIVERY OPTION --}}
-                            <p class="option-title">
-                                Do you want delivery?
-                            </p>
 
-                            <label class="option-box">
+                            <div class="option-group">
 
-                                <input
-                                    type="radio"
-                                    name="delivery_option"
-                                    value="delivery"
-                                    {{ $deliveryOption === 'delivery' ? 'checked' : '' }}
-                                >
+                                <label class="title">
+                                    How would you like to receive your order?
+                                </label>
 
-                                <span>
-                                    🚚 Yes, deliver my order
-                                </span>
 
-                            </label>
+                                <div class="option-list">
 
-                            <label class="option-box">
 
-                                <input
-                                    type="radio"
-                                    name="delivery_option"
-                                    value="pickup"
-                                    {{ $deliveryOption === 'pickup' ? 'checked' : '' }}
-                                >
+                                    <div class="option-item">
 
-                                <span>
-                                    🏪 No, I will pick up my order
-                                </span>
+                                        <input
+                                            type="radio"
+                                            id="delivery"
+                                            name="delivery_option"
+                                            value="delivery"
+                                            {{ $deliveryOption === 'delivery' ? 'checked' : '' }}
+                                        >
 
-                            </label>
+                                        <label for="delivery">
+
+                                            <strong>
+                                                🚚 Delivery
+                                            </strong>
+
+                                            <span>
+                                                Delivery fee: ₱50.00
+                                            </span>
+
+                                        </label>
+
+                                    </div>
+
+
+                                    <div class="option-item">
+
+                                        <input
+                                            type="radio"
+                                            id="pickup"
+                                            name="delivery_option"
+                                            value="pickup"
+                                            {{ $deliveryOption === 'pickup' ? 'checked' : '' }}
+                                        >
+
+                                        <label for="pickup">
+
+                                            <strong>
+                                                🏪 Pickup
+                                            </strong>
+
+                                            <span>
+                                                No delivery fee
+                                            </span>
+
+                                        </label>
+
+                                    </div>
+
+
+                                </div>
+
+                            </div>
 
 
                             {{-- PAYMENT OPTION --}}
-                            <div class="payment-section">
 
-                                <p class="option-title">
+                            <div class="option-group">
+
+                                <label class="title">
                                     Payment Method
-                                </p>
-
-                                {{-- COD DELIVERY --}}
-                                <label
-                                    class="option-box"
-                                    id="cash-delivery-option"
-                                >
-
-                                    <input
-                                        type="radio"
-                                        name="payment_method"
-                                        value="cash_on_delivery"
-                                        {{ $paymentMethod === 'cash_on_delivery' ? 'checked' : '' }}
-                                    >
-
-                                    <span>
-                                        💵 Cash on Delivery
-                                    </span>
-
                                 </label>
 
-                                {{-- CASH PICKUP --}}
-                                <label
-                                    class="option-box"
-                                    id="cash-pickup-option"
-                                >
 
-                                    <input
-                                        type="radio"
-                                        name="payment_method"
-                                        value="cash_on_pickup"
-                                        {{ $paymentMethod === 'cash_on_pickup' ? 'checked' : '' }}
+                                <div class="option-list">
+
+
+                                    <div
+                                        class="option-item"
+                                        data-payment="delivery-cash"
                                     >
 
-                                    <span>
-                                        💵 Cash on Pickup
-                                    </span>
+                                        <input
+                                            type="radio"
+                                            id="cash_delivery"
+                                            name="payment_method"
+                                            value="cash_on_delivery"
+                                            {{ $paymentMethod === 'cash_on_delivery' ? 'checked' : '' }}
+                                        >
 
-                                </label>
+                                        <label for="cash_delivery">
 
-                                {{-- GCASH --}}
-                                <label class="option-box">
+                                            <strong>
+                                                💵 Cash on Delivery
+                                            </strong>
 
-                                    <input
-                                        type="radio"
-                                        name="payment_method"
-                                        value="gcash"
-                                        {{ $paymentMethod === 'gcash' ? 'checked' : '' }}
+                                            <span>
+                                                Pay when your order arrives
+                                            </span>
+
+                                        </label>
+
+                                    </div>
+
+
+                                    <div
+                                        class="option-item"
+                                        data-payment="pickup-cash"
                                     >
 
-                                    <span>
-                                        📱 GCash
-                                    </span>
+                                        <input
+                                            type="radio"
+                                            id="cash_pickup"
+                                            name="payment_method"
+                                            value="cash_on_pickup"
+                                            {{ $paymentMethod === 'cash_on_pickup' ? 'checked' : '' }}
+                                        >
 
-                                </label>
+                                        <label for="cash_pickup">
+
+                                            <strong>
+                                                💵 Cash on Pickup
+                                            </strong>
+
+                                            <span>
+                                                Pay when you pick up your order
+                                            </span>
+
+                                        </label>
+
+                                    </div>
+
+
+                                    <div class="option-item">
+
+                                        <input
+                                            type="radio"
+                                            id="gcash"
+                                            name="payment_method"
+                                            value="gcash"
+                                            {{ $paymentMethod === 'gcash' ? 'checked' : '' }}
+                                        >
+
+                                        <label for="gcash">
+
+                                            <strong>
+                                                📱 GCash
+                                            </strong>
+
+                                            <span>
+                                                Pay using GCash
+                                            </span>
+
+                                        </label>
+
+                                    </div>
+
+
+                                </div>
 
                             </div>
 
@@ -752,19 +1167,26 @@
                                 Save Order Options
                             </button>
 
+
                         </form>
 
                     </div>
 
+
                 </div>
 
 
-                {{-- RIGHT SIDE --}}
-                <div class="summary-card">
+                {{-- =========================
+                     ORDER SUMMARY
+                ========================= --}}
+
+                <aside class="summary-card">
+
 
                     <h2>
                         Order Summary
                     </h2>
+
 
                     <div class="summary-row">
 
@@ -778,6 +1200,7 @@
 
                     </div>
 
+
                     <div class="summary-row">
 
                         <span>
@@ -785,10 +1208,14 @@
                         </span>
 
                         <span>
-                            ₱{{ number_format($total, 2) }}
+                            ₱{{ number_format(
+                                $total,
+                                2
+                            ) }}
                         </span>
 
                     </div>
+
 
                     <div class="summary-row">
 
@@ -797,10 +1224,16 @@
                         </span>
 
                         <span>
-                            ₱{{ number_format($deliveryFee, 2) }}
+
+                            ₱{{ number_format(
+                                $deliveryFee,
+                                2
+                            ) }}
+
                         </span>
 
                     </div>
+
 
                     <div class="summary-total">
 
@@ -809,7 +1242,10 @@
                         </span>
 
                         <span>
-                            ₱{{ number_format($grandTotal, 2) }}
+                            ₱{{ number_format(
+                                $grandTotal,
+                                2
+                            ) }}
                         </span>
 
                     </div>
@@ -825,7 +1261,7 @@
 
                     <a
                         href="{{ route('menu') }}"
-                        class="shopping-btn"
+                        class="continue-btn"
                     >
                         Continue Shopping
                     </a>
@@ -838,7 +1274,6 @@
                     >
 
                         @csrf
-                        @method('DELETE')
 
                         <button
                             type="submit"
@@ -850,87 +1285,113 @@
 
                     </form>
 
-                </div>
+
+                </aside>
+
 
             </div>
 
+
         @endif
 
-    </div>
+
+    </main>
 
 
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
 
-            const deliveryOptions =
-                document.querySelectorAll(
-                    'input[name="delivery_option"]'
-                );
+        document.addEventListener(
+            'DOMContentLoaded',
+            function () {
 
-            const cashDelivery =
-                document.querySelector(
-                    '#cash-delivery-option'
-                );
-
-            const cashPickup =
-                document.querySelector(
-                    '#cash-pickup-option'
-                );
-
-            function updatePaymentOptions() {
-
-                const selected =
-                    document.querySelector(
-                        'input[name="delivery_option"]:checked'
+                const delivery =
+                    document.getElementById(
+                        'delivery'
                     );
 
-                if (!selected) {
-                    return;
-                }
+                const pickup =
+                    document.getElementById(
+                        'pickup'
+                    );
 
-                if (selected.value === 'delivery') {
+                const cashDelivery =
+                    document.getElementById(
+                        'cash_delivery'
+                    );
 
-                    cashDelivery.style.display = 'flex';
-                    cashPickup.style.display = 'none';
+                const cashPickup =
+                    document.getElementById(
+                        'cash_pickup'
+                    );
 
-                    const pickupRadio =
-                        document.querySelector(
-                            'input[value="cash_on_pickup"]'
-                        );
 
-                    if (pickupRadio) {
-                        pickupRadio.checked = false;
+                function updatePaymentOptions() {
+
+                    if (!delivery || !pickup) {
+                        return;
                     }
 
-                } else {
 
-                    cashDelivery.style.display = 'none';
-                    cashPickup.style.display = 'flex';
+                    if (delivery.checked) {
 
-                    const deliveryRadio =
-                        document.querySelector(
-                            'input[value="cash_on_delivery"]'
-                        );
+                        cashDelivery.disabled = false;
 
-                    if (deliveryRadio) {
-                        deliveryRadio.checked = false;
+                        cashPickup.disabled = true;
+
+                        if (cashPickup.checked) {
+
+                            cashDelivery.checked = true;
+
+                        }
+
                     }
+
+
+                    if (pickup.checked) {
+
+                        cashDelivery.disabled = true;
+
+                        cashPickup.disabled = false;
+
+                        if (cashDelivery.checked) {
+
+                            cashPickup.checked = true;
+
+                        }
+
+                    }
+
                 }
+
+
+                if (delivery) {
+
+                    delivery.addEventListener(
+                        'change',
+                        updatePaymentOptions
+                    );
+
+                }
+
+
+                if (pickup) {
+
+                    pickup.addEventListener(
+                        'change',
+                        updatePaymentOptions
+                    );
+
+                }
+
+
+                updatePaymentOptions();
+
             }
+        );
 
-            deliveryOptions.forEach(function (option) {
-
-                option.addEventListener(
-                    'change',
-                    updatePaymentOptions
-                );
-
-            });
-
-            updatePaymentOptions();
-
-        });
     </script>
 
+
 </body>
+
 </html>

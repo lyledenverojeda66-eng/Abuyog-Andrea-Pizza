@@ -1,314 +1,1135 @@
 @extends('admin.layout')
 
-@section('title', 'Dashboard')
+@section('title', 'Admin Dashboard')
 
 @section('content')
 
-<!-- =========================
-     PAGE HEADER
-========================= -->
+<style>
+    .dashboard-page {
+        width: 100%;
+    }
 
-<div class="page-header">
+    /* =========================
+       PAGE HEADER
+    ========================= */
 
-    <div>
+    .dashboard-page .page-header {
+        margin-bottom: 22px;
+    }
 
-        <h1>
-            Admin Dashboard
-        </h1>
+    .dashboard-page .page-header h1 {
+        margin: 0 0 6px;
+        line-height: 1.4;
+    }
 
-        <p>
-            Welcome back,
-            {{ auth()->user()->name }}!
-            Here's what's happening with your pizza shop.
-        </p>
+    .dashboard-page .page-header p {
+        margin: 0;
+        color: #6b7280;
+        line-height: 1.5;
+    }
+
+    /* =========================
+       STAT CARDS
+    ========================= */
+
+    .dashboard-stats {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+        margin-bottom: 22px;
+    }
+
+    .dashboard-stat-card {
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 20px;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 5px 16px rgba(0, 0, 0, 0.05);
+    }
+
+    .dashboard-stat-label {
+        margin-bottom: 8px;
+        color: #6b7280;
+        font-size: 12px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: .4px;
+        line-height: 1.4;
+    }
+
+    .dashboard-stat-value {
+        color: #111827;
+        font-size: 28px;
+        font-weight: 900;
+        line-height: 1.3;
+    }
+
+    .dashboard-stat-subtitle {
+        margin-top: 5px;
+        color: #6b7280;
+        font-size: 12px;
+        line-height: 1.5;
+    }
+
+    .dashboard-stat-sales .dashboard-stat-value {
+        color: #15803d;
+    }
+
+    .dashboard-stat-pending .dashboard-stat-value {
+        color: #d97706;
+    }
+
+    /* =========================
+       QUICK ACTIONS
+    ========================= */
+
+    .dashboard-page .card {
+        width: 100%;
+    }
+
+    .quick-actions-header {
+        margin-bottom: 18px;
+    }
+
+    .quick-actions-header h2 {
+        margin: 0 0 5px;
+        font-size: 18px;
+        line-height: 1.4;
+    }
+
+    .quick-actions-header p {
+        margin: 0;
+        color: #6b7280;
+        font-size: 13px;
+        line-height: 1.5;
+    }
+
+    .quick-actions-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 15px;
+    }
+
+    .quick-action-card {
+        display: block;
+        min-height: 150px;
+
+        padding: 18px;
+
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+
+        background: #ffffff;
+        color: #111827;
+
+        text-decoration: none;
+
+        transition:
+            transform .2s ease,
+            box-shadow .2s ease,
+            border-color .2s ease;
+    }
+
+    .quick-action-card:hover {
+        color: #111827;
+        text-decoration: none;
+
+        transform: translateY(-3px);
+
+        border-color: #bbf7d0;
+
+        box-shadow:
+            0 10px 25px rgba(0, 0, 0, .08);
+    }
+
+    .quick-action-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 12px;
+    }
+
+    .quick-action-icon {
+        width: 45px;
+        height: 45px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        border-radius: 10px;
+
+        background: #f0fdf4;
+
+        font-size: 22px;
+    }
+
+    .quick-action-card strong {
+        display: block;
+
+        margin-bottom: 7px;
+
+        color: #111827;
+
+        font-size: 15px;
+        font-weight: 800;
+        line-height: 1.4;
+    }
+
+    .quick-action-description {
+        color: #6b7280;
+
+        font-size: 12px;
+        line-height: 1.55;
+    }
+
+    /* =========================
+       FEEDBACK ACTION
+    ========================= */
+
+    .feedback-action {
+        border-color: #fde68a;
+        background: #fffdf5;
+    }
+
+    .feedback-action:hover {
+        border-color: #facc15;
+    }
+
+    .feedback-action .quick-action-icon {
+        background: #fef3c7;
+    }
+
+    .feedback-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        padding: 5px 9px;
+
+        border-radius: 999px;
+
+        background: #fef3c7;
+        color: #92400e;
+
+        font-size: 10px;
+        font-weight: 900;
+
+        line-height: 1.3;
+
+        white-space: nowrap;
+    }
+
+    /* =========================
+       SYSTEM SUMMARY
+    ========================= */
+
+    .summary-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 15px;
+
+        margin-bottom: 18px;
+    }
+
+    .summary-header h2 {
+        margin: 0;
+
+        font-size: 18px;
+        line-height: 1.4;
+    }
+
+    .summary-header a {
+        color: #15803d;
+        text-decoration: none;
+
+        font-size: 12px;
+        font-weight: 800;
+
+        line-height: 1.4;
+        white-space: nowrap;
+    }
+
+    .summary-header a:hover {
+        text-decoration: underline;
+    }
+
+    .summary-grid {
+        display: grid;
+
+        grid-template-columns:
+            repeat(5, 1fr);
+
+        gap: 15px;
+    }
+
+    .summary-card {
+        display: block;
+
+        min-height: 125px;
+
+        padding: 18px;
+
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+
+        background: #ffffff;
+
+        text-decoration: none;
+
+        transition:
+            transform .2s ease,
+            box-shadow .2s ease,
+            border-color .2s ease;
+    }
+
+    .summary-card:hover {
+        text-decoration: none;
+
+        transform: translateY(-3px);
+
+        border-color: #bbf7d0;
+
+        box-shadow:
+            0 9px 22px rgba(0, 0, 0, .07);
+    }
+
+    .summary-label {
+        margin-bottom: 8px;
+
+        color: #6b7280;
+
+        font-size: 10px;
+        font-weight: 900;
+
+        letter-spacing: .5px;
+
+        line-height: 1.4;
+    }
+
+    .summary-number {
+        color: #111827;
+
+        font-size: 27px;
+        font-weight: 900;
+
+        line-height: 1.3;
+    }
+
+    .summary-small {
+        margin-top: 6px;
+
+        color: #6b7280;
+
+        font-size: 11px;
+
+        line-height: 1.4;
+    }
+
+    .pending-summary {
+        border-color: #fde68a;
+    }
+
+    .pending-summary .summary-number {
+        color: #d97706;
+    }
+
+    .feedback-summary {
+        border-color: #fde68a;
+        background: #fffdf5;
+    }
+
+    .feedback-summary:hover {
+        border-color: #facc15;
+    }
+
+    .feedback-summary .summary-number {
+        color: #d97706;
+    }
+
+    /* =========================
+       RECENT ORDERS
+    ========================= */
+
+    .recent-orders-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 15px;
+
+        margin-bottom: 18px;
+    }
+
+    .recent-orders-header h2 {
+        margin: 0 0 5px;
+
+        font-size: 18px;
+        line-height: 1.4;
+    }
+
+    .recent-orders-header p {
+        margin: 0;
+
+        color: #6b7280;
+
+        font-size: 13px;
+        line-height: 1.5;
+    }
+
+    .recent-orders-header a {
+        color: #15803d;
+
+        font-size: 12px;
+        font-weight: 800;
+
+        text-decoration: none;
+
+        white-space: nowrap;
+    }
+
+    .recent-orders-header a:hover {
+        text-decoration: underline;
+    }
+
+    .dashboard-table-wrapper {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    .dashboard-page table {
+        width: 100%;
+
+        border-collapse: separate;
+        border-spacing: 0;
+
+        min-width: 760px;
+    }
+
+    .dashboard-page table th {
+        padding: 13px 15px;
+
+        color: #374151;
+
+        font-size: 12px;
+        font-weight: 800;
+
+        line-height: 1.4;
+
+        text-align: left;
+
+        white-space: nowrap;
+
+        background: #f9fafb;
+
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .dashboard-page table td {
+        padding: 13px 15px;
+
+        color: #374151;
+
+        font-size: 13px;
+
+        line-height: 1.5;
+
+        vertical-align: middle;
+
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    .dashboard-page table tbody tr:last-child td {
+        border-bottom: 0;
+    }
+
+    .dashboard-page table tbody tr:hover {
+        background: #fafafa;
+    }
+
+    .dashboard-order-number {
+        color: #15803d;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+    .dashboard-customer-name {
+        color: #111827;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .dashboard-amount {
+        color: #15803d;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+    .dashboard-status {
+        display: inline-flex;
+
+        align-items: center;
+        justify-content: center;
+
+        padding: 5px 10px;
+
+        border-radius: 999px;
+
+        font-size: 10px;
+        font-weight: 900;
+
+        line-height: 1.4;
+
+        text-transform: capitalize;
+
+        white-space: nowrap;
+    }
+
+    .dashboard-status.pending {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .dashboard-status.confirmed,
+    .dashboard-status.preparing {
+        background: #dbeafe;
+        color: #1d4ed8;
+    }
+
+    .dashboard-status.ready_for_delivery {
+        background: #ede9fe;
+        color: #6d28d9;
+    }
+
+    .dashboard-status.out_for_delivery {
+        background: #cffafe;
+        color: #155e75;
+    }
+
+    .dashboard-status.delivered {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .dashboard-status.cancelled {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .dashboard-view-button {
+        display: inline-flex;
+
+        align-items: center;
+        justify-content: center;
+
+        padding: 7px 11px;
+
+        border-radius: 7px;
+
+        background: #f0fdf4;
+        color: #15803d;
+
+        font-size: 11px;
+        font-weight: 800;
+
+        text-decoration: none;
+
+        white-space: nowrap;
+    }
+
+    .dashboard-view-button:hover {
+        background: #dcfce7;
+        color: #166534;
+        text-decoration: none;
+    }
+
+    .dashboard-empty {
+        padding: 35px 20px !important;
+
+        color: #6b7280 !important;
+
+        text-align: center !important;
+    }
+
+    /* =========================
+       RESPONSIVE
+    ========================= */
+
+    @media (max-width: 1100px) {
+
+        .dashboard-stats {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .quick-actions-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .summary-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+
+    @media (max-width: 700px) {
+
+        .dashboard-stats {
+            grid-template-columns: 1fr;
+        }
+
+        .quick-actions-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .summary-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .summary-header,
+        .recent-orders-header {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+    }
+
+    @media (max-width: 480px) {
+
+        .summary-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .dashboard-stat-card {
+            padding: 17px;
+        }
+
+        .quick-action-card {
+            min-height: auto;
+        }
+    }
+</style>
+
+
+<div class="dashboard-page">
+
+    <!-- =====================================================
+         PAGE HEADER
+    ====================================================== -->
+
+    <div class="page-header">
+
+        <div>
+
+            <h1>
+                🏠 Admin Dashboard
+            </h1>
+
+            <p>
+                Welcome back, {{ auth()->user()->name ?? 'Administrator' }}.
+                Manage your pizza ordering system from here.
+            </p>
+
+        </div>
 
     </div>
 
-    <div
-        style="
-            background:#dcfce7;
-            color:#15803d;
-            border:1px solid #bbf7d0;
-            padding:9px 15px;
-            border-radius:20px;
-            font-size:13px;
-            font-weight:800;
-        "
-    >
-        Administrator
-    </div>
 
-</div>
+    <!-- =====================================================
+         STATISTICS
+    ====================================================== -->
 
+    <div class="dashboard-stats">
 
-<!-- =========================
-     STATISTICS
-========================= -->
+        <!-- TOTAL ORDERS -->
 
-<div class="grid-4">
+        <div class="dashboard-stat-card">
 
-
-    <!-- TOTAL ORDERS -->
-
-    <div class="stat-card">
-
-        <div
-            style="
-                display:flex;
-                justify-content:space-between;
-                align-items:center;
-            "
-        >
-
-            <div class="stat-label">
-                TOTAL ORDERS
+            <div class="dashboard-stat-label">
+                Total Orders
             </div>
 
-            <div
-                style="
-                    width:42px;
-                    height:42px;
-                    background:#dcfce7;
-                    border-radius:10px;
-                    display:flex;
-                    align-items:center;
-                    justify-content:center;
-                    font-size:20px;
-                "
-            >
-                📦
+            <div class="dashboard-stat-value">
+                {{ $totalOrders }}
+            </div>
+
+            <div class="dashboard-stat-subtitle">
+                All customer orders
             </div>
 
         </div>
 
-        <div class="stat-number">
-            {{ $totalOrders }}
-        </div>
 
-        <div
-            style="
-                color:#9ca3af;
-                font-size:12px;
-                margin-top:4px;
-            "
-        >
-            All customer orders
-        </div>
+        <!-- PENDING ORDERS -->
 
-    </div>
+        <div class="dashboard-stat-card dashboard-stat-pending">
 
-
-    <!-- PENDING ORDERS -->
-
-    <div class="stat-card">
-
-        <div
-            style="
-                display:flex;
-                justify-content:space-between;
-                align-items:center;
-            "
-        >
-
-            <div class="stat-label">
-                PENDING ORDERS
+            <div class="dashboard-stat-label">
+                Pending Orders
             </div>
 
-            <div
-                style="
-                    width:42px;
-                    height:42px;
-                    background:#fef3c7;
-                    border-radius:10px;
-                    display:flex;
-                    align-items:center;
-                    justify-content:center;
-                    font-size:20px;
-                "
-            >
-                ⏳
+            <div class="dashboard-stat-value">
+                {{ $pendingOrders }}
+            </div>
+
+            <div class="dashboard-stat-subtitle">
+                Orders waiting for action
             </div>
 
         </div>
 
-        <div class="stat-number">
-            {{ $pendingOrders }}
+
+        <!-- CUSTOMERS -->
+
+        <div class="dashboard-stat-card">
+
+            <div class="dashboard-stat-label">
+                Customers
+            </div>
+
+            <div class="dashboard-stat-value">
+                {{ $totalCustomers }}
+            </div>
+
+            <div class="dashboard-stat-subtitle">
+                Registered customer accounts
+            </div>
+
         </div>
 
-        <div
-            style="
-                color:#9ca3af;
-                font-size:12px;
-                margin-top:4px;
-            "
-        >
-            Orders needing attention
+
+        <!-- SALES -->
+
+        <div class="dashboard-stat-card dashboard-stat-sales">
+
+            <div class="dashboard-stat-label">
+                Total Sales
+            </div>
+
+            <div class="dashboard-stat-value">
+                ₱{{ number_format($totalSales, 2) }}
+            </div>
+
+            <div class="dashboard-stat-subtitle">
+                From confirmed and completed orders
+            </div>
+
         </div>
 
     </div>
 
 
-    <!-- CUSTOMERS -->
-
-    <div class="stat-card">
-
-        <div
-            style="
-                display:flex;
-                justify-content:space-between;
-                align-items:center;
-            "
-        >
-
-            <div class="stat-label">
-                CUSTOMERS
-            </div>
-
-            <div
-                style="
-                    width:42px;
-                    height:42px;
-                    background:#dbeafe;
-                    border-radius:10px;
-                    display:flex;
-                    align-items:center;
-                    justify-content:center;
-                    font-size:20px;
-                "
-            >
-                👥
-            </div>
-
-        </div>
-
-        <div class="stat-number">
-            {{ $totalCustomers }}
-        </div>
-
-        <div
-            style="
-                color:#9ca3af;
-                font-size:12px;
-                margin-top:4px;
-            "
-        >
-            Registered customers
-        </div>
-
-    </div>
-
-
-    <!-- TOTAL SALES -->
-
-    <div class="stat-card">
-
-        <div
-            style="
-                display:flex;
-                justify-content:space-between;
-                align-items:center;
-            "
-        >
-
-            <div class="stat-label">
-                TOTAL SALES
-            </div>
-
-            <div
-                style="
-                    width:42px;
-                    height:42px;
-                    background:#dcfce7;
-                    border-radius:10px;
-                    display:flex;
-                    align-items:center;
-                    justify-content:center;
-                    font-size:20px;
-                "
-            >
-                💰
-            </div>
-
-        </div>
-
-        <div class="stat-number">
-            ₱{{ number_format($totalSales, 2) }}
-        </div>
-
-        <div
-            style="
-                color:#9ca3af;
-                font-size:12px;
-                margin-top:4px;
-            "
-        >
-            Completed / active sales
-        </div>
-
-    </div>
-
-</div>
-
-
-<br>
-
-
-<!-- =========================
-     MAIN CONTENT
-========================= -->
-
-<div
-    style="
-        display:grid;
-        grid-template-columns:2fr 1fr;
-        gap:20px;
-    "
-    class="dashboard-main-grid"
->
-
-
-    <!-- =========================
-         RECENT ORDERS
-    ========================= -->
+    <!-- =====================================================
+         QUICK ACTIONS
+    ====================================================== -->
 
     <div class="card">
 
-        <div
-            style="
-                display:flex;
-                align-items:center;
-                justify-content:space-between;
-                gap:15px;
-                margin-bottom:18px;
-            "
-        >
+        <div class="quick-actions-header">
 
-            <h2
-                style="
-                    margin:0;
-                    font-size:18px;
-                "
-            >
-                📦 Recent Orders
+            <h2>
+                ⚡ Quick Actions
             </h2>
 
+            <p>
+                Quickly manage your system.
+            </p>
+
+        </div>
+
+
+        <div class="quick-actions-grid">
+
+
+            <!-- PIZZA MENU -->
+
+            <a
+                href="{{ route('admin.pizzas') }}"
+                class="quick-action-card"
+            >
+
+                <div class="quick-action-top">
+
+                    <div class="quick-action-icon">
+                        🍕
+                    </div>
+
+                </div>
+
+                <strong>
+                    Pizza Menu
+                </strong>
+
+                <div class="quick-action-description">
+                    Manage pizzas, categories,
+                    prices and availability.
+                </div>
+
+            </a>
+
+
+            <!-- ORDERS -->
 
             <a
                 href="{{ route('admin.orders') }}"
-                style="
-                    color:#15803d;
-                    text-decoration:none;
-                    font-size:12px;
-                    font-weight:800;
-                "
+                class="quick-action-card"
             >
-                View All →
+
+                <div class="quick-action-top">
+
+                    <div class="quick-action-icon">
+                        📦
+                    </div>
+
+                </div>
+
+                <strong>
+                    Orders
+                </strong>
+
+                <div class="quick-action-description">
+                    View and manage
+                    customer orders.
+                </div>
+
+            </a>
+
+
+            <!-- CUSTOMERS -->
+
+            <a
+                href="{{ route('admin.customers') }}"
+                class="quick-action-card"
+            >
+
+                <div class="quick-action-top">
+
+                    <div class="quick-action-icon">
+                        👥
+                    </div>
+
+                </div>
+
+                <strong>
+                    Customers
+                </strong>
+
+                <div class="quick-action-description">
+                    View registered
+                    customers and orders.
+                </div>
+
+            </a>
+
+
+            <!-- PAYMENTS -->
+
+            <a
+                href="{{ route('admin.payments') }}"
+                class="quick-action-card"
+            >
+
+                <div class="quick-action-top">
+
+                    <div class="quick-action-icon">
+                        💳
+                    </div>
+
+                </div>
+
+                <strong>
+                    Payments
+                </strong>
+
+                <div class="quick-action-description">
+                    Monitor GCash and
+                    cash payments.
+                </div>
+
+            </a>
+
+
+            <!-- DELIVERIES -->
+
+            <a
+                href="{{ route('admin.deliveries') }}"
+                class="quick-action-card"
+            >
+
+                <div class="quick-action-top">
+
+                    <div class="quick-action-icon">
+                        🚚
+                    </div>
+
+                </div>
+
+                <strong>
+                    Deliveries
+                </strong>
+
+                <div class="quick-action-description">
+                    Monitor riders and
+                    delivery status.
+                </div>
+
+            </a>
+
+
+            <!-- CUSTOMER FEEDBACK -->
+
+            <a
+                href="{{ route('admin.feedback') }}"
+                class="quick-action-card feedback-action"
+            >
+
+                <div class="quick-action-top">
+
+                    <div class="quick-action-icon">
+                        💬
+                    </div>
+
+
+                    @if($pendingFeedback > 0)
+
+                        <span class="feedback-badge">
+                            {{ $pendingFeedback }} Pending
+                        </span>
+
+                    @endif
+
+                </div>
+
+
+                <strong>
+                    Customer Feedback
+                </strong>
+
+
+                <div class="quick-action-description">
+                    Review, approve and reply
+                    to customer feedback.
+                </div>
+
+            </a>
+
+
+            <!-- REPORTS -->
+
+            <a
+                href="{{ route('admin.reports') }}"
+                class="quick-action-card"
+            >
+
+                <div class="quick-action-top">
+
+                    <div class="quick-action-icon">
+                        📊
+                    </div>
+
+                </div>
+
+                <strong>
+                    Reports
+                </strong>
+
+                <div class="quick-action-description">
+                    View sales and
+                    system reports.
+                </div>
+
+            </a>
+
+
+            <!-- BANNERS -->
+
+            <a
+                href="{{ route('admin.banners.index') }}"
+                class="quick-action-card"
+            >
+
+                <div class="quick-action-top">
+
+                    <div class="quick-action-icon">
+                        🖼️
+                    </div>
+
+                </div>
+
+                <strong>
+                    Banners
+                </strong>
+
+                <div class="quick-action-description">
+                    Manage homepage banners
+                    and promotions.
+                </div>
+
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <br>
+
+
+    <!-- =====================================================
+         SYSTEM SUMMARY
+    ====================================================== -->
+
+    <div class="card">
+
+        <div class="summary-header">
+
+            <h2>
+                📊 System Summary
+            </h2>
+
+            <a href="{{ route('admin.reports') }}">
+                View Reports →
             </a>
 
         </div>
 
 
-        <div class="table-wrapper">
+        <div class="summary-grid">
+
+
+            <!-- PIZZAS -->
+
+            <a
+                href="{{ route('admin.pizzas') }}"
+                class="summary-card"
+            >
+
+                <div class="summary-label">
+                    PIZZA PRODUCTS
+                </div>
+
+                <div class="summary-number">
+                    {{ $totalPizzas }}
+                </div>
+
+            </a>
+
+
+            <!-- CUSTOMERS -->
+
+            <a
+                href="{{ route('admin.customers') }}"
+                class="summary-card"
+            >
+
+                <div class="summary-label">
+                    CUSTOMERS
+                </div>
+
+                <div class="summary-number">
+                    {{ $totalCustomers }}
+                </div>
+
+            </a>
+
+
+            <!-- PENDING ORDERS -->
+
+            <a
+                href="{{ route('admin.orders') }}"
+                class="summary-card pending-summary"
+            >
+
+                <div class="summary-label">
+                    PENDING ORDERS
+                </div>
+
+                <div class="summary-number">
+                    {{ $pendingOrders }}
+                </div>
+
+            </a>
+
+
+            <!-- PENDING FEEDBACK -->
+
+            <a
+                href="{{ route('admin.feedback') }}"
+                class="summary-card feedback-summary"
+            >
+
+                <div class="summary-label">
+                    PENDING FEEDBACK
+                </div>
+
+                <div class="summary-number">
+                    {{ $pendingFeedback }}
+                </div>
+
+                <div class="summary-small">
+                    Click to review
+                </div>
+
+            </a>
+
+
+            <!-- SALES -->
+
+            <a
+                href="{{ route('admin.reports') }}"
+                class="summary-card"
+            >
+
+                <div class="summary-label">
+                    TOTAL SALES
+                </div>
+
+                <div class="summary-number">
+                    ₱{{ number_format($totalSales, 2) }}
+                </div>
+
+                <div class="summary-small">
+                    View sales reports
+                </div>
+
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <br>
+
+
+    <!-- =====================================================
+         RECENT ORDERS
+    ====================================================== -->
+
+    <div class="card">
+
+        <div class="recent-orders-header">
+
+            <div>
+
+                <h2>
+                    📦 Recent Orders
+                </h2>
+
+                <p>
+                    Latest customer orders in the system.
+                </p>
+
+            </div>
+
+            <a href="{{ route('admin.orders') }}">
+                View All Orders →
+            </a>
+
+        </div>
+
+
+        <div class="dashboard-table-wrapper">
 
             <table>
 
@@ -325,11 +1146,11 @@
                         </th>
 
                         <th>
-                            Amount
+                            Date
                         </th>
 
                         <th>
-                            Payment
+                            Amount
                         </th>
 
                         <th>
@@ -355,13 +1176,9 @@
 
                             <td>
 
-                                <strong
-                                    style="
-                                        color:#15803d;
-                                    "
-                                >
+                                <span class="dashboard-order-number">
                                     {{ $order->order_number }}
-                                </strong>
+                                </span>
 
                             </td>
 
@@ -370,11 +1187,18 @@
 
                             <td>
 
-                                <strong>
-
+                                <span class="dashboard-customer-name">
                                     {{ $order->user->name ?? 'Customer' }}
+                                </span>
 
-                                </strong>
+                            </td>
+
+
+                            <!-- DATE -->
+
+                            <td>
+
+                                {{ $order->created_at->format('M d, Y h:i A') }}
 
                             </td>
 
@@ -383,32 +1207,9 @@
 
                             <td>
 
-                                <strong
-                                    style="
-                                        color:#15803d;
-                                    "
-                                >
-
+                                <span class="dashboard-amount">
                                     ₱{{ number_format($order->total_amount, 2) }}
-
-                                </strong>
-
-                            </td>
-
-
-                            <!-- PAYMENT -->
-
-                            <td>
-
-                                @if($order->payment_method === 'gcash')
-
-                                    📱 GCash
-
-                                @else
-
-                                    💵 Cash
-
-                                @endif
+                                </span>
 
                             </td>
 
@@ -417,45 +1218,10 @@
 
                             <td>
 
-                                @php
-
-                                    $statusClass = match ($order->status) {
-
-                                        'pending' =>
-                                            'pending',
-
-                                        'confirmed' =>
-                                            'confirmed',
-
-                                        'preparing' =>
-                                            'preparing',
-
-                                        'ready_for_delivery' =>
-                                            'ready_for_delivery',
-
-                                        'out_for_delivery' =>
-                                            'out_for_delivery',
-
-                                        'delivered' =>
-                                            'delivered',
-
-                                        'cancelled' =>
-                                            'cancelled',
-
-                                        default =>
-                                            'pending',
-
-                                    };
-
-                                @endphp
-
-
                                 <span
-                                    class="status {{ $statusClass }}"
+                                    class="dashboard-status {{ $order->status }}"
                                 >
-
                                     {{ str_replace('_', ' ', $order->status) }}
-
                                 </span>
 
                             </td>
@@ -467,7 +1233,7 @@
 
                                 <a
                                     href="{{ route('admin.orders.show', $order->id) }}"
-                                    class="btn btn-green"
+                                    class="dashboard-view-button"
                                 >
                                     View
                                 </a>
@@ -476,22 +1242,15 @@
 
                         </tr>
 
-
                     @empty
 
                         <tr>
 
                             <td
                                 colspan="6"
-                                style="
-                                    text-align:center;
-                                    padding:35px;
-                                    color:#6b7280;
-                                "
+                                class="dashboard-empty"
                             >
-
-                                📦 No orders found.
-
+                                No orders found.
                             </td>
 
                         </tr>
@@ -506,583 +1265,6 @@
 
     </div>
 
-
-    <!-- =========================
-         QUICK ACTIONS
-    ========================= -->
-
-    <div class="card">
-
-        <div
-            style="
-                margin-bottom:18px;
-            "
-        >
-
-            <h2
-                style="
-                    margin:0;
-                    font-size:18px;
-                "
-            >
-                ⚡ Quick Actions
-            </h2>
-
-            <p
-                style="
-                    color:#6b7280;
-                    font-size:12px;
-                    margin:6px 0 0;
-                "
-            >
-                Quickly manage your system.
-            </p>
-
-        </div>
-
-
-        <!-- PIZZA MENU -->
-
-        <a
-            href="{{ route('admin.pizzas') }}"
-            style="
-                display:block;
-                text-decoration:none;
-                background:#f0fdf4;
-                border:1px solid #bbf7d0;
-                border-radius:12px;
-                padding:16px;
-                margin-bottom:12px;
-                color:#222;
-                transition:.2s;
-            "
-        >
-
-            <div
-                style="
-                    font-size:25px;
-                    margin-bottom:7px;
-                "
-            >
-                🍕
-            </div>
-
-            <strong
-                style="
-                    color:#15803d;
-                    font-size:13px;
-                "
-            >
-                Pizza Menu
-            </strong>
-
-            <div
-                style="
-                    color:#6b7280;
-                    font-size:11px;
-                    line-height:1.5;
-                    margin-top:4px;
-                "
-            >
-                Manage pizzas, categories,
-                prices and availability.
-            </div>
-
-        </a>
-
-
-        <!-- ORDERS -->
-
-        <a
-            href="{{ route('admin.orders') }}"
-            style="
-                display:block;
-                text-decoration:none;
-                background:#f0fdf4;
-                border:1px solid #bbf7d0;
-                border-radius:12px;
-                padding:16px;
-                margin-bottom:12px;
-                color:#222;
-                transition:.2s;
-            "
-        >
-
-            <div
-                style="
-                    font-size:25px;
-                    margin-bottom:7px;
-                "
-            >
-                📦
-            </div>
-
-            <strong
-                style="
-                    color:#15803d;
-                    font-size:13px;
-                "
-            >
-                Orders
-            </strong>
-
-            <div
-                style="
-                    color:#6b7280;
-                    font-size:11px;
-                    line-height:1.5;
-                    margin-top:4px;
-                "
-            >
-                View and manage
-                customer orders.
-            </div>
-
-        </a>
-
-
-        <!-- CUSTOMERS -->
-
-        <a
-            href="{{ route('admin.customers') }}"
-            style="
-                display:block;
-                text-decoration:none;
-                background:#f0fdf4;
-                border:1px solid #bbf7d0;
-                border-radius:12px;
-                padding:16px;
-                margin-bottom:12px;
-                color:#222;
-                transition:.2s;
-            "
-        >
-
-            <div
-                style="
-                    font-size:25px;
-                    margin-bottom:7px;
-                "
-            >
-                👥
-            </div>
-
-            <strong
-                style="
-                    color:#15803d;
-                    font-size:13px;
-                "
-            >
-                Customers
-            </strong>
-
-            <div
-                style="
-                    color:#6b7280;
-                    font-size:11px;
-                    line-height:1.5;
-                    margin-top:4px;
-                "
-            >
-                View registered
-                customers and orders.
-            </div>
-
-        </a>
-
-
-        <!-- PAYMENTS -->
-
-        <a
-            href="{{ route('admin.payments') }}"
-            style="
-                display:block;
-                text-decoration:none;
-                background:#f0fdf4;
-                border:1px solid #bbf7d0;
-                border-radius:12px;
-                padding:16px;
-                margin-bottom:12px;
-                color:#222;
-                transition:.2s;
-            "
-        >
-
-            <div
-                style="
-                    font-size:25px;
-                    margin-bottom:7px;
-                "
-            >
-                💳
-            </div>
-
-            <strong
-                style="
-                    color:#15803d;
-                    font-size:13px;
-                "
-            >
-                Payments
-            </strong>
-
-            <div
-                style="
-                    color:#6b7280;
-                    font-size:11px;
-                    line-height:1.5;
-                    margin-top:4px;
-                "
-            >
-                Monitor GCash and
-                cash payments.
-            </div>
-
-        </a>
-
-
-        <!-- DELIVERIES -->
-
-        <a
-            href="{{ route('admin.deliveries') }}"
-            style="
-                display:block;
-                text-decoration:none;
-                background:#f0fdf4;
-                border:1px solid #bbf7d0;
-                border-radius:12px;
-                padding:16px;
-                margin-bottom:12px;
-                color:#222;
-                transition:.2s;
-            "
-        >
-
-            <div
-                style="
-                    font-size:25px;
-                    margin-bottom:7px;
-                "
-            >
-                🚚
-            </div>
-
-            <strong
-                style="
-                    color:#15803d;
-                    font-size:13px;
-                "
-            >
-                Deliveries
-            </strong>
-
-            <div
-                style="
-                    color:#6b7280;
-                    font-size:11px;
-                    line-height:1.5;
-                    margin-top:4px;
-                "
-            >
-                Monitor riders and
-                delivery status.
-            </div>
-
-        </a>
-
-
-        <!-- REPORTS -->
-
-        <a
-            href="{{ route('admin.reports') }}"
-            style="
-                display:block;
-                text-decoration:none;
-                background:#f0fdf4;
-                border:1px solid #bbf7d0;
-                border-radius:12px;
-                padding:16px;
-                color:#222;
-                transition:.2s;
-            "
-        >
-
-            <div
-                style="
-                    font-size:25px;
-                    margin-bottom:7px;
-                "
-            >
-                📊
-            </div>
-
-            <strong
-                style="
-                    color:#15803d;
-                    font-size:13px;
-                "
-            >
-                Reports
-            </strong>
-
-            <div
-                style="
-                    color:#6b7280;
-                    font-size:11px;
-                    line-height:1.5;
-                    margin-top:4px;
-                "
-            >
-                View sales and
-                system reports.
-            </div>
-
-        </a>
-
-    </div>
-
 </div>
-
-
-<br>
-
-
-<!-- =========================
-     SYSTEM SUMMARY
-========================= -->
-
-<div class="card">
-
-    <div
-        style="
-            display:flex;
-            align-items:center;
-            justify-content:space-between;
-            margin-bottom:18px;
-        "
-    >
-
-        <h2
-            style="
-                margin:0;
-                font-size:18px;
-            "
-        >
-            📊 System Summary
-        </h2>
-
-        <a
-            href="{{ route('admin.reports') }}"
-            style="
-                color:#15803d;
-                text-decoration:none;
-                font-size:12px;
-                font-weight:800;
-            "
-        >
-            View Reports →
-        </a>
-
-    </div>
-
-
-    <div
-        style="
-            display:grid;
-            grid-template-columns:
-                repeat(4, 1fr);
-            gap:15px;
-        "
-    >
-
-
-        <!-- PIZZAS -->
-
-        <a
-            href="{{ route('admin.pizzas') }}"
-            style="
-                text-decoration:none;
-                color:#222;
-                background:#f0fdf4;
-                border:1px solid #bbf7d0;
-                border-radius:10px;
-                padding:16px;
-            "
-        >
-
-            <div
-                style="
-                    color:#6b7280;
-                    font-size:11px;
-                    font-weight:700;
-                "
-            >
-                PIZZA PRODUCTS
-            </div>
-
-            <div
-                style="
-                    color:#15803d;
-                    font-size:25px;
-                    font-weight:900;
-                    margin-top:6px;
-                "
-            >
-                {{ $totalPizzas }}
-            </div>
-
-        </a>
-
-
-        <!-- CUSTOMERS -->
-
-        <a
-            href="{{ route('admin.customers') }}"
-            style="
-                text-decoration:none;
-                color:#222;
-                background:#f0fdf4;
-                border:1px solid #bbf7d0;
-                border-radius:10px;
-                padding:16px;
-            "
-        >
-
-            <div
-                style="
-                    color:#6b7280;
-                    font-size:11px;
-                    font-weight:700;
-                "
-            >
-                CUSTOMERS
-            </div>
-
-            <div
-                style="
-                    color:#15803d;
-                    font-size:25px;
-                    font-weight:900;
-                    margin-top:6px;
-                "
-            >
-                {{ $totalCustomers }}
-            </div>
-
-        </a>
-
-
-        <!-- PENDING -->
-
-        <a
-            href="{{ route('admin.orders') }}"
-            style="
-                text-decoration:none;
-                color:#222;
-                background:#fff7ed;
-                border:1px solid #fed7aa;
-                border-radius:10px;
-                padding:16px;
-            "
-        >
-
-            <div
-                style="
-                    color:#6b7280;
-                    font-size:11px;
-                    font-weight:700;
-                "
-            >
-                PENDING ORDERS
-            </div>
-
-            <div
-                style="
-                    color:#d97706;
-                    font-size:25px;
-                    font-weight:900;
-                    margin-top:6px;
-                "
-            >
-                {{ $pendingOrders }}
-            </div>
-
-        </a>
-
-
-        <!-- SALES -->
-
-        <a
-            href="{{ route('admin.reports') }}"
-            style="
-                text-decoration:none;
-                color:#222;
-                background:#f0fdf4;
-                border:1px solid #bbf7d0;
-                border-radius:10px;
-                padding:16px;
-            "
-        >
-
-            <div
-                style="
-                    color:#6b7280;
-                    font-size:11px;
-                    font-weight:700;
-                "
-            >
-                TOTAL SALES
-            </div>
-
-            <div
-                style="
-                    color:#15803d;
-                    font-size:20px;
-                    font-weight:900;
-                    margin-top:8px;
-                "
-            >
-                ₱{{ number_format($totalSales, 2) }}
-            </div>
-
-        </a>
-
-    </div>
-
-</div>
-
-
-<style>
-
-@media(max-width:1000px) {
-
-    .dashboard-main-grid {
-        grid-template-columns:1fr !important;
-    }
-
-}
-
-@media(max-width:700px) {
-
-    .dashboard-main-grid > div {
-        min-width:0;
-    }
-
-}
-
-@media(max-width:600px) {
-
-    .dashboard-main-grid {
-        grid-template-columns:1fr !important;
-    }
-
-    .dashboard-main-grid + br + .card > div:last-child {
-        grid-template-columns:
-            repeat(2, 1fr) !important;
-    }
-
-}
-
-</style>
 
 @endsection

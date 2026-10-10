@@ -13,18 +13,18 @@ class Order extends Model
     use HasFactory;
 
     protected $fillable = [
-    'user_id',
-    'order_number',
-    'subtotal',
-    'delivery_fee',
-    'total_amount',
-    'delivery_address',
-    'contact_number',
-    'delivery_method',
-    'payment_method',
-    'status',
-    'notes',
-];
+        'user_id',
+        'order_number',
+        'subtotal',
+        'delivery_fee',
+        'total_amount',
+        'delivery_address',
+        'contact_number',
+        'delivery_method',
+        'payment_method',
+        'status',
+        'notes',
+    ];
 
     protected $casts = [
         'subtotal' => 'decimal:2',
@@ -44,7 +44,7 @@ class Order extends Model
 
     public function delivery(): HasOne
     {
-        return $this->hasOne(Delivery::class);
+        return $this->hasOne(Delivery::class, 'order_id');
     }
 
     public function payment(): HasOne

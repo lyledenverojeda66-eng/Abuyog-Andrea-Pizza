@@ -12,6 +12,11 @@
 
     <title>Abuyog Andrea Pizza</title>
 
+    <title>Abuyog Andrea Pizza</title>
+
+<link rel="icon"
+      type="image/jpeg"
+      href="{{ asset('images/andrea-pizza-logo.jpg') }}?v=20">
 
     <style>
 

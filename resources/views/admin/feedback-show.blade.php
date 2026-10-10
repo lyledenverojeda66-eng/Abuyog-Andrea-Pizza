@@ -1,314 +1,775 @@
-<!DOCTYPE html>
-<html lang="en">
+@extends('admin.layout')
 
-<head>
+@section('title', 'Feedback Details')
 
-    <meta charset="UTF-8">
+@section('content')
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+<style>
+    .feedback-show-page {
+        width: 100%;
+    }
 
-    <title>Feedback Details</title>
+    .feedback-show-page .page-header {
+        margin-bottom: 20px;
+    }
 
-    <style>
+    .feedback-show-page .page-header h1 {
+        margin: 0 0 6px;
+        line-height: 1.4;
+    }
 
-        * {
-            box-sizing: border-box;
+    .feedback-show-page .page-header p {
+        margin: 0;
+        color: #6b7280;
+        line-height: 1.5;
+    }
+
+    .feedback-show-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 360px;
+        gap: 20px;
+        align-items: start;
+    }
+
+    .feedback-show-card {
+        width: 100%;
+    }
+
+    .feedback-show-card h2 {
+        margin: 0 0 18px;
+        font-size: 18px;
+        line-height: 1.4;
+    }
+
+    .feedback-info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 15px;
+    }
+
+    .feedback-info-item {
+        padding: 14px;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        background: #fafafa;
+    }
+
+    .feedback-info-label {
+        margin-bottom: 6px;
+        color: #6b7280;
+        font-size: 11px;
+        font-weight: 800;
+        line-height: 1.4;
+        text-transform: uppercase;
+        letter-spacing: .4px;
+    }
+
+    .feedback-info-value {
+        color: #111827;
+        font-size: 14px;
+        font-weight: 700;
+        line-height: 1.5;
+        word-break: break-word;
+    }
+
+    .feedback-order-link {
+        color: #15803d;
+        text-decoration: none;
+        font-weight: 800;
+    }
+
+    .feedback-order-link:hover {
+        text-decoration: underline;
+    }
+
+    .feedback-type {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 5px 9px;
+        border-radius: 999px;
+        font-size: 10px;
+        font-weight: 900;
+        line-height: 1.4;
+        white-space: nowrap;
+    }
+
+    .feedback-type-feedback {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .feedback-type-concern {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .feedback-rating {
+        color: #d97706;
+        font-weight: 800;
+    }
+
+    .feedback-status {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 5px 10px;
+        border-radius: 999px;
+        font-size: 10px;
+        font-weight: 900;
+        line-height: 1.4;
+        text-transform: capitalize;
+        white-space: nowrap;
+    }
+
+    .feedback-status-pending {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .feedback-status-approved {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .feedback-status-rejected {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .feedback-content-box {
+        margin-top: 20px;
+    }
+
+    .feedback-content-label {
+        margin-bottom: 7px;
+        color: #374151;
+        font-size: 12px;
+        font-weight: 800;
+        line-height: 1.4;
+    }
+
+    .feedback-content {
+        padding: 15px;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        background: #fafafa;
+        color: #374151;
+        font-size: 13px;
+        line-height: 1.65;
+        white-space: pre-wrap;
+        word-break: break-word;
+    }
+
+    .feedback-sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .action-card {
+        width: 100%;
+    }
+
+    .action-card h2 {
+        margin: 0 0 15px;
+        font-size: 17px;
+        line-height: 1.4;
+    }
+
+    .action-form {
+        margin: 0 0 10px;
+    }
+
+    .action-form:last-child {
+        margin-bottom: 0;
+    }
+
+    .action-button {
+        width: 100%;
+        min-height: 42px;
+        padding: 10px 14px;
+
+        border: 0;
+        border-radius: 8px;
+
+        font-family: inherit;
+        font-size: 12px;
+        font-weight: 800;
+
+        line-height: 1.4;
+
+        cursor: pointer;
+    }
+
+    .approve-button {
+        background: #15803d;
+        color: #fff;
+    }
+
+    .approve-button:hover {
+        background: #166534;
+    }
+
+    .reject-button {
+        background: #dc2626;
+        color: #fff;
+    }
+
+    .reject-button:hover {
+        background: #b91c1c;
+    }
+
+    .back-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        width: 100%;
+        min-height: 42px;
+        padding: 10px 14px;
+
+        border-radius: 8px;
+
+        background: #f3f4f6;
+        color: #374151;
+
+        font-size: 12px;
+        font-weight: 800;
+
+        line-height: 1.4;
+        text-decoration: none;
+    }
+
+    .back-button:hover {
+        background: #e5e7eb;
+        color: #111827;
+        text-decoration: none;
+    }
+
+    .reply-form label {
+        display: block;
+        margin-bottom: 7px;
+
+        color: #374151;
+        font-size: 12px;
+        font-weight: 800;
+        line-height: 1.4;
+    }
+
+    .reply-form textarea {
+        width: 100%;
+        min-height: 130px;
+        padding: 11px 12px;
+
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+
+        background: #fff;
+        color: #111827;
+
+        font-family: inherit;
+        font-size: 13px;
+
+        line-height: 1.5;
+
+        resize: vertical;
+        outline: none;
+    }
+
+    .reply-form textarea:focus {
+        border-color: #15803d;
+        box-shadow: 0 0 0 3px rgba(21, 128, 61, .10);
+    }
+
+    .reply-submit {
+        width: 100%;
+        margin-top: 10px;
+        min-height: 42px;
+        padding: 10px 14px;
+
+        border: 0;
+        border-radius: 8px;
+
+        background: #15803d;
+        color: #fff;
+
+        font-family: inherit;
+        font-size: 12px;
+        font-weight: 800;
+
+        cursor: pointer;
+    }
+
+    .reply-submit:hover {
+        background: #166534;
+    }
+
+    .existing-reply {
+        margin-top: 20px;
+    }
+
+    .existing-reply-box {
+        padding: 14px;
+
+        border: 1px solid #bbf7d0;
+        border-radius: 10px;
+
+        background: #f0fdf4;
+
+        color: #166534;
+        font-size: 13px;
+
+        line-height: 1.6;
+        white-space: pre-wrap;
+        word-break: break-word;
+    }
+
+    .danger-note {
+        margin-top: 12px;
+        padding: 11px 12px;
+
+        border-radius: 8px;
+
+        background: #fff7ed;
+        color: #9a3412;
+
+        font-size: 11px;
+        line-height: 1.5;
+    }
+
+    @media (max-width: 900px) {
+        .feedback-show-grid {
+            grid-template-columns: 1fr;
         }
 
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #f5f5f5;
+        .feedback-sidebar {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 600px) {
+        .feedback-info-grid {
+            grid-template-columns: 1fr;
         }
 
-        .navbar {
-            background: #111;
-            color: white;
-            padding: 15px 30px;
+        .feedback-sidebar {
+            display: flex;
         }
+    }
+</style>
 
-        .navbar a {
-            color: white;
-            text-decoration: none;
-            margin-right: 20px;
-        }
 
-        .container {
-            max-width: 800px;
-            margin: 30px auto;
-            padding: 20px;
-        }
+<div class="feedback-show-page">
 
-        .card {
-            background: white;
-            padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,.08);
-            margin-bottom: 20px;
-        }
+    <!-- HEADER -->
 
-        .stars {
-            color: #f5a623;
-            font-size: 25px;
-        }
+    <div class="page-header">
 
-        .label {
-            font-weight: bold;
-            margin-top: 15px;
-            display: block;
-        }
+        <div>
 
-        .message {
-            background: #f7f7f7;
-            padding: 15px;
-            border-radius: 7px;
-            margin-top: 5px;
-        }
-
-        textarea {
-            width: 100%;
-            min-height: 130px;
-            padding: 12px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            resize: vertical;
-        }
-
-        .btn {
-            padding: 10px 15px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-            margin-top: 10px;
-        }
-
-        .reply {
-            background: #198754;
-            color: white;
-        }
-
-        .approve {
-            background: #0d6efd;
-            color: white;
-        }
-
-        .reject {
-            background: #dc3545;
-            color: white;
-        }
-
-        .success {
-            background: #d4edda;
-            color: #155724;
-            padding: 12px;
-            border-radius: 6px;
-            margin-bottom: 20px;
-        }
-
-    </style>
-
-</head>
-
-<body>
-
-<div class="navbar">
-
-    <a href="{{ route('admin.dashboard') }}">
-        Dashboard
-    </a>
-
-    <a href="{{ route('admin.feedback') }}">
-        Customer Feedback
-    </a>
-
-</div>
-
-<div class="container">
-
-    @if(session('success'))
-
-        <div class="success">
-            {{ session('success') }}
-        </div>
-
-    @endif
-
-    <div class="card">
-
-        <h2>
-            Customer Feedback
-        </h2>
-
-        <p>
-            <strong>Customer:</strong>
-            {{ $feedback->user->name ?? 'Customer' }}
-        </p>
-
-        @if($feedback->order)
+            <h1>
+                💬 Feedback Details
+            </h1>
 
             <p>
-                <strong>Order:</strong>
-                #{{ $feedback->order->order_number }}
+                Review the customer's feedback or concern.
             </p>
-
-        @endif
-
-        <p>
-            <strong>Type:</strong>
-            {{ ucfirst($feedback->type) }}
-        </p>
-
-        <p>
-            <strong>Rating:</strong>
-        </p>
-
-        <div class="stars">
-
-            @for($i = 1; $i <= 5; $i++)
-
-                {{ $i <= $feedback->rating ? '★' : '☆' }}
-
-            @endfor
 
         </div>
 
-        <span class="label">
-            Customer Message
-        </span>
+    </div>
 
-        <div class="message">
 
-            @if($feedback->message)
+    <div class="feedback-show-grid">
 
-                {{ $feedback->message }}
 
-            @elseif($feedback->concern)
+        <!-- =========================
+             MAIN INFORMATION
+        ========================== -->
 
-                {{ $feedback->concern }}
+        <div class="card feedback-show-card">
 
-            @else
+            <h2>
+                Customer Feedback
+            </h2>
 
-                No message.
+
+            <div class="feedback-info-grid">
+
+
+                <!-- CUSTOMER -->
+
+                <div class="feedback-info-item">
+
+                    <div class="feedback-info-label">
+                        Customer
+                    </div>
+
+                    <div class="feedback-info-value">
+
+                        {{ $feedback->user->name ?? 'Customer' }}
+
+                    </div>
+
+                </div>
+
+
+                <!-- EMAIL -->
+
+                <div class="feedback-info-item">
+
+                    <div class="feedback-info-label">
+                        Email
+                    </div>
+
+                    <div class="feedback-info-value">
+
+                        {{ $feedback->user->email ?? '—' }}
+
+                    </div>
+
+                </div>
+
+
+                <!-- ORDER -->
+
+                <div class="feedback-info-item">
+
+                    <div class="feedback-info-label">
+                        Order
+                    </div>
+
+                    <div class="feedback-info-value">
+
+                        @if($feedback->order)
+
+                            <span class="feedback-order-link">
+                                {{ $feedback->order->order_number }}
+                            </span>
+
+                        @else
+
+                            —
+
+                        @endif
+
+                    </div>
+
+                </div>
+
+
+                <!-- TYPE -->
+
+                <div class="feedback-info-item">
+
+                    <div class="feedback-info-label">
+                        Type
+                    </div>
+
+                    <div class="feedback-info-value">
+
+                        @if($feedback->type === 'concern')
+
+                            <span class="feedback-type feedback-type-concern">
+                                ⚠️ Concern
+                            </span>
+
+                        @else
+
+                            <span class="feedback-type feedback-type-feedback">
+                                💬 Feedback
+                            </span>
+
+                        @endif
+
+                    </div>
+
+                </div>
+
+
+                <!-- RATING -->
+
+                <div class="feedback-info-item">
+
+                    <div class="feedback-info-label">
+                        Rating
+                    </div>
+
+                    <div class="feedback-info-value">
+
+                        @if($feedback->rating)
+
+                            <span class="feedback-rating">
+                                {{ str_repeat('⭐', (int) $feedback->rating) }}
+                                {{ $feedback->rating }}/5
+                            </span>
+
+                        @else
+
+                            —
+
+                        @endif
+
+                    </div>
+
+                </div>
+
+
+                <!-- STATUS -->
+
+                <div class="feedback-info-item">
+
+                    <div class="feedback-info-label">
+                        Status
+                    </div>
+
+                    <div class="feedback-info-value">
+
+                        @if($feedback->status === 'approved')
+
+                            <span class="feedback-status feedback-status-approved">
+                                Approved
+                            </span>
+
+                        @elseif($feedback->status === 'rejected')
+
+                            <span class="feedback-status feedback-status-rejected">
+                                Rejected
+                            </span>
+
+                        @else
+
+                            <span class="feedback-status feedback-status-pending">
+                                Pending
+                            </span>
+
+                        @endif
+
+                    </div>
+
+                </div>
+
+
+                <!-- DATE -->
+
+                <div class="feedback-info-item">
+
+                    <div class="feedback-info-label">
+                        Submitted
+                    </div>
+
+                    <div class="feedback-info-value">
+
+                        {{ $feedback->created_at->format('M d, Y h:i A') }}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- MESSAGE -->
+
+            <div class="feedback-content-box">
+
+                <div class="feedback-content-label">
+                    Customer Message
+                </div>
+
+                <div class="feedback-content">
+
+                    {{ $feedback->message ?: 'No message provided.' }}
+
+                </div>
+
+            </div>
+
+
+            <!-- CONCERN -->
+
+            @if($feedback->concern)
+
+                <div class="feedback-content-box">
+
+                    <div class="feedback-content-label">
+                        Concern
+                    </div>
+
+                    <div class="feedback-content">
+
+                        {{ $feedback->concern }}
+
+                    </div>
+
+                </div>
+
+            @endif
+
+
+            <!-- EXISTING ADMIN REPLY -->
+
+            @if($feedback->admin_reply)
+
+                <div class="existing-reply">
+
+                    <div class="feedback-content-label">
+                        Admin Reply
+                    </div>
+
+                    <div class="existing-reply-box">
+
+                        {{ $feedback->admin_reply }}
+
+                    </div>
+
+                </div>
 
             @endif
 
         </div>
 
-        <p>
 
-            <strong>Status:</strong>
-            {{ ucfirst($feedback->status) }}
+        <!-- =========================
+             SIDEBAR
+        ========================== -->
 
-        </p>
-
-    </div>
+        <div class="feedback-sidebar">
 
 
-    @if($feedback->status !== 'approved')
+            <!-- ACTIONS -->
 
-        <div class="card">
+            <div class="card action-card">
 
-            <h3>
-                Approve Feedback
-            </h3>
+                <h2>
+                    ⚙️ Actions
+                </h2>
 
-            <form
-                action="{{ route('admin.feedback.approve', $feedback->id) }}"
-                method="POST"
-            >
 
-                @csrf
-                @method('PUT')
+                <!-- APPROVE -->
 
-                <button
-                    type="submit"
-                    class="btn approve"
+                @if($feedback->status !== 'approved')
+
+                    <form
+                        action="{{ route('admin.feedback.approve', $feedback->id) }}"
+                        method="POST"
+                        class="action-form"
+                    >
+    @csrf
+    @method('PUT')
+
+                        @csrf
+
+                        <button
+                            type="submit"
+                            class="action-button approve-button"
+                            onclick="return confirm('Approve and publish this feedback?');"
+                        >
+                            ✓ Approve & Publish
+                        </button>
+
+                    </form>
+
+                @endif
+
+
+                <!-- REJECT -->
+
+                @if($feedback->status !== 'rejected')
+
+                    <form
+                        action="{{ route('admin.feedback.reject', $feedback->id) }}"
+                        method="POST"
+                        class="action-form"
+                    >
+
+                        @csrf
+
+                        <button
+                            type="submit"
+                            class="action-button reject-button"
+                            onclick="return confirm('Reject this feedback?');"
+                        >
+                            ✕ Reject Feedback
+                        </button>
+
+                    </form>
+
+                @endif
+
+
+                <!-- BACK -->
+
+                <a
+                    href="{{ route('admin.feedback') }}"
+                    class="back-button"
                 >
-                    Approve & Publish
-                </button>
+                    ← Back to Feedback
+                </a>
 
-            </form>
+            </div>
+
+
+            <!-- ADMIN REPLY -->
+
+            <div class="card action-card reply-form">
+
+                <h2>
+                    💬 Admin Reply
+                </h2>
+
+
+                <form
+                    action="{{ route('admin.feedback.reply', $feedback->id) }}"
+                    method="POST"
+                >
+
+                    @csrf
+
+                    <label for="admin_reply">
+                        Reply to Customer
+                    </label>
+
+                    <textarea
+                        name="admin_reply"
+                        id="admin_reply"
+                        placeholder="Write your reply here..."
+                        required
+                    >{{ old('admin_reply', $feedback->admin_reply) }}</textarea>
+
+
+                    <button
+                        type="submit"
+                        class="reply-submit"
+                    >
+                        💬 Save Reply
+                    </button>
+
+                </form>
+
+            </div>
+
+
+            <!-- NOTE -->
+
+            @if($feedback->status === 'pending')
+
+                <div class="danger-note">
+                    ℹ️ This feedback is still pending approval.
+                    Approve it to publish it on the customer homepage.
+                </div>
+
+            @endif
+
 
         </div>
-
-    @endif
-
-
-    @if($feedback->status !== 'rejected')
-
-        <div class="card">
-
-            <h3>
-                Reject Feedback
-            </h3>
-
-            <form
-                action="{{ route('admin.feedback.reject', $feedback->id) }}"
-                method="POST"
-            >
-
-                @csrf
-                @method('PUT')
-
-                <button
-                    type="submit"
-                    class="btn reject"
-                >
-                    Reject
-                </button>
-
-            </form>
-
-        </div>
-
-    @endif
-
-
-    <div class="card">
-
-        <h3>
-            Admin Reply
-        </h3>
-
-        <form
-            action="{{ route('admin.feedback.reply', $feedback->id) }}"
-            method="POST"
-        >
-
-            @csrf
-            @method('PUT')
-
-            <textarea
-                name="admin_reply"
-                placeholder="Write your reply to the customer..."
-            >{{ old('admin_reply', $feedback->admin_reply) }}</textarea>
-
-            @error('admin_reply')
-
-                <p style="color:red;">
-                    {{ $message }}
-                </p>
-
-            @enderror
-
-            <button
-                type="submit"
-                class="btn reply"
-            >
-                Save Admin Reply
-            </button>
-
-        </form>
 
     </div>
 
 </div>
 
-</body>
+@endsection
 
-</html>
+
