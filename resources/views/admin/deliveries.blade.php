@@ -746,72 +746,34 @@
 
 
 
-                            {{-- ASSIGN RIDER --}}
-
+                           {{-- ASSIGN RIDER --}}
 <td>
-
     <form
-
         action="{{ route('admin.deliveries.assign-rider', $delivery->id) }}"
-
         method="POST"
-
         class="form-stack"
-
     >
-
         @csrf
-
         @method('PUT')
 
-
-
         <select
-
             name="rider_id"
-
             aria-label="Select rider"
-
             required
-
+            onchange="if (this.value && confirm('Assign this rider to the order?')) this.form.requestSubmit();"
         >
-
             <option value="">Select Rider</option>
 
-
-
             @foreach ($riders as $rider)
-
                 <option
-
                     value="{{ $rider->id }}"
-
-                    @selected(
-
-                        (int) $delivery->rider_id === (int) $rider->id
-
-                    )
-
+                    @selected((int) $delivery->rider_id === (int) $rider->id)
                 >
-
                     {{ $rider->name }}
-
                 </option>
-
             @endforeach
-
         </select>
-
-
-
-        <button type="submit" class="btn-delivery">
-
-            {{ $delivery->rider_id ? 'Update Rider' : 'Assign Rider' }}
-
-        </button>
-
     </form>
-
 </td>
 
                            {{-- RIDER PHONE CONTACT --}}
@@ -902,66 +864,60 @@
 
 
 
-                            {{-- PAYMENT STATUS --}}
+                           {{-- AUTOMATIC PAYMENT STATUS --}}
+<td>
+    @php
+        $paymentStatus = strtolower(
+            $delivery->order?->payment?->status
+            ?? $delivery->payment_status
+            ?? 'pending'
+        );
 
-                            <td>
+        $paymentLabels = [
+            'paid' => 'Paid',
+            'pending' => 'Pending',
+            'failed' => 'Failed',
+        ];
 
-                                <form
+        $paymentColors = [
+            'paid' => [
+                'background' => '#dcfce7',
+                'color' => '#166534',
+            ],
+            'pending' => [
+                'background' => '#fef3c7',
+                'color' => '#92400e',
+            ],
+            'failed' => [
+                'background' => '#fee2e2',
+                'color' => '#991b1b',
+            ],
+        ];
 
-                                    action="{{ route('admin.deliveries.update-payment', $delivery->id) }}"
+        $paymentLabel = $paymentLabels[$paymentStatus]
+            ?? ucfirst(str_replace('_', ' ', $paymentStatus));
 
-                                    method="POST"
+        $paymentColor = $paymentColors[$paymentStatus]
+            ?? [
+                'background' => '#f1f5f9',
+                'color' => '#475569',
+            ];
+    @endphp
 
-                                    class="form-stack"
+    <span
+        class="status-label"
+        style="background: {{ $paymentColor['background'] }};
+               color: {{ $paymentColor['color'] }};"
+    >
+        {{ $paymentLabel }}
+    </span>
 
-                                >
-
-                                    @csrf
-
-                                    @method('PUT')
-
-
-
-                                    <select name="payment_status" aria-label="Payment status" required>
-
-                                        @foreach([
-
-                                            'pending' => 'Pending',
-
-                                            'paid' => 'Paid',
-
-                                            'failed' => 'Failed'
-
-                                        ] as $value => $label)
-
-                                            <option
-
-                                                value="{{ $value }}"
-
-                                                @selected(($delivery->payment_status ?? 'pending') === $value)
-
-                                            >
-
-                                                {{ $label }}
-
-                                            </option>
-
-                                        @endforeach
-
-                                    </select>
-
-
-
-                                    <button type="submit" class="btn-delivery btn-payment">
-
-                                        Update Payment
-
-                                    </button>
-
-                                </form>
-
-                            </td>
-
+    @if ($paymentStatus === 'paid' && $delivery->payment_received_at)
+        <span class="date-text">
+            {{ $delivery->payment_received_at->format('M d, Y h:i A') }}
+        </span>
+    @endif
+</td>
 
 
                             {{-- PICKED UP --}}

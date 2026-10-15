@@ -748,74 +748,35 @@
 
 
 
-                            
-
+                           
 <td>
-
     <form
-
         action="<?php echo e(route('admin.deliveries.assign-rider', $delivery->id)); ?>"
-
         method="POST"
-
         class="form-stack"
-
     >
-
         <?php echo csrf_field(); ?>
-
         <?php echo method_field('PUT'); ?>
 
-
-
         <select
-
             name="rider_id"
-
             aria-label="Select rider"
-
             required
-
+            onchange="if (this.value && confirm('Assign this rider to the order?')) this.form.requestSubmit();"
         >
-
             <option value="">Select Rider</option>
 
-
-
             <?php $__currentLoopData = $riders; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $rider): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-
                 <option
-
                     value="<?php echo e($rider->id); ?>"
-
-                    <?php if(
-
-                        (int) $delivery->rider_id === (int) $rider->id
-
-                    ): echo 'selected'; endif; ?>
-
+                    <?php if((int) $delivery->rider_id === (int) $rider->id): echo 'selected'; endif; ?>
                 >
-
                     <?php echo e($rider->name); ?>
 
-
                 </option>
-
             <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-
         </select>
-
-
-
-        <button type="submit" class="btn-delivery">
-
-            <?php echo e($delivery->rider_id ? 'Update Rider' : 'Assign Rider'); ?>
-
-
-        </button>
-
     </form>
-
 </td>
 
                            
@@ -908,67 +869,62 @@
 
 
 
-                            
+                           
+<td>
+    <?php
+        $paymentStatus = strtolower(
+            $delivery->order?->payment?->status
+            ?? $delivery->payment_status
+            ?? 'pending'
+        );
 
-                            <td>
+        $paymentLabels = [
+            'paid' => 'Paid',
+            'pending' => 'Pending',
+            'failed' => 'Failed',
+        ];
 
-                                <form
+        $paymentColors = [
+            'paid' => [
+                'background' => '#dcfce7',
+                'color' => '#166534',
+            ],
+            'pending' => [
+                'background' => '#fef3c7',
+                'color' => '#92400e',
+            ],
+            'failed' => [
+                'background' => '#fee2e2',
+                'color' => '#991b1b',
+            ],
+        ];
 
-                                    action="<?php echo e(route('admin.deliveries.update-payment', $delivery->id)); ?>"
+        $paymentLabel = $paymentLabels[$paymentStatus]
+            ?? ucfirst(str_replace('_', ' ', $paymentStatus));
 
-                                    method="POST"
+        $paymentColor = $paymentColors[$paymentStatus]
+            ?? [
+                'background' => '#f1f5f9',
+                'color' => '#475569',
+            ];
+    ?>
 
-                                    class="form-stack"
+    <span
+        class="status-label"
+        style="background: <?php echo e($paymentColor['background']); ?>;
+               color: <?php echo e($paymentColor['color']); ?>;"
+    >
+        <?php echo e($paymentLabel); ?>
 
-                                >
+    </span>
 
-                                    <?php echo csrf_field(); ?>
+    <?php if($paymentStatus === 'paid' && $delivery->payment_received_at): ?>
+        <span class="date-text">
+            <?php echo e($delivery->payment_received_at->format('M d, Y h:i A')); ?>
 
-                                    <?php echo method_field('PUT'); ?>
-
-
-
-                                    <select name="payment_status" aria-label="Payment status" required>
-
-                                        <?php $__currentLoopData = [
-
-                                            'pending' => 'Pending',
-
-                                            'paid' => 'Paid',
-
-                                            'failed' => 'Failed'
-
-                                        ]; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $value => $label): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-
-                                            <option
-
-                                                value="<?php echo e($value); ?>"
-
-                                                <?php if(($delivery->payment_status ?? 'pending') === $value): echo 'selected'; endif; ?>
-
-                                            >
-
-                                                <?php echo e($label); ?>
-
-
-                                            </option>
-
-                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-
-                                    </select>
-
-
-
-                                    <button type="submit" class="btn-delivery btn-payment">
-
-                                        Update Payment
-
-                                    </button>
-
-                                </form>
-
-                            </td>
-
+        </span>
+    <?php endif; ?>
+</td>
 
 
                             

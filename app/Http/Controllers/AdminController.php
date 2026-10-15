@@ -204,95 +204,136 @@ class AdminController extends Controller
      * Update order status and create a delivery record
      * when a delivery order becomes confirmed.
      */
-    public function updateOrderStatus(Request $request, Order $order)
-    {
-        $validated = $request->validate([
-            'status' => [
-                'required',
-                'in:pending,confirmed,preparing,ready_for_delivery,out_for_delivery,delivered,cancelled',
-            ],
+   public function updateOrderStatus(Request $request, Order $order)
+{
+    $validated = $request->validate([
+        'status' => [
+            'required',
+            'in:pending,confirmed,preparing,ready_for_delivery,out_for_delivery,delivered,cancelled',
+        ],
+    ]);
+
+    DB::transaction(function () use ($order, $validated) {
+        $order->update([
+            'status' => $validated['status'],
         ]);
 
-        DB::transaction(function () use ($order, $validated) {
-            $order->update([
-                'status' => $validated['status'],
+        if (
+            $validated['status'] === 'confirmed'
+            && $order->delivery_option === 'delivery'
+        ) {
+            $payment = $order->payment;
+
+            $paymentStatus = strtolower(
+                $payment?->status ?? 'pending'
+            );
+
+            $delivery = Delivery::firstOrCreate(
+                ['order_id' => $order->id],
+                [
+                    'status' => 'pending',
+                    'payment_status' => $paymentStatus,
+                    'payment_received_at' =>
+                        $paymentStatus === 'paid'
+                            ? ($payment?->paid_at ?? now())
+                            : null,
+                ]
+            );
+
+            // Sync an existing delivery record without duplicating it.
+            $delivery->update([
+                'payment_status' => $paymentStatus,
+                'payment_received_at' =>
+                    $paymentStatus === 'paid'
+                        ? (
+                            $delivery->payment_received_at
+                            ?? $payment?->paid_at
+                            ?? now()
+                        )
+                        : null,
             ]);
+        }
+    });
 
-            // Use delivery_option, the column referenced by Reports.
-            if (
-                $validated['status'] === 'confirmed'
-                && $order->delivery_option === 'delivery'
-            ) {
-                Delivery::firstOrCreate(
-                    ['order_id' => $order->id],
-                    [
-                        'status' => 'pending',
-                        'payment_status' => 'pending',
-                    ]
-                );
-            }
-        });
+    return back()->with(
+        'success',
+        'Order status updated successfully!'
+    );
+}
 
+    public function approvePayment(Order $order)
+{
+    if ($order->status !== 'ready_for_delivery') {
         return back()->with(
-            'success',
-            'Order status updated successfully!'
+            'error',
+            'Payment can only be approved when the order is Ready for Delivery.'
         );
     }
 
-    public function approvePayment(Order $order)
-    {
-        if ($order->status !== 'ready_for_delivery') {
-            return back()->with(
-                'error',
-                'Payment can only be approved when the order is Ready for Delivery.'
-            );
-        }
+    $payment = $order->payment;
 
-        $payment = $order->payment;
+    if (!$payment) {
+        return back()->with(
+            'error',
+            'No payment record found for this order.'
+        );
+    }
 
-        if (!$payment) {
-            return back()->with(
-                'error',
-                'No payment record found for this order.'
-            );
-        }
+    if ($payment->status === 'paid') {
+        return back()->with(
+            'success',
+            'Payment is already approved.'
+        );
+    }
 
-        if ($payment->status === 'paid') {
-            return back()->with(
-                'success',
-                'Payment is already approved.'
-            );
-        }
+    if ($payment->status === 'failed') {
+        return back()->with(
+            'error',
+            'Failed payments cannot be approved.'
+        );
+    }
 
-        if ($payment->status === 'failed') {
-            return back()->with(
-                'error',
-                'Failed payments cannot be approved.'
-            );
-        }
+    $paymentMethod = strtolower(trim(
+        $payment->method ?? $order->payment_method ?? ''
+    ));
 
-        $paymentMethod = strtolower(trim(
-            $payment->method ?? $order->payment_method ?? ''
-        ));
+    if ($paymentMethod !== 'gcash') {
+        return back()->with(
+            'error',
+            'This approval action is for GCash payments only.'
+        );
+    }
 
-        if ($paymentMethod !== 'gcash') {
-            return back()->with(
-                'error',
-                'This approval action is for GCash payments only.'
-            );
-        }
-
+    DB::transaction(function () use ($order, $payment) {
         $payment->update([
             'status' => 'paid',
             'paid_at' => $payment->paid_at ?? now(),
         ]);
 
-        return back()->with(
-            'success',
-            'GCash payment approved successfully!'
-        );
-    }
+        if ($order->delivery_option === 'delivery') {
+            $delivery = Delivery::firstOrCreate(
+                ['order_id' => $order->id],
+                [
+                    'status' => 'pending',
+                    'payment_status' => 'paid',
+                    'payment_received_at' => now(),
+                ]
+            );
 
+            // I-sync din kung may existing delivery record na.
+            $delivery->update([
+                'payment_status' => 'paid',
+                'payment_received_at' =>
+                    $delivery->payment_received_at ?? now(),
+            ]);
+        }
+    });
+
+    return back()->with(
+        'success',
+        'GCash payment approved and delivery payment synchronized successfully!'
+    );
+}
     /*
     |--------------------------------------------------------------------------
     | CUSTOMERS

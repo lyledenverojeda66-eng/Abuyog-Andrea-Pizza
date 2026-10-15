@@ -59,9 +59,29 @@
 
                         <?php if(auth()->user()->profile_picture): ?>
                             <img
-                                src="<?php echo e(asset('storage/' . auth()->user()->profile_picture)); ?>"
-                                alt="Profile Picture"
-                                class="profile-nav-image"
+    src="<?php echo e(asset('storage/' . auth()->user()->profile_picture)); ?>"
+    alt="Profile Picture"
+    class="profile-nav-image"
+    onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';"
+>
+<span class="profile-default-icon" style="display:none;">
+    <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="22"
+        height="22"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+    >
+        <circle cx="12" cy="8" r="4"></circle>
+        <path d="M5 21v-2a7 7 0 0 1 14 0v2"></path>
+    </svg>
+</span>
+
                             >
                         <?php else: ?>
                             <span class="profile-default-icon">
@@ -96,10 +116,32 @@
                         <div class="profile-dropdown-header">
 
                             <?php if(auth()->user()->profile_picture): ?>
-                                <img
-                                    src="<?php echo e(asset('storage/' . auth()->user()->profile_picture)); ?>"
-                                    alt="Profile Picture"
-                                    class="profile-dropdown-image"
+                               <img
+    src="<?php echo e(asset('storage/' . auth()->user()->profile_picture)); ?>"
+    alt="Profile Picture"
+    class="profile-dropdown-image"
+    onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';"
+>
+<div
+    class="profile-dropdown-placeholder"
+    style="display:none;"
+>
+    <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="30"
+        height="30"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.8"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+    >
+        <circle cx="12" cy="8" r="4"></circle>
+        <path d="M5 21v-2a7 7 0 0 1 14 0v2"></path>
+    </svg>
+</div>
                                 >
                             <?php else: ?>
                                 <div class="profile-dropdown-placeholder">

@@ -21,13 +21,13 @@
         }
 
         .profile-page {
-            max-width: 1000px;
-            margin: 35px auto;
+            max-width: 1100px;
+            margin: 30px auto;
             padding: 20px;
         }
 
         .profile-heading {
-            margin-bottom: 25px;
+            margin-bottom: 24px;
         }
 
         .profile-heading h1 {
@@ -45,54 +45,102 @@
         .profile-card {
             display: grid;
             grid-template-columns: 280px minmax(0, 1fr);
+            align-items: stretch;
             background: #fff;
             border: 1px solid #e5e7eb;
             border-radius: 14px;
             overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
         }
 
+        /* LEFT SIDEBAR */
         .profile-sidebar {
+            min-width: 0;
+            padding: 32px 20px;
             background: #f0fdf4;
-            padding: 30px 20px;
             text-align: center;
             border-right: 1px solid #dcfce7;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
         }
 
-        .profile-avatar {
+        .profile-picture-container {
             width: 125px;
             height: 125px;
+            flex: 0 0 125px;
+            margin: 0 auto 18px;
             border-radius: 50%;
-            object-fit: cover;
+            overflow: hidden;
             border: 4px solid #16a34a;
             background: #fff;
-            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .profile-picture-container .profile-picture {
+            display: block;
+            width: 100%;
+            height: 100%;
+            max-width: 100%;
+            object-fit: cover;
+            border: 0;
+            border-radius: 50%;
+            margin: 0;
+        }
+
+        .profile-picture-container .profile-avatar {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: #fff;
+            color: #16a34a;
         }
 
         .profile-sidebar h3 {
+            width: 100%;
             font-size: 19px;
             font-weight: 700;
             overflow-wrap: anywhere;
-            margin: 5px 0 8px;
+            margin: 4px 0 8px;
         }
 
         .profile-sidebar p {
+            width: 100%;
             color: #6b7280;
             font-size: 14px;
             overflow-wrap: anywhere;
             line-height: 1.5;
-            margin: 6px 0;
+            margin: 5px 0;
         }
 
+        .profile-account-label {
+            display: inline-block;
+            width: auto !important;
+            margin-top: 10px !important;
+            padding: 6px 12px;
+            border-radius: 20px;
+            background: #dcfce7;
+            color: #166534 !important;
+            font-size: 12px !important;
+            font-weight: 700;
+        }
+
+        /* RIGHT FORM */
         .profile-form {
             padding: 30px;
             min-width: 0;
         }
 
         .profile-form h2 {
-            font-size: 20px;
+            font-size: 21px;
             font-weight: 700;
-            margin: 0 0 22px;
+            margin: 0 0 24px;
         }
 
         .profile-field {
@@ -204,11 +252,6 @@
             background: #15803d;
         }
 
-        .profile-save:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
         .profile-cancel {
             color: #374151;
             background: #f3f4f6;
@@ -280,68 +323,64 @@
 
             <aside class="profile-sidebar">
 
-                @if ($user->profile_picture)
-                    <img
-                        id="profilePreview"
-                        class="profile-avatar"
-                        src="{{ asset('storage/' . $user->profile_picture) }}"
-                        alt="Profile picture"
-                    >
+                <div class="profile-picture-container">
 
-                    <div
-                        id="defaultAvatar"
-                        class="profile-avatar"
-                        style="display:none; align-items:center; justify-content:center; color:#16a34a;"
-                    >
-                        <svg
-                            width="65"
-                            height="65"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="1.6"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            aria-hidden="true"
+                    @if ($user->profile_picture)
+                        <img
+                            id="profilePreview"
+                            src="{{ asset('storage/' . $user->profile_picture) }}"
+                            alt="Profile picture"
+                            class="profile-picture"
+                            onerror="this.onerror=null; this.style.display='none'; document.getElementById('defaultAvatar').style.display='flex';"
                         >
-                            <circle cx="12" cy="8" r="4"></circle>
-                            <path d="M4 21a8 8 0 0 1 16 0"></path>
-                        </svg>
-                    </div>
-                @else
-                    <div
-                        id="defaultAvatar"
-                        class="profile-avatar"
-                        style="display:inline-flex; align-items:center; justify-content:center; color:#16a34a;"
-                    >
-                        <svg
-                            width="65"
-                            height="65"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="1.6"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            aria-hidden="true"
-                        >
-                            <circle cx="12" cy="8" r="4"></circle>
-                            <path d="M4 21a8 8 0 0 1 16 0"></path>
-                        </svg>
-                    </div>
 
-                    <img
-                        id="profilePreview"
-                        class="profile-avatar"
-                        src=""
-                        alt="Profile picture preview"
-                        style="display:none;"
-                    >
-                @endif
+                        <div
+                            id="defaultAvatar"
+                            class="profile-avatar"
+                            style="display:none;"
+                        >
+                            <svg
+                                width="65"
+                                height="65"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="1.6"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                aria-hidden="true"
+                            >
+                                <circle cx="12" cy="8" r="4"></circle>
+                                <path d="M4 21a8 8 0 0 1 16 0"></path>
+                            </svg>
+                        </div>
+                    @else
+                        <div
+                            id="defaultAvatar"
+                            class="profile-avatar"
+                        >
+                            <svg
+                                width="65"
+                                height="65"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="1.6"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                aria-hidden="true"
+                            >
+                                <circle cx="12" cy="8" r="4"></circle>
+                                <path d="M4 21a8 8 0 0 1 16 0"></path>
+                            </svg>
+                        </div>
+                    @endif
+
+                </div>
 
                 <h3>{{ $user->name }}</h3>
                 <p>{{ $user->email }}</p>
-                <p>Customer Account</p>
+                <p class="profile-account-label">Customer Account</p>
 
             </aside>
 
@@ -469,7 +508,7 @@
             const preview = document.getElementById('profilePreview');
             const defaultAvatar = document.getElementById('defaultAvatar');
 
-            if (!input || !preview) {
+            if (!input) {
                 return;
             }
 
@@ -505,8 +544,21 @@
                 }
 
                 previewUrl = URL.createObjectURL(file);
-                preview.src = previewUrl;
-                preview.style.display = 'inline-block';
+
+                if (preview) {
+                    preview.src = previewUrl;
+                    preview.style.display = 'block';
+                } else if (defaultAvatar) {
+                    const container = defaultAvatar.parentElement;
+                    const newPreview = document.createElement('img');
+
+                    newPreview.id = 'profilePreview';
+                    newPreview.className = 'profile-picture';
+                    newPreview.alt = 'Profile picture preview';
+                    newPreview.src = previewUrl;
+
+                    container.replaceChildren(newPreview);
+                }
 
                 if (defaultAvatar) {
                     defaultAvatar.style.display = 'none';

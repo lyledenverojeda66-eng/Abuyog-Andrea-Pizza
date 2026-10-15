@@ -804,69 +804,59 @@
                             <div class="cart-item">
 
 
-                                
+                               
+<div class="cart-image">
+    <?php
+        $pizzaImages = [
+            'Ham & Cheese' => 'Ham & Cheese Pizza.png',
+            'Hawaiian' => 'Hawaiian pizza.png',
+            'Pepperoni' => 'Pepperoni pizza.png',
+            'Bacon' => 'bacon.png.webp',
+            'Beef' => 'Beef.png',
+            'Vegetarian' => 'Vegetarian.png',
+        ];
 
-                                <div class="cart-image">
+        $pizzaName = trim($item['name'] ?? '');
 
-                                    <?php if(!empty($item['image'])): ?>
+        // Unahin ang image path na naka-save sa cart.
+        $savedImage = trim($item['image'] ?? '');
 
-                                        <?php
+        if ($savedImage !== '') {
+            if (
+                str_starts_with($savedImage, 'http://') ||
+                str_starts_with($savedImage, 'https://')
+            ) {
+                $pizzaImageUrl = $savedImage;
+            } else {
+                $pizzaImageUrl = asset(
+                    'image/pizzas/' . ltrim($savedImage, '/')
+                );
+            }
+        } elseif (isset($pizzaImages[$pizzaName])) {
+            // Gamitin ang fallback image ayon sa pangalan.
+            $pizzaImageUrl = asset(
+                'image/pizzas/' . $pizzaImages[$pizzaName]
+            );
+        } else {
+            $pizzaImageUrl = null;
+        }
+    ?>
 
-                                            $pizzaImage = $item['image'];
-
-                                            if (
-                                                str_starts_with(
-                                                    $pizzaImage,
-                                                    'http://'
-                                                ) ||
-                                                str_starts_with(
-                                                    $pizzaImage,
-                                                    'https://'
-                                                )
-                                            ) {
-
-                                                $pizzaImageUrl =
-                                                    $pizzaImage;
-
-                                            } else {
-
-                                                $pizzaImageUrl =
-                                                    asset(
-                                                        'image/pizzas/' .
-                                                        ltrim(
-                                                            $pizzaImage,
-                                                            '/'
-                                                        )
-                                                    );
-
-                                            }
-
-                                        ?>
-
-
-                                        <img
-                                            src="<?php echo e($pizzaImageUrl); ?>"
-                                            alt="<?php echo e($item['name']); ?>"
-                                            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
-                                        >
-
-                                        <div
-                                            class="no-image"
-                                            style="display:none;"
-                                        >
-                                            No Image
-                                        </div>
-
-                                    <?php else: ?>
-
-                                        <div class="no-image">
-                                            No Image
-                                        </div>
-
-                                    <?php endif; ?>
-
-                                </div>
-
+    <?php if($pizzaImageUrl): ?>
+        <img
+            src="<?php echo e($pizzaImageUrl); ?>"
+            alt="<?php echo e($pizzaName); ?>"
+            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+        >
+        <div class="no-image" style="display:none;">
+            No Image
+        </div>
+    <?php else: ?>
+        <div class="no-image">
+            No Image
+        </div>
+    <?php endif; ?>
+</div>
 
                                 
 

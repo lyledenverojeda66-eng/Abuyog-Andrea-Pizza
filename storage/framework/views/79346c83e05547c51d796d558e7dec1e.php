@@ -1,3 +1,4 @@
+
 <?php
     $chatbotIsAdmin = auth()->check()
         && strtolower((string) auth()->user()->role) === 'admin';
@@ -91,6 +92,7 @@
     --green-dark: #116638;
     --green-light: #eaf8ef;
     --border: #dce9df;
+
     font-family: Arial, Helvetica, sans-serif;
     position: fixed;
     right: 24px;
@@ -314,61 +316,95 @@
     font-size: 10px;
 }
 
-.pizza-card-list {
+/* =========================================
+   SMALL PIZZA CARDS - CHATBOT ONLY
+   ========================================= */
+
+#andrea-chatbot .pizza-card-list {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 10px;
+    gap: 6px;
     width: 100%;
-    margin: 7px 0 12px;
+    margin: 6px 0 8px;
 }
 
-.pizza-card {
+#andrea-chatbot .pizza-card {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px;
     overflow: hidden;
     border: 1px solid var(--border);
-    border-radius: 13px;
+    border-radius: 9px;
     background: #fff;
 }
 
-.pizza-card img {
+#andrea-chatbot .pizza-card img {
     display: block;
-    width: 100%;
-    height: 135px;
+    width: 52px;
+    height: 52px;
+    flex-shrink: 0;
     object-fit: cover;
+    border-radius: 7px;
 }
 
-.pizza-card-content {
-    padding: 10px;
+#andrea-chatbot .pizza-card-content {
+    flex: 1;
+    min-width: 0;
+    padding: 0;
 }
 
-.pizza-card-name {
-    margin: 0 0 5px;
+#andrea-chatbot .pizza-card-name {
+    margin: 0 0 3px;
     color: var(--green-dark);
-    font-size: 14px;
+    font-size: 11px;
+    line-height: 1.3;
+    overflow-wrap: anywhere;
 }
 
-.pizza-card-price {
-    margin-bottom: 6px;
+#andrea-chatbot .pizza-card-price {
+    margin-bottom: 4px;
     color: #202820;
-    font-size: 17px;
+    font-size: 11px;
     font-weight: 700;
 }
 
-.support-links {
+/* Support links displayed as a group in chatbot messages */
+#andrea-chatbot .support-links {
     display: flex;
     flex-wrap: wrap;
     gap: 7px;
     margin-bottom: 10px;
 }
 
-.support-links a {
+#andrea-chatbot .support-links a {
     display: inline-block;
-    padding: 8px 11px;
-    border-radius: 8px;
+    padding: 5px 8px;
+    border-radius: 6px;
     color: #fff;
     background: var(--green);
     text-decoration: none;
-    font-size: 12px;
+    font-size: 10px;
     font-weight: 700;
+}
+
+/* Order Now is itself a link, not a wrapper */
+#andrea-chatbot .pizza-card .support-links {
+    display: inline-block;
+    margin: 0;
+    padding: 4px 7px;
+    border-radius: 5px;
+    color: #fff;
+    background: var(--green);
+    text-decoration: none;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+#andrea-chatbot .support-links a:hover,
+#andrea-chatbot .pizza-card .support-links:hover {
+    background: var(--green-dark);
 }
 
 @media (max-width: 480px) {
@@ -475,7 +511,7 @@
     }
 
     /*
-     * Important: route admin commands before customer shortcuts.
+     * Admin commands are sent to the admin endpoint.
      * The backend must still enforce admin authorization.
      */
     function isAdminCommand(text) {
@@ -521,7 +557,8 @@
 
         if (!response.ok) {
             throw new Error(
-                data.reply || data.message || 'Hindi makuha ang sagot. Pakisubukan ulit.'
+                data.reply || data.message
+                || 'Hindi makuha ang sagot. Pakisubukan ulit.'
             );
         }
 
@@ -571,8 +608,15 @@
                     }
 
                     return Number(pizza.stock) > 0
-                        && !['inactive', 'unavailable', 'out of stock', '0', 'false']
-                            .includes(String(pizza.status || '').toLowerCase());
+                        && ![
+                            'inactive',
+                            'unavailable',
+                            'out of stock',
+                            '0',
+                            'false'
+                        ].includes(
+                            String(pizza.status || '').toLowerCase()
+                        );
                 });
             }
 
@@ -593,9 +637,11 @@
                     image.src = pizza.image_url;
                     image.alt = pizza.name || 'Pizza';
                     image.loading = 'lazy';
+
                     image.onerror = function () {
                         image.remove();
                     };
+
                     card.appendChild(image);
                 }
 
@@ -610,6 +656,7 @@
                 price.className = 'pizza-card-price';
 
                 const amount = Number(pizza.price);
+
                 price.textContent = '₱' + (
                     Number.isFinite(amount) ? amount : 0
                 ).toLocaleString('en-PH', {
@@ -634,14 +681,19 @@
                 loading.remove();
             }
 
-            addMessage(error.message || 'May problema sa pag-load ng menu.', 'error');
+            addMessage(
+                error.message || 'May problema sa pag-load ng menu.',
+                'error'
+            );
         }
     }
 
     async function trackOrder(orderNumber = '') {
         if (!isLoggedIn) {
             addMessage('Mag-login muna para ma-track ang order mo.');
-            addSupportLinks([{ label: 'Log in', url: routes.loginPage }]);
+            addSupportLinks([
+                { label: 'Log in', url: routes.loginPage }
+            ]);
             trackingMode = false;
             return;
         }
@@ -666,14 +718,18 @@
                     'Accept': 'application/json',
                     'X-CSRF-TOKEN': csrfToken
                 },
-                body: JSON.stringify({ order_number: orderNumber })
+                body: JSON.stringify({
+                    order_number: orderNumber
+                })
             });
 
             const data = await response.json();
             waiting.remove();
 
             if (!response.ok) {
-                throw new Error(data.reply || data.message || 'Hindi mahanap ang order.');
+                throw new Error(
+                    data.reply || data.message || 'Hindi mahanap ang order.'
+                );
             }
 
             if (data.reply) {
@@ -693,7 +749,10 @@
                 waiting.remove();
             }
 
-            addMessage(error.message || 'Hindi ma-track ang order.', 'error');
+            addMessage(
+                error.message || 'Hindi ma-track ang order.',
+                'error'
+            );
         } finally {
             busy = false;
             sendButton.disabled = false;
@@ -706,17 +765,23 @@
         const normalized = normalizeText(message);
 
         /*
-         * This must run before menu, prices, delivery, and greeting
-         * shortcuts so that admin commands use the admin endpoint.
+         * Route admin commands before customer shortcuts.
          */
-        if (isAdmin && (isAdminCommand(normalized) || isAdminGreeting(normalized))) {
+        if (
+            isAdmin
+            && (
+                isAdminCommand(normalized)
+                || isAdminGreeting(normalized)
+            )
+        ) {
             await sendToChatbot(message, true);
             return;
         }
 
         if (!isAdmin && isAdminCommand(normalized)) {
             addMessage(
-                'Pasensya na, para lamang sa admin ang inventory, sales report, order summary, deliveries, at admin feedback.'
+                'Pasensya na, para lamang sa admin ang inventory, '
+                + 'sales report, order summary, deliveries, at admin feedback.'
             );
             return;
         }
@@ -739,7 +804,9 @@
             return;
         }
 
-        if (/\b(faq|faqs|frequently asked questions)\b/.test(normalized)) {
+        if (
+            /\b(faq|faqs|frequently asked questions)\b/.test(normalized)
+        ) {
             addMessage(
                 'FAQs\n\n'
                 + '🍕 Menu: Piliin ang Full Menu o Available Pizzas.\n'
@@ -769,14 +836,20 @@
         openChat();
         addMessage(text, 'user');
 
-        const waiting = addMessage('Sandali lang, naghahanda ako ng sagot...');
+        const waiting = addMessage(
+            'Sandali lang, naghahanda ako ng sagot...'
+        );
+
         busy = true;
         sendButton.disabled = true;
 
         try {
             await handleMessage(text);
         } catch (error) {
-            addMessage(error.message || 'May problema sa chatbot.', 'error');
+            addMessage(
+                error.message || 'May problema sa chatbot.',
+                'error'
+            );
         } finally {
             if (waiting.parentNode) {
                 waiting.remove();
@@ -841,6 +914,7 @@
                 submitMessage('FAQs');
             } else if (action === 'support') {
                 addMessage('Customer support', 'user');
+
                 addSupportLinks([
                     { label: 'Contact Us', url: routes.contactPage }
                 ]);
@@ -856,4 +930,5 @@
         });
     });
 })();
-</script><?php /**PATH C:\xampp\htdocs\abuyog-andrea-pizza\resources\views/partials/chatbot.blade.php ENDPATH**/ ?>
+</script>
+<?php /**PATH C:\xampp\htdocs\abuyog-andrea-pizza\resources\views/partials/chatbot.blade.php ENDPATH**/ ?>
