@@ -213,6 +213,28 @@ class AdminController extends Controller
         ],
     ]);
 
+    // Require exact order number before confirming.
+    if ($validated['status'] === 'confirmed') {
+        $request->validate([
+            'order_number' => ['required', 'string'],
+        ]);
+
+        $enteredOrderNumber = trim(
+            $request->input('order_number', '')
+        );
+
+        if (!hash_equals(
+            (string) $order->order_number,
+            $enteredOrderNumber
+        )) {
+            return back()
+                ->withErrors([
+                    'order_number' => 'Incorrect order number. Order was not confirmed.',
+                ])
+                ->withInput();
+        }
+    }
+
     DB::transaction(function () use ($order, $validated) {
         $order->update([
             'status' => $validated['status'],
@@ -240,7 +262,6 @@ class AdminController extends Controller
                 ]
             );
 
-            // Sync an existing delivery record without duplicating it.
             $delivery->update([
                 'payment_status' => $paymentStatus,
                 'payment_received_at' =>

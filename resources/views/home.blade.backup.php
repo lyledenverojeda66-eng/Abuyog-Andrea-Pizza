@@ -14,7 +14,7 @@
     <title>Abuyog Andrea Pizza</title>
 
 <link rel="icon" type="image/x-icon"
-      href="<?php echo e(asset('favicon.ico')); ?>?v=100">
+      href="{{ asset('favicon.ico') }}?v=100">
     <style>
 
         /* =========================
@@ -62,7 +62,7 @@
              */
 
             background-image:
-                url('<?php if(isset($banners) && $banners->count() > 0): ?><?php echo e(asset('image/banners/' . $banners->first()->image)); ?><?php else: ?><?php echo e(asset('images/andreas-pizza-banner.jpg')); ?><?php endif; ?>');
+                url('@if(isset($banners) && $banners->count() > 0){{ asset('image/banners/' . $banners->first()->image) }}@else{{ asset('images/andreas-pizza-banner.jpg') }}@endif');
 
             background-size: cover;
 
@@ -1738,24 +1738,28 @@
 <body>
 
 
-    
+    {{-- =========================
+         NAVIGATION
+    ========================= --}}
 
-    <?php echo $__env->make('partials.navbar', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+    @include('partials.navbar')
 
 
-    
+    {{-- =========================
+         HERO
+    ========================= --}}
 
     <section class="hero">
 
 
-        
+        {{-- SLIDE 1 --}}
 
         <div class="hero-slide slide-original active">
 
             <div class="hero-content">
 
                 <a
-                    href="<?php echo e(route('menu')); ?>"
+                    href="{{ route('menu') }}"
                     class="hero-button"
                 >
                     🍕 Order Now
@@ -1766,7 +1770,7 @@
         </div>
 
 
-        
+        {{-- SLIDE 2 --}}
 
         <div class="hero-slide slide-two">
 
@@ -1790,7 +1794,7 @@
                 </p>
 
                 <a
-                    href="<?php echo e(route('menu')); ?>"
+                    href="{{ route('menu') }}"
                     class="promo-button"
                 >
                     🍕 ORDER NOW
@@ -1801,7 +1805,7 @@
         </div>
 
 
-        
+        {{-- SLIDE 3 --}}
 
         <div class="hero-slide slide-three">
 
@@ -1827,7 +1831,7 @@
                 </p>
 
                 <a
-                    href="<?php echo e(route('menu')); ?>"
+                    href="{{ route('menu') }}"
                     class="promo-button"
                 >
                     🍕 VIEW MENU
@@ -1838,7 +1842,7 @@
         </div>
 
 
-        
+        {{-- PREVIOUS --}}
 
         <button
             type="button"
@@ -1850,7 +1854,7 @@
         </button>
 
 
-        
+        {{-- NEXT --}}
 
         <button
             type="button"
@@ -1862,7 +1866,7 @@
         </button>
 
 
-        
+        {{-- DOTS --}}
 
         <div class="slider-dots">
 
@@ -1892,7 +1896,9 @@
     </section>
 
 
-    
+    {{-- =========================
+         FEATURES
+    ========================= --}}
 
     <section class="features">
 
@@ -1965,7 +1971,9 @@
     </section>
 
 
-    
+    {{-- =========================
+         ORDER SECTION
+    ========================= --}}
 
     <section class="order-section">
 
@@ -1979,7 +1987,7 @@
         </p>
 
         <a
-            href="<?php echo e(route('menu')); ?>"
+            href="{{ route('menu') }}"
             class="order-btn"
         >
             🍕 View Our Menu
@@ -1988,25 +1996,27 @@
     </section>
 
 
-    
+    {{-- =====================================================
+         RATINGS & REVIEWS
+    ====================================================== --}}
 
     <section class="reviews-section">
 
 
         <div class="reviews-title">
     <h2>
-        <a href="<?php echo e(route('reviews.index')); ?>">
+        <a href="{{ route('reviews.index') }}">
             Ratings & Reviews
         </a>
     </h2>
 
-    <a href="<?php echo e(route('reviews.index')); ?>" aria-label="View all reviews">
+    <a href="{{ route('reviews.index') }}" aria-label="View all reviews">
         ›
     </a>
 </div>
 
 
-        <?php
+        @php
 
             /*
             |--------------------------------------------------------------------------
@@ -2040,7 +2050,7 @@
                     )
                     : 0;
 
-        ?>
+        @endphp
 
 
         <div class="rating-summary">
@@ -2048,8 +2058,7 @@
 
             <div class="average-rating">
 
-                <?php echo e(number_format($averageRating, 1)); ?>
-
+                {{ number_format($averageRating, 1) }}
 
             </div>
 
@@ -2058,30 +2067,28 @@
 
                 <div class="rating-stars">
 
-                    <?php for($i = 1; $i <= 5; $i++): ?>
+                    @for($i = 1; $i <= 5; $i++)
 
-                        <?php if($i <= round($averageRating)): ?>
+                        @if($i <= round($averageRating))
 
                             ★
 
-                        <?php else: ?>
+                        @else
 
                             ☆
 
-                        <?php endif; ?>
+                        @endif
 
-                    <?php endfor; ?>
+                    @endfor
 
                 </div>
 
 
                 <div class="rating-count">
 
-                    <?php echo e($reviewCount); ?>
+                    {{ $reviewCount }}
 
-
-                    <?php echo e($reviewCount == 1 ? 'Rating' : 'Ratings'); ?>
-
+                    {{ $reviewCount == 1 ? 'Rating' : 'Ratings' }}
 
                 </div>
 
@@ -2090,16 +2097,19 @@
         </div>
 
 
-        <?php if($reviewCount > 0): ?>
+        @if($reviewCount > 0)
 
 
             <div class="review-grid">
 
 
-                <?php $__currentLoopData = $approvedFeedbacks->take(6); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $feedback): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                @foreach(
+                    $approvedFeedbacks->take(6)
+                    as $feedback
+                )
 
 
-                    <?php
+                    @php
 
                         $customerName =
                             optional($feedback->user)->name
@@ -2114,7 +2124,7 @@
                                 )
                             );
 
-                    ?>
+                    @endphp
 
 
                     <div class="review-card">
@@ -2128,8 +2138,7 @@
 
                                 <div class="review-avatar">
 
-                                    <?php echo e($firstLetter); ?>
-
+                                    {{ $firstLetter }}
 
                                 </div>
 
@@ -2138,34 +2147,33 @@
 
                                     <div class="review-name">
 
-                                        <?php echo e($customerName); ?>
-
+                                        {{ $customerName }}
 
                                     </div>
 
 
                                     <div class="review-stars">
 
-                                        <?php for(
+                                        @for(
                                             $i = 1;
                                             $i <= 5;
                                             $i++
-                                        ): ?>
+                                        )
 
-                                            <?php if(
+                                            @if(
                                                 $i <=
                                                 (int) $feedback->rating
-                                            ): ?>
+                                            )
 
                                                 ★
 
-                                            <?php else: ?>
+                                            @else
 
                                                 ☆
 
-                                            <?php endif; ?>
+                                            @endif
 
-                                        <?php endfor; ?>
+                                        @endfor
 
                                     </div>
 
@@ -2177,8 +2185,7 @@
 
                             <div class="review-date">
 
-                                <?php echo e(optional($feedback->created_at)->format('M d, Y')); ?>
-
+                                {{ optional($feedback->created_at)->format('M d, Y') }}
 
                             </div>
 
@@ -2188,17 +2195,16 @@
 
                         <div class="review-message">
 
-                            <?php echo e($feedback->message); ?>
-
+                            {{ $feedback->message }}
 
                         </div>
 
 
-                        <?php if(
+                        @if(
                             !empty(
                                 $feedback->admin_reply
                             )
-                        ): ?>
+                        )
 
                             <div class="review-reply">
 
@@ -2206,24 +2212,23 @@
                                     Admin Reply:
                                 </strong>
 
-                                <?php echo e($feedback->admin_reply); ?>
-
+                                {{ $feedback->admin_reply }}
 
                             </div>
 
-                        <?php endif; ?>
+                        @endif
 
 
                     </div>
 
 
-                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                @endforeach
 
 
             </div>
 
 
-        <?php else: ?>
+        @else
 
 
             <div class="no-reviews">
@@ -2234,13 +2239,15 @@
             </div>
 
 
-        <?php endif; ?>
+        @endif
 
 
     </section>
 
 
-    
+    {{-- =====================================================
+         SEND FEEDBACK / CONCERN
+    ====================================================== --}}
 
     <section class="feedback-section">
 
@@ -2270,25 +2277,24 @@
         </div>
 
 
-        
+        {{-- SUCCESS MESSAGE --}}
 
-        <?php if(session('success')): ?>
+        @if(session('success'))
 
             <div class="feedback-success">
 
                 ✅
 
-                <?php echo e(session('success')); ?>
-
+                {{ session('success') }}
 
             </div>
 
-        <?php endif; ?>
+        @endif
 
 
-        
+        {{-- ERROR MESSAGE --}}
 
-        <?php if($errors->any()): ?>
+        @if($errors->any())
 
             <div class="feedback-error">
 
@@ -2299,35 +2305,34 @@
 
                 <ul>
 
-                    <?php $__currentLoopData = $errors->all(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $error): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    @foreach($errors->all() as $error)
 
                         <li>
-                            <?php echo e($error); ?>
-
+                            {{ $error }}
                         </li>
 
-                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                    @endforeach
 
                 </ul>
 
             </div>
 
-        <?php endif; ?>
+        @endif
 
 
-        <?php if(auth()->guard()->check()): ?>
+        @auth
 
 
             <form
-                action="<?php echo e(route('customer.feedback.general')); ?>"
+                action="{{ route('customer.feedback.general') }}"
                 method="POST"
                 class="feedback-form"
             >
 
-                <?php echo csrf_field(); ?>
+                @csrf
 
 
-                
+                {{-- TYPE --}}
 
                 <div class="feedback-field">
 
@@ -2349,8 +2354,7 @@
 
                         <option
                             value="feedback"
-                            <?php echo e(old('type') === 'feedback' ? 'selected' : ''); ?>
-
+                            {{ old('type') === 'feedback' ? 'selected' : '' }}
                         >
                             ⭐ Feedback
                         </option>
@@ -2358,8 +2362,7 @@
 
                         <option
                             value="concern"
-                            <?php echo e(old('type') === 'concern' ? 'selected' : ''); ?>
-
+                            {{ old('type') === 'concern' ? 'selected' : '' }}
                         >
                             ⚠️ Concern
                         </option>
@@ -2369,7 +2372,7 @@
                 </div>
 
 
-                
+                {{-- RATING --}}
 
                 <div class="feedback-field">
 
@@ -2390,8 +2393,7 @@
 
                         <option
                             value="5"
-                            <?php echo e(old('rating') == 5 ? 'selected' : ''); ?>
-
+                            {{ old('rating') == 5 ? 'selected' : '' }}
                         >
                             ★★★★★ — Excellent
                         </option>
@@ -2399,8 +2401,7 @@
 
                         <option
                             value="4"
-                            <?php echo e(old('rating') == 4 ? 'selected' : ''); ?>
-
+                            {{ old('rating') == 4 ? 'selected' : '' }}
                         >
                             ★★★★☆ — Very Good
                         </option>
@@ -2408,8 +2409,7 @@
 
                         <option
                             value="3"
-                            <?php echo e(old('rating') == 3 ? 'selected' : ''); ?>
-
+                            {{ old('rating') == 3 ? 'selected' : '' }}
                         >
                             ★★★☆☆ — Good
                         </option>
@@ -2417,8 +2417,7 @@
 
                         <option
                             value="2"
-                            <?php echo e(old('rating') == 2 ? 'selected' : ''); ?>
-
+                            {{ old('rating') == 2 ? 'selected' : '' }}
                         >
                             ★★☆☆☆ — Needs Improvement
                         </option>
@@ -2426,8 +2425,7 @@
 
                         <option
                             value="1"
-                            <?php echo e(old('rating') == 1 ? 'selected' : ''); ?>
-
+                            {{ old('rating') == 1 ? 'selected' : '' }}
                         >
                             ★☆☆☆☆ — Poor
                         </option>
@@ -2437,7 +2435,7 @@
                 </div>
 
 
-                
+                {{-- MESSAGE --}}
 
                 <div class="feedback-field">
 
@@ -2453,12 +2451,12 @@
                         maxlength="2000"
                         placeholder="Tell us about your experience or concern..."
                         required
-                    ><?php echo e(old('message')); ?></textarea>
+                    >{{ old('message') }}</textarea>
 
                 </div>
 
 
-                
+                {{-- SUBMIT --}}
 
                 <button
                     type="submit"
@@ -2479,7 +2477,7 @@
             </form>
 
 
-        <?php else: ?>
+        @else
 
 
             <div class="feedback-login">
@@ -2502,7 +2500,7 @@
 
 
                 <a
-                    href="<?php echo e(route('login')); ?>"
+                    href="{{ route('login') }}"
                     class="feedback-login-btn"
                 >
                     Login to Send Feedback
@@ -2512,18 +2510,19 @@
             </div>
 
 
-        <?php endif; ?>
+        @endauth
 
 
     </section>
 
 
-    
+    {{-- =========================
+         FOOTER
+    ========================= --}}
 
     <footer>
 
-        © <?php echo e(date('Y')); ?>
-
+        © {{ date('Y') }}
 
         <span>
             Abuyog Andrea Pizza
@@ -2534,7 +2533,9 @@
     </footer>
 
 
-    
+    {{-- =========================
+         SLIDESHOW
+    ========================= --}}
 
     <script>
 
@@ -2636,4 +2637,4 @@
 
 </body>
 
-</html><?php /**PATH C:\xampp\htdocs\abuyog-andrea-pizza\resources\views/home.blade.php ENDPATH**/ ?>
+</html>

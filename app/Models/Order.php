@@ -32,23 +32,43 @@ class Order extends Model
         'total_amount' => 'decimal:2',
     ];
 
+    /**
+     * Customer na gumawa ng order.
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * Mga pizza item sa order.
+     */
     public function orderItems(): HasMany
     {
         return $this->hasMany(OrderItem::class);
     }
 
+    /**
+     * Delivery record ng order.
+     */
     public function delivery(): HasOne
     {
         return $this->hasOne(Delivery::class, 'order_id');
     }
 
+    /**
+     * Payment record ng order.
+     */
     public function payment(): HasOne
     {
         return $this->hasOne(Payment::class);
+    }
+
+    /**
+     * Feedback at concerns na naka-link sa order.
+     */
+    public function feedback(): HasMany
+    {
+        return $this->hasMany(Feedback::class, 'order_id');
     }
 }

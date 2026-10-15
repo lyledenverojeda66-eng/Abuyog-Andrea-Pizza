@@ -1,2640 +1,1405 @@
 ﻿<!DOCTYPE html>
-
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Abuyog Andrea Pizza</title>
 
-<link rel="icon" type="image/x-icon"
-      href="{{ asset('favicon.ico') }}?v=100">
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}?v=100">
+
     <style>
-
-        /* =========================
-           RESET
-        ========================= */
-
+        /* ================= RESET ================= */
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
         }
 
-
-        body {
-            font-family:
-                Arial,
-                Helvetica,
-                sans-serif;
-
-            background: #fff8ee;
-
-            color: #111;
+        html {
+            scroll-behavior: smooth;
+            max-width: 100%;
         }
 
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: #fff8ee;
+            color: #111;
+            max-width: 100%;
+            overflow-x: clip;
+        }
 
-        /* =========================
-           HERO BANNER
-        ========================= */
+        img {
+            max-width: 100%;
+        }
 
+        /* ================= HERO SLIDER ================= */
         .hero {
+            position: relative;
             width: 100%;
             height: 420px;
-
-            position: relative;
-
             overflow: hidden;
-
-            /*
-             * ADMIN BANNER:
-             * Kapag may active banner sa admin,
-             * iyon ang gagamitin.
-             *
-             * Kapag walang active banner,
-             * original image ang gagamitin.
-             */
-
-            background-image:
-                url('@if(isset($banners) && $banners->count() > 0){{ asset('image/banners/' . $banners->first()->image) }}@else{{ asset('images/andreas-pizza-banner.jpg') }}@endif');
-
+            background-color: #333;
+            background-image: url('{{ isset($banners) && $banners->count() > 0 ? asset("image/banners/" . $banners->first()->image) : asset("images/andreas-pizza-banner.jpg") }}');
             background-size: cover;
-
             background-position: center;
-
             background-repeat: no-repeat;
         }
 
-
-        /* =========================
-           SLIDES
-        ========================= */
-
         .hero-slide {
             position: absolute;
-
-            top: 0;
-            left: 0;
-
+            inset: 0;
             width: 100%;
             height: 100%;
-
             opacity: 0;
-
             visibility: hidden;
-
-            transition:
-                opacity 0.7s ease,
-                visibility 0.7s ease;
+            transition: opacity .7s ease, visibility .7s ease;
         }
-
 
         .hero-slide.active {
             opacity: 1;
-
             visibility: visible;
         }
 
-
-        /* =========================
-           SLIDE 1
-        ========================= */
-
         .slide-original {
             display: flex;
-
             align-items: flex-end;
-
             justify-content: center;
-
             padding-bottom: 28px;
         }
 
-
         .slide-original .hero-content {
             position: relative;
-
             z-index: 2;
-
             width: 100%;
             height: 100%;
-
             display: flex;
-
             align-items: flex-end;
-
             justify-content: center;
-
-            text-align: center;
         }
 
+        .hero-button,
+        .promo-two .promo-button,
+        .promo-three .promo-button {
+            display: inline-block;
+            text-decoration: none;
+            font-weight: bold;
+            transition: .2s;
+        }
 
         .hero-button {
-            display: inline-block;
-
-            background: #16a34a;
-
-            color: white;
-
-            text-decoration: none;
-
             padding: 12px 27px;
-
             border-radius: 25px;
-
-            font-size: 15px;
-
-            font-weight: bold;
-
+            color: white;
+            background: #16a34a;
             border: 2px solid white;
-
-            box-shadow:
-                0 4px 14px
-                rgba(0, 0, 0, 0.30);
-
-            transition: 0.2s;
+            box-shadow: 0 4px 14px rgba(0,0,0,.3);
         }
-
 
         .hero-button:hover {
             background: #15803d;
-
-            transform:
-                translateY(-2px);
+            transform: translateY(-2px);
         }
 
-
-        /* =========================
-           SLIDE 2
-        ========================= */
-
+        /* ================= PROMO SLIDE 2 ================= */
         .slide-two {
             display: flex;
-
             align-items: center;
-
             justify-content: center;
-
             padding: 20px;
         }
 
-
-        .slide-two::before {
+        .slide-two::before,
+        .slide-three::before {
             content: "";
-
             position: absolute;
-
             inset: 0;
-
-            background:
-                linear-gradient(
-                    90deg,
-                    rgba(0, 0, 0, 0.05),
-                    rgba(0, 0, 0, 0.50)
-                );
         }
 
+        .slide-two::before {
+            background: linear-gradient(90deg, rgba(0,0,0,.05), rgba(0,0,0,.5));
+        }
 
         .promo-two {
             position: relative;
-
             z-index: 2;
-
             width: 570px;
-
             max-width: 90%;
-
             padding: 30px 35px;
-
-            background:
-                rgba(255, 248, 232, 0.97);
-
-            border-left:
-                8px solid #f97316;
-
-            border-radius:
-                8px 30px 30px 8px;
-
-            box-shadow:
-                0 12px 35px
-                rgba(0, 0, 0, 0.30);
-
-            text-align: left;
+            background: rgba(255,248,232,.97);
+            border-left: 8px solid #f97316;
+            border-radius: 8px 30px 30px 8px;
+            box-shadow: 0 12px 35px rgba(0,0,0,.3);
         }
-
 
         .promo-two .small-title {
             display: inline-block;
-
-            background: #f97316;
-
-            color: white;
-
             padding: 7px 17px;
-
-            border-radius: 20px;
-
-            font-size: 13px;
-
-            font-weight: bold;
-
-            letter-spacing: 1px;
-
             margin-bottom: 11px;
+            background: #f97316;
+            color: white;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: bold;
+            letter-spacing: 1px;
         }
-
 
         .promo-two h2 {
             color: #15803d;
-
             font-size: 50px;
-
             line-height: 1;
-
             font-weight: 900;
         }
-
 
         .promo-two h3 {
             margin: 9px 0;
-
             color: #ea580c;
-
             font-size: 23px;
-
-            font-weight: 800;
         }
 
+        .promo-two p,
+        .promo-three p {
+            margin: 8px 0 20px;
+            font-size: 15px;
+            line-height: 1.6;
+        }
 
         .promo-two p {
-            margin: 8px 0 20px;
-
             color: #444;
-
-            font-size: 15px;
-
-            line-height: 1.5;
         }
-
 
         .promo-two .promo-button {
-            display: inline-block;
-
             padding: 11px 25px;
-
             background: #16a34a;
-
             color: white;
-
-            text-decoration: none;
-
             border-radius: 25px;
-
-            font-weight: bold;
-
-            border: 2px solid #16a34a;
-
-            transition: 0.2s;
         }
-
 
         .promo-two .promo-button:hover {
             background: #15803d;
-
-            border-color: #15803d;
-
-            transform:
-                translateY(-2px);
+            transform: translateY(-2px);
         }
 
-
-        /* =========================
-           SLIDE 3
-        ========================= */
-
+        /* ================= PROMO SLIDE 3 ================= */
         .slide-three {
             display: flex;
-
             align-items: center;
-
             justify-content: flex-end;
-
             padding: 25px 9%;
         }
 
-
         .slide-three::before {
-            content: "";
-
-            position: absolute;
-
-            inset: 0;
-
-            background:
-                linear-gradient(
-                    90deg,
-                    rgba(0, 0, 0, 0.05),
-                    rgba(0, 70, 35, 0.75)
-                );
+            background: linear-gradient(90deg, rgba(0,0,0,.05), rgba(0,70,35,.75));
         }
-
 
         .promo-three {
             position: relative;
-
             z-index: 2;
-
             width: 500px;
-
             max-width: 90%;
-
             padding: 32px;
-
-            text-align: center;
-
             color: white;
-
-            background:
-                rgba(10, 65, 35, 0.93);
-
-            border:
-                2px solid #facc15;
-
+            text-align: center;
+            background: rgba(10,65,35,.93);
+            border: 2px solid #facc15;
             border-radius: 22px;
-
-            box-shadow:
-                0 15px 40px
-                rgba(0, 0, 0, 0.35);
+            box-shadow: 0 15px 40px rgba(0,0,0,.35);
         }
-
 
         .promo-three .weekend-label {
-            color: #facc15;
-
-            font-size: 14px;
-
-            font-weight: 800;
-
-            letter-spacing: 3px;
-
             margin-bottom: 10px;
+            color: #facc15;
+            font-size: 14px;
+            font-weight: 800;
+            letter-spacing: 3px;
         }
-
 
         .promo-three h2 {
-            font-size: 44px;
-
-            line-height: 1;
-
-            font-weight: 900;
-
             color: white;
+            font-size: 44px;
+            line-height: 1.1;
+            font-weight: 900;
         }
-
 
         .promo-three h3 {
             margin: 12px 0;
-
             color: #facc15;
-
             font-size: 22px;
-
-            font-weight: 800;
         }
 
-
         .promo-three p {
-            margin: 10px 0 21px;
-
-            font-size: 15px;
-
-            line-height: 1.5;
-
             color: #f5f5f5;
         }
 
-
         .promo-three .promo-button {
-            display: inline-block;
-
             padding: 12px 28px;
-
-            background: #facc15;
-
             color: #14532d;
-
-            text-decoration: none;
-
+            background: #facc15;
             border-radius: 25px;
-
-            font-weight: 900;
-
-            transition: 0.2s;
         }
-
 
         .promo-three .promo-button:hover {
             background: #fde047;
-
-            transform:
-                translateY(-2px);
+            transform: translateY(-2px);
         }
 
-
-        /* =========================
-           SLIDER ARROWS
-        ========================= */
-
+        /* ================= SLIDER CONTROLS ================= */
         .slider-arrow {
             position: absolute;
-
             top: 50%;
-
-            transform:
-                translateY(-50%);
-
             z-index: 10;
-
             width: 42px;
-
             height: 42px;
-
-            border: none;
-
-            border-radius: 50%;
-
-            background:
-                rgba(0, 0, 0, 0.55);
-
-            color: white;
-
-            font-size: 28px;
-
-            cursor: pointer;
-
             display: flex;
-
             align-items: center;
-
             justify-content: center;
-
-            transition: 0.2s;
+            transform: translateY(-50%);
+            border: 0;
+            border-radius: 50%;
+            color: white;
+            background: rgba(0,0,0,.55);
+            font-size: 28px;
+            cursor: pointer;
         }
-
 
         .slider-arrow:hover {
-            background:
-                rgba(0, 0, 0, 0.85);
-
-            transform:
-                translateY(-50%)
-                scale(1.05);
+            background: rgba(0,0,0,.85);
         }
 
-
-        .slider-prev {
-            left: 20px;
-        }
-
-
-        .slider-next {
-            right: 20px;
-        }
-
-
-        /* =========================
-           SLIDER DOTS
-        ========================= */
+        .slider-prev { left: 20px; }
+        .slider-next { right: 20px; }
 
         .slider-dots {
             position: absolute;
-
             bottom: 15px;
-
             left: 50%;
-
-            transform:
-                translateX(-50%);
-
             z-index: 20;
-
             display: flex;
-
-            align-items: center;
-
             gap: 8px;
+            transform: translateX(-50%);
         }
-
 
         .slider-dot {
             width: 10px;
-
             height: 10px;
-
             padding: 0;
-
+            border: 1px solid white;
             border-radius: 50%;
-
-            border:
-                1px solid white;
-
-            background:
-                rgba(255, 255, 255, 0.60);
-
+            background: rgba(255,255,255,.6);
             cursor: pointer;
-
-            transition: 0.25s;
         }
-
 
         .slider-dot.active {
             width: 30px;
-
             border-radius: 10px;
-
             background: white;
         }
 
-
-        /* =========================
-           FEATURES
-        ========================= */
-
+        /* ================= FEATURES ================= */
         .features {
             width: 90%;
-
             max-width: 1050px;
-
             margin: 32px auto;
-
             display: grid;
-
-            grid-template-columns:
-                repeat(3, 1fr);
-
+            grid-template-columns: repeat(3, minmax(0, 1fr));
             gap: 18px;
         }
 
-
         .feature {
-            background: white;
-
-            min-height: 125px;
-
             display: flex;
-
             align-items: center;
-
             gap: 14px;
-
+            min-height: 125px;
             padding: 18px;
-
+            background: white;
+            border-left: 4px solid #16a34a;
             border-radius: 10px;
-
-            border-left:
-                4px solid #16a34a;
-
-            box-shadow:
-                0 4px 14px
-                rgba(0, 0, 0, 0.07);
-
-            transition: 0.2s;
+            box-shadow: 0 4px 14px rgba(0,0,0,.07);
+            transition: .2s;
         }
-
 
         .feature:hover {
-            transform:
-                translateY(-3px);
-
-            box-shadow:
-                0 7px 18px
-                rgba(0, 0, 0, 0.10);
+            transform: translateY(-3px);
+            box-shadow: 0 7px 18px rgba(0,0,0,.1);
         }
-
 
         .feature-icon {
-            min-width: 58px;
-
+            flex-shrink: 0;
             width: 58px;
-
             height: 58px;
-
-            border-radius: 50%;
-
             display: flex;
-
             align-items: center;
-
             justify-content: center;
-
-            font-size: 28px;
-
+            border-radius: 50%;
             background: #dcfce7;
-
-            border:
-                1px solid #bbf7d0;
+            border: 1px solid #bbf7d0;
+            font-size: 28px;
         }
 
-
-        .feature-content {
-            min-width: 0;
-        }
-
+        .feature-content { min-width: 0; }
 
         .feature-content h3 {
-            color: #16a34a;
-
-            font-size: 18px;
-
             margin-bottom: 6px;
+            color: #16a34a;
+            font-size: 18px;
         }
-
 
         .feature-content p {
             color: #555;
-
-            line-height: 1.4;
-
             font-size: 13px;
+            line-height: 1.5;
         }
 
-
-        /* =========================
-           ORDER SECTION
-        ========================= */
-
+        /* ================= ORDER SECTION ================= */
         .order-section {
             width: 90%;
-
             max-width: 1050px;
-
             margin: 35px auto;
-
             padding: 32px 25px;
-
-            text-align: center;
-
-            border-radius: 14px;
-
-            background:
-                linear-gradient(
-                    135deg,
-                    #087f3c,
-                    #16a34a,
-                    #22c55e
-                );
-
             color: white;
-
-            box-shadow:
-                0 6px 20px
-                rgba(0, 0, 0, 0.12);
+            text-align: center;
+            background: linear-gradient(135deg, #087f3c, #16a34a, #22c55e);
+            border-radius: 14px;
+            box-shadow: 0 6px 20px rgba(0,0,0,.12);
         }
-
 
         .order-section h2 {
-            font-size: 28px;
-
             margin-bottom: 9px;
+            font-size: 28px;
         }
-
 
         .order-section p {
-            font-size: 15px;
-
-            line-height: 1.5;
-
             margin-bottom: 20px;
+            font-size: 15px;
+            line-height: 1.6;
         }
 
-
-        .order-section .order-btn {
+        .order-btn {
             display: inline-block;
-
-            background: white;
-
-            color: #15803d;
-
-            text-decoration: none;
-
             padding: 11px 24px;
-
+            color: #15803d;
+            background: white;
             border-radius: 25px;
-
-            font-weight: bold;
-
+            text-decoration: none;
             font-size: 14px;
-
-            transition: 0.2s;
+            font-weight: bold;
         }
 
+        .order-btn:hover { background: #f0fdf4; }
 
-        .order-section .order-btn:hover {
-            background: #f0fdf4;
-
-            transform:
-                translateY(-2px);
-        }
-
-
-        /* =====================================================
-           RATINGS & REVIEWS
-        ===================================================== */
-
+        /* ================= CUSTOMER REVIEWS ================= */
         .reviews-section {
             width: 90%;
-
             max-width: 1050px;
-
-            margin: 45px auto 25px;
+            margin: 45px auto 30px;
+            padding: 35px;
+            background: #fff8ee;
+            border-radius: 18px;
+            overflow: hidden;
         }
-
 
         .reviews-title {
             display: flex;
-
             align-items: center;
-
-            gap: 8px;
-
+            justify-content: space-between;
+            gap: 12px;
             margin-bottom: 25px;
         }
 
-
         .reviews-title h2 {
-            font-size: 30px;
-
-            color: #111;
-        }
-
-
-        .reviews-title span {
-            color: #999;
-
-            font-size: 32px;
-        }
-
-
-        .rating-summary {
-            display: flex;
-
-            align-items: center;
-
-            gap: 45px;
-
-            margin-bottom: 35px;
-        }
-
-
-        .average-rating {
-            font-size: 65px;
-
-            font-weight: 800;
-
-            line-height: 1;
-
             color: #222;
+            font-size: 30px;
         }
 
-
-        .rating-details {
-            display: flex;
-
-            flex-direction: column;
-
-            gap: 8px;
+        .reviews-title a {
+            color: #15803d;
+            text-decoration: none;
         }
 
+        .reviews-title a:hover { text-decoration: underline; }
 
-        .rating-stars {
-            color: #f5a400;
-
-            font-size: 28px;
-
-            letter-spacing: 3px;
-        }
-
-
-        .rating-count {
-            color: #777;
-
-            font-size: 14px;
-
-            font-weight: 600;
-        }
-
-
-        .review-grid {
-            display: grid;
-
-            grid-template-columns:
-                repeat(2, 1fr);
-
-            gap: 22px;
-        }
-
-
-        .review-card {
-            background: #f1f1f1;
-
-            border-radius: 18px;
-
-            padding: 25px;
-
-            min-height: 150px;
-        }
-
-
-        .review-top {
-            display: flex;
-
-            align-items: flex-start;
-
-            justify-content: space-between;
-
-            gap: 15px;
-        }
-
-
-        .review-user {
-            display: flex;
-
-            align-items: center;
-
-            gap: 13px;
-        }
-
-
-        .review-avatar {
-            width: 52px;
-
-            height: 52px;
-
-            min-width: 52px;
-
-            border-radius: 50%;
-
-            background: #ef1f2d;
-
-            color: white;
-
-            display: flex;
-
-            align-items: center;
-
-            justify-content: center;
-
-            font-size: 20px;
-
+        .reviews-title .all-reviews-link {
+            flex-shrink: 0;
+            font-size: 25px;
             font-weight: bold;
         }
 
-
-        .review-name {
-            font-size: 16px;
-
-            font-weight: 700;
-
-            margin-bottom: 5px;
-        }
-
-
-        .review-stars {
-            color: #f5a400;
-
-            font-size: 16px;
-
-            letter-spacing: 2px;
-        }
-
-
-        .review-date {
-            color: #777;
-
-            font-size: 12px;
-
-            white-space: nowrap;
-        }
-
-
-        .review-message {
-            margin-top: 22px;
-
-            color: #333;
-
-            font-size: 14px;
-
-            line-height: 1.5;
-        }
-
-
-        .review-reply {
-            margin-top: 15px;
-
-            padding: 12px;
-
-            background: white;
-
-            border-left:
-                3px solid #16a34a;
-
-            border-radius: 7px;
-
-            font-size: 13px;
-
-            color: #555;
-        }
-
-
-        .review-reply strong {
-            color: #15803d;
-        }
-
-
-        .no-reviews {
-            background: white;
-
-            border-radius: 12px;
-
-            padding: 25px;
-
-            text-align: center;
-
-            color: #777;
-        }
-
-
-        /* =====================================================
-           CUSTOMER FEEDBACK
-        ===================================================== */
-
-        .feedback-section {
-            width: 90%;
-
-            max-width: 1050px;
-
-            margin: 25px auto 45px;
-
-            padding: 30px;
-
-            background: white;
-
-            border-radius: 16px;
-
-            border-top:
-                4px solid #16a34a;
-
-            box-shadow:
-                0 5px 18px
-                rgba(0, 0, 0, 0.08);
-        }
-
-
-        .feedback-header {
+        /* Rating summary */
+        .rating-summary {
             display: flex;
-
             align-items: center;
-
-            gap: 15px;
-
-            margin-bottom: 25px;
-        }
-
-
-        .feedback-icon {
-            width: 55px;
-
-            height: 55px;
-
-            min-width: 55px;
-
-            display: flex;
-
-            align-items: center;
-
             justify-content: center;
-
-            border-radius: 50%;
-
-            background: #dcfce7;
-
-            font-size: 26px;
+            gap: 22px;
+            max-width: 440px;
+            margin: 0 auto 32px;
+            padding: 23px;
+            background: white;
+            border: 1px solid #eee5da;
+            border-radius: 15px;
         }
 
-
-        .feedback-header h2 {
-            color: #15803d;
-
-            font-size: 25px;
-
-            margin-bottom: 5px;
+        .average-rating {
+            color: #222;
+            font-size: 55px;
+            line-height: 1;
+            font-weight: 800;
         }
 
-
-        .feedback-header p {
-            color: #666;
-
-            font-size: 14px;
-
-            line-height: 1.5;
-        }
-
-
-        /* =========================
-           FEEDBACK FORM
-        ========================= */
-
-        .feedback-form {
-            width: 100%;
-
-            display: grid;
-
-            grid-template-columns:
-                repeat(2, 1fr);
-
-            gap: 18px;
-        }
-
-
-        .feedback-field {
+        .rating-details {
             display: flex;
-
             flex-direction: column;
-
             gap: 7px;
         }
 
-
-        .feedback-field:nth-child(3) {
-            grid-column:
-                1 / -1;
+        .rating-stars,
+        .review-stars {
+            color: #f5a400;
+            letter-spacing: 2px;
         }
 
+        .rating-stars { font-size: 24px; }
+        .rating-count { color: #666; font-size: 13px; }
+
+        /* Review grid */
+        .review-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 20px;
+            width: 100%;
+        }
+
+        .review-card {
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            padding: 23px;
+            background: white;
+            border: 1px solid #eee5da;
+            border-radius: 16px;
+            box-shadow: 0 5px 18px rgba(55,35,15,.06);
+            overflow-wrap: anywhere;
+            transition: transform .2s, box-shadow .2s;
+        }
+
+        .review-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 24px rgba(55,35,15,.1);
+        }
+
+        .review-top {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .review-user {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 0;
+        }
+
+        .review-avatar {
+            flex-shrink: 0;
+            width: 50px;
+            height: 50px;
+            min-width: 50px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: #ed1c24;
+            color: white;
+            font-size: 20px;
+            font-weight: 800;
+        }
+
+        .review-avatar img {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        .review-avatar-initial {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            font-weight: 800;
+        }
+
+        .review-user-info { min-width: 0; }
+
+        .review-name {
+            margin-bottom: 5px;
+            color: #222;
+            font-size: 15px;
+            font-weight: 800;
+            overflow-wrap: anywhere;
+        }
+
+        .review-stars {
+            font-size: 16px;
+            white-space: nowrap;
+        }
+
+        .review-date {
+            flex-shrink: 0;
+            color: #777;
+            font-size: 11px;
+            line-height: 1.5;
+        }
+
+        .review-message {
+            margin-top: 20px;
+            color: #444;
+            font-size: 14px;
+            line-height: 1.8;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+        }
+
+        .review-reply {
+            margin-top: 15px;
+            padding: 12px 14px;
+            color: #555;
+            background: #f0fdf4;
+            border-left: 3px solid #16a34a;
+            border-radius: 7px;
+            font-size: 13px;
+            line-height: 1.7;
+            overflow-wrap: anywhere;
+        }
+
+        .review-reply strong {
+            display: block;
+            margin-bottom: 5px;
+            color: #15803d;
+        }
+
+        .no-reviews {
+            grid-column: 1 / -1;
+            padding: 35px 20px;
+            color: #777;
+            text-align: center;
+            background: white;
+            border: 1px dashed #e4d4c3;
+            border-radius: 14px;
+            line-height: 1.8;
+        }
+
+        /* ================= FEEDBACK FORM ================= */
+        .feedback-section {
+            width: 90%;
+            max-width: 1050px;
+            margin: 25px auto 45px;
+            padding: 30px;
+            background: white;
+            border-top: 4px solid #16a34a;
+            border-radius: 16px;
+            box-shadow: 0 5px 18px rgba(0,0,0,.08);
+        }
+
+        .feedback-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .feedback-icon {
+            flex-shrink: 0;
+            width: 55px;
+            height: 55px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: #dcfce7;
+            font-size: 26px;
+        }
+
+        .feedback-header h2 {
+            margin-bottom: 5px;
+            color: #15803d;
+            font-size: 25px;
+        }
+
+        .feedback-header p {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .feedback-form {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 18px;
+        }
+
+        .feedback-field {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            min-width: 0;
+        }
+
+        .feedback-field.full-width {
+            grid-column: 1 / -1;
+        }
 
         .feedback-field label {
             color: #222;
-
             font-size: 14px;
-
             font-weight: 700;
         }
-
 
         .feedback-field select,
         .feedback-field textarea {
             width: 100%;
-
-            border:
-                1px solid #d1d5db;
-
-            border-radius: 9px;
-
-            background: #fafafa;
-
-            padding: 11px 13px;
-
-            font-family:
-                Arial,
-                Helvetica,
-                sans-serif;
-
-            font-size: 14px;
-
+            padding: 12px 13px;
             color: #222;
-
+            background: #fafafa;
+            border: 1px solid #d1d5db;
+            border-radius: 9px;
+            font: inherit;
+            font-size: 14px;
             outline: none;
-
-            transition: 0.2s;
         }
 
-
-        .feedback-field select {
-            height: 45px;
-
-            cursor: pointer;
-        }
-
-
-        .feedback-field textarea {
-            resize: vertical;
-
-            min-height: 120px;
-        }
-
+        .feedback-field select { min-height: 45px; }
+        .feedback-field textarea { min-height: 120px; resize: vertical; }
 
         .feedback-field select:focus,
         .feedback-field textarea:focus {
             border-color: #16a34a;
-
             background: white;
-
-            box-shadow:
-                0 0 0 3px
-                rgba(
-                    22,
-                    163,
-                    74,
-                    0.10
-                );
+            box-shadow: 0 0 0 3px rgba(22,163,74,.1);
         }
 
+        .feedback-stars {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+        }
 
-        /* =========================
-           SUBMIT
-        ========================= */
+        .feedback-star {
+            padding: 0;
+            color: #cbd5e1;
+            background: transparent;
+            border: none;
+            font-size: 34px;
+            cursor: pointer;
+        }
+
+        .feedback-star.active { color: #f59e0b; }
+
+        #ratingLabel {
+            color: #666;
+            font-size: 12px;
+        }
 
         .feedback-submit {
-            grid-column:
-                1 / -1;
-
-            width: fit-content;
-
-            border: none;
-
-            border-radius: 25px;
-
-            background: #16a34a;
-
-            color: white;
-
+            grid-column: 1 / -1;
+            justify-self: start;
             padding: 12px 25px;
-
+            color: white;
+            background: #16a34a;
+            border: none;
+            border-radius: 25px;
             font-size: 14px;
-
             font-weight: 700;
-
             cursor: pointer;
-
-            transition: 0.2s;
+            transition: .2s;
         }
-
 
         .feedback-submit:hover {
             background: #15803d;
-
-            transform:
-                translateY(-2px);
+            transform: translateY(-2px);
         }
-
 
         .feedback-note {
-            grid-column:
-                1 / -1;
-
-            color: #777;
-
-            font-size: 12px;
-
+            grid-column: 1 / -1;
             margin-top: -8px;
+            color: #777;
+            font-size: 12px;
         }
 
-
-        /* =========================
-           SUCCESS
-        ========================= */
-
-        .feedback-success {
-            margin-bottom: 20px;
-
-            padding: 13px 16px;
-
-            border-radius: 9px;
-
-            background: #dcfce7;
-
-            color: #166534;
-
-            border:
-                1px solid #bbf7d0;
-
-            font-size: 14px;
-
-            font-weight: 600;
-        }
-
-
-        /* =========================
-           ERROR
-        ========================= */
-
+        .feedback-success,
         .feedback-error {
             margin-bottom: 20px;
-
             padding: 13px 16px;
-
             border-radius: 9px;
+            font-size: 14px;
+            line-height: 1.7;
+        }
 
-            background: #fee2e2;
+        .feedback-success {
+            color: #166534;
+            background: #dcfce7;
+            border: 1px solid #bbf7d0;
+        }
 
+        .feedback-error {
             color: #991b1b;
-
-            border:
-                1px solid #fecaca;
-
-            font-size: 13px;
+            background: #fee2e2;
+            border: 1px solid #fecaca;
         }
 
-
-        .feedback-error ul {
-            margin:
-                7px 0 0 18px;
-        }
-
-
-        /* =========================
-           LOGIN
-        ========================= */
+        .feedback-error ul { margin: 7px 0 0 20px; }
 
         .feedback-login {
-            text-align: center;
-
-            background: #f9fafb;
-
-            border-radius: 13px;
-
             padding: 30px 20px;
-
-            border:
-                1px solid #eeeeee;
+            text-align: center;
+            background: #f9fafb;
+            border: 1px solid #eee;
+            border-radius: 13px;
         }
-
 
         .feedback-login-icon {
-            font-size: 30px;
-
             margin-bottom: 8px;
+            font-size: 30px;
         }
-
 
         .feedback-login h3 {
-            color: #222;
-
-            font-size: 19px;
-
             margin-bottom: 7px;
+            color: #222;
+            font-size: 19px;
         }
-
 
         .feedback-login p {
-            color: #666;
-
-            font-size: 14px;
-
             margin-bottom: 18px;
-
-            line-height: 1.5;
+            color: #666;
+            font-size: 14px;
+            line-height: 1.6;
         }
-
 
         .feedback-login-btn {
             display: inline-block;
-
-            background: #16a34a;
-
-            color: white;
-
-            text-decoration: none;
-
             padding: 11px 22px;
-
-            border-radius: 25px;
-
-            font-size: 14px;
-
-            font-weight: 700;
-
-            transition: 0.2s;
-        }
-
-
-        .feedback-login-btn:hover {
-            background: #15803d;
-
-            transform:
-                translateY(-2px);
-        }
-
-
-        /* =========================
-           FOOTER
-        ========================= */
-
-        footer {
-            background: #080808;
-
             color: white;
-
-            text-align: center;
-
-            padding: 20px;
-
-            margin-top: 30px;
-
-            font-size: 13px;
+            background: #16a34a;
+            border-radius: 25px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 700;
         }
 
+        .feedback-login-btn:hover { background: #15803d; }
+
+        /* ================= FOOTER ================= */
+        footer {
+            margin-top: 30px;
+            padding: 20px;
+            color: white;
+            background: #080808;
+            text-align: center;
+            font-size: 13px;
+            line-height: 1.8;
+        }
 
         footer span {
             color: #16a34a;
-
             font-weight: bold;
         }
 
-
-        /* =========================
-           TABLET
-        ========================= */
-
+        /* ================= TABLET ================= */
         @media (max-width: 900px) {
-
-            .hero {
-                height: 380px;
-            }
-
+            .hero { height: 380px; }
 
             .features {
                 grid-template-columns: 1fr;
-
                 max-width: 700px;
             }
 
-
-            .feature {
-                min-height: 110px;
-            }
-
+            .feature { min-height: 110px; }
 
             .slide-three {
                 justify-content: center;
-
                 padding: 20px;
             }
 
-
             .review-grid {
-                grid-template-columns: 1fr;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
             }
 
+            .reviews-section { padding: 25px; }
         }
 
-
-        /* =========================
-           MOBILE
-        ========================= */
-
+        /* ================= MOBILE ================= */
         @media (max-width: 600px) {
+            .hero { height: 320px; }
 
-            .hero {
-                height: 320px;
-
-                background-position: center;
-            }
-
-
-            .slide-original {
-                padding-bottom: 22px;
-            }
-
-
-            .hero-button {
-                padding: 10px 22px;
-
-                font-size: 14px;
-            }
-
-
-            .slide-two {
-                padding: 15px;
-            }
-
+            .hero-button { padding: 10px 22px; font-size: 14px; }
 
             .promo-two {
                 width: 92%;
-
                 padding: 22px;
-
                 border-left-width: 6px;
-
-                border-radius:
-                    6px 20px 20px 6px;
+                border-radius: 6px 20px 20px 6px;
             }
 
-
-            .promo-two .small-title {
-                font-size: 11px;
-
-                padding: 6px 12px;
-            }
-
-
-            .promo-two h2 {
-                font-size: 38px;
-            }
-
-
-            .promo-two h3 {
-                font-size: 18px;
-            }
-
-
-            .promo-two p {
-                font-size: 13px;
-
-                margin-bottom: 15px;
-            }
-
-
-            .promo-two .promo-button {
-                padding: 9px 20px;
-
-                font-size: 13px;
-            }
-
-
-            .slide-three {
-                justify-content: center;
-
-                padding: 15px;
-            }
-
-
-            .promo-three {
-                width: 92%;
-
-                padding: 23px 18px;
-
-                border-radius: 18px;
-            }
-
-
-            .promo-three .weekend-label {
-                font-size: 11px;
-
-                letter-spacing: 2px;
-            }
-
-
-            .promo-three h2 {
-                font-size: 34px;
-            }
-
-
-            .promo-three h3 {
-                font-size: 17px;
-            }
-
-
-            .promo-three p {
-                font-size: 13px;
-
-                margin-bottom: 16px;
-            }
-
-
-            .promo-three .promo-button {
-                padding: 10px 22px;
-
-                font-size: 13px;
-            }
-
-
-            .slider-arrow {
-                width: 35px;
-
-                height: 35px;
-
-                font-size: 22px;
-            }
-
-
-            .slider-prev {
-                left: 10px;
-            }
-
-
-            .slider-next {
-                right: 10px;
-            }
-
-
-            .slider-dots {
-                bottom: 10px;
-            }
-
-
-            .features {
-                width: 92%;
-
-                margin: 25px auto;
-
-                gap: 12px;
-            }
-
-
-            .feature {
-                min-height: 105px;
-
-                padding: 15px;
-
-                gap: 12px;
-            }
-
-
-            .feature-icon {
-                min-width: 52px;
-
-                width: 52px;
-
-                height: 52px;
-
-                font-size: 25px;
-            }
-
-
-            .feature-content h3 {
-                font-size: 17px;
-            }
-
-
-            .feature-content p {
-                font-size: 12px;
-            }
-
-
-            .order-section {
-                width: 92%;
-
-                margin: 28px auto;
-
-                padding: 27px 18px;
-            }
-
-
-            .order-section h2 {
-                font-size: 24px;
-            }
-
-
-            .order-section p {
-                font-size: 14px;
-            }
-
-
-            .order-section .order-btn {
-                font-size: 13px;
-
-                padding: 10px 20px;
-            }
-
-
-            /* REVIEWS */
-
-            .reviews-section {
-                width: 92%;
-
-                margin: 35px auto 20px;
-            }
-
-
-            .reviews-title h2 {
-                font-size: 24px;
-            }
-
-
-            .rating-summary {
-                gap: 20px;
-
-                margin-bottom: 25px;
-            }
-
-
-            .average-rating {
-                font-size: 50px;
-            }
-
-
-            .rating-stars {
-                font-size: 21px;
-            }
-
-
-            .review-card {
-                padding: 20px;
-
-                min-height: 135px;
-            }
-
-
-            .review-avatar {
-                width: 45px;
-
-                height: 45px;
-
-                min-width: 45px;
-
-                font-size: 17px;
-            }
-
-
-            .review-name {
-                font-size: 14px;
-            }
-
-
-            .review-stars {
-                font-size: 13px;
-            }
-
-
-            .review-message {
-                font-size: 13px;
-            }
-
-
-            /* FEEDBACK */
-
+            .promo-two .small-title { font-size: 11px; padding: 6px 12px; }
+            .promo-two h2 { font-size: 38px; }
+            .promo-two h3 { font-size: 18px; }
+            .promo-two p { font-size: 13px; margin-bottom: 15px; }
+            .promo-two .promo-button { padding: 9px 20px; font-size: 13px; }
+
+            .slide-three { justify-content: center; padding: 15px; }
+
+            .promo-three { width: 92%; padding: 23px 18px; border-radius: 18px; }
+            .promo-three .weekend-label { font-size: 11px; letter-spacing: 2px; }
+            .promo-three h2 { font-size: 34px; }
+            .promo-three h3 { font-size: 17px; }
+            .promo-three p { font-size: 13px; margin-bottom: 16px; }
+            .promo-three .promo-button { padding: 10px 22px; font-size: 13px; }
+
+            .slider-arrow { width: 35px; height: 35px; font-size: 22px; }
+            .slider-prev { left: 10px; }
+            .slider-next { right: 10px; }
+            .slider-dots { bottom: 10px; }
+
+            .features,
+            .order-section,
+            .reviews-section,
             .feedback-section {
                 width: 92%;
+            }
 
+            .features { margin: 25px auto; gap: 12px; }
+            .feature { min-height: 105px; padding: 15px; gap: 12px; }
+            .feature-icon { width: 52px; height: 52px; font-size: 25px; }
+            .feature-content h3 { font-size: 17px; }
+            .feature-content p { font-size: 12px; }
+
+            .order-section { margin: 28px auto; padding: 27px 18px; }
+            .order-section h2 { font-size: 24px; }
+            .order-section p { font-size: 14px; }
+
+            .reviews-section {
                 margin: 30px auto;
-
-                padding: 22px 18px;
-
-                border-radius: 14px;
+                padding: 18px 0;
             }
 
+            .reviews-title h2 { font-size: 23px; }
 
-            .feedback-header {
-                align-items: flex-start;
-
-                gap: 11px;
-            }
-
-
-            .feedback-icon {
-                width: 46px;
-
-                height: 46px;
-
-                min-width: 46px;
-
-                font-size: 22px;
-            }
-
-
-            .feedback-header h2 {
-                font-size: 21px;
-            }
-
-
-            .feedback-header p {
-                font-size: 12px;
-            }
-
-
-            .feedback-form {
-                grid-template-columns: 1fr;
-
+            .rating-summary {
                 gap: 15px;
+                padding: 18px;
+                margin-bottom: 22px;
             }
 
+            .average-rating { font-size: 46px; }
+            .rating-stars { font-size: 20px; }
 
-            .feedback-field:nth-child(3) {
-                grid-column: auto;
-            }
+            .review-grid { grid-template-columns: minmax(0, 1fr); gap: 15px; }
+            .review-card { padding: 18px; }
+            .review-avatar { width: 44px; height: 44px; min-width: 44px; }
+            .review-name { font-size: 14px; }
+            .review-stars { font-size: 13px; letter-spacing: 1px; }
+            .review-date { font-size: 10px; }
+            .review-message { font-size: 13px; margin-top: 16px; }
 
+            .feedback-section { margin: 25px auto 35px; padding: 22px 18px; }
+            .feedback-header { align-items: flex-start; gap: 11px; }
+            .feedback-icon { width: 46px; height: 46px; font-size: 22px; }
+            .feedback-header h2 { font-size: 20px; }
+            .feedback-header p { font-size: 12px; }
 
-            .feedback-submit {
-                grid-column: auto;
+            .feedback-form { grid-template-columns: minmax(0, 1fr); gap: 15px; }
+            .feedback-field.full-width,
+            .feedback-submit,
+            .feedback-note { grid-column: 1; }
 
-                width: 100%;
-            }
-
-
-            .feedback-note {
-                grid-column: auto;
-
-                text-align: center;
-            }
-
-
-            .feedback-login {
-                padding: 25px 15px;
-            }
-
+            .feedback-submit { width: 100%; }
+            .feedback-note { text-align: center; }
         }
-
     </style>
-
 </head>
-
 
 <body>
 
-
-    {{-- =========================
-         NAVIGATION
-    ========================= --}}
-
+    {{-- NAVBAR --}}
     @include('partials.navbar')
 
-
-    {{-- =========================
-         HERO
-    ========================= --}}
-
-    <section class="hero">
-
-
-        {{-- SLIDE 1 --}}
+    {{-- HERO SLIDER --}}
+    <section class="hero" aria-label="Pizza promotions">
 
         <div class="hero-slide slide-original active">
-
             <div class="hero-content">
-
-                <a
-                    href="{{ route('menu') }}"
-                    class="hero-button"
-                >
+                <a href="{{ route('menu') }}" class="hero-button">
                     🍕 Order Now
                 </a>
-
             </div>
-
         </div>
-
-
-        {{-- SLIDE 2 --}}
 
         <div class="hero-slide slide-two">
-
             <div class="promo-two">
-
-                <div class="small-title">
-                    🔥 LIMITED PROMO
-                </div>
-
-                <h2>
-                    10% OFF
-                </h2>
-
-                <h3>
-                    SELECTED PIZZAS
-                </h3>
-
-                <p>
-                    Enjoy your favorite pizza
-                    and save more today!
-                </p>
-
-                <a
-                    href="{{ route('menu') }}"
-                    class="promo-button"
-                >
+                <div class="small-title">🔥 LIMITED PROMO</div>
+                <h2>10% OFF</h2>
+                <h3>SELECTED PIZZAS</h3>
+                <p>Enjoy your favorite pizza and save more today!</p>
+                <a href="{{ route('menu') }}" class="promo-button">
                     🍕 ORDER NOW
                 </a>
-
             </div>
-
         </div>
-
-
-        {{-- SLIDE 3 --}}
 
         <div class="hero-slide slide-three">
-
             <div class="promo-three">
-
-                <div class="weekend-label">
-                    ✦ WEEKEND SPECIAL ✦
-                </div>
-
-                <h2>
-                    PIZZA
-                    <br>
-                    WEEKEND
-                </h2>
-
-                <h3>
-                    SAVE MORE. EAT MORE.
-                </h3>
-
-                <p>
-                    Make your weekend extra delicious
-                    with Abuyog Andrea Pizza!
-                </p>
-
-                <a
-                    href="{{ route('menu') }}"
-                    class="promo-button"
-                >
+                <div class="weekend-label">✦ WEEKEND SPECIAL ✦</div>
+                <h2>PIZZA<br>WEEKEND</h2>
+                <h3>SAVE MORE. EAT MORE.</h3>
+                <p>Make your weekend extra delicious with Abuyog Andrea Pizza!</p>
+                <a href="{{ route('menu') }}" class="promo-button">
                     🍕 VIEW MENU
                 </a>
-
             </div>
-
         </div>
 
-
-        {{-- PREVIOUS --}}
-
-        <button
-            type="button"
-            class="slider-arrow slider-prev"
-            onclick="changeSlide(-1)"
-            aria-label="Previous slide"
-        >
+        <button type="button" class="slider-arrow slider-prev"
+                onclick="changeSlide(-1)" aria-label="Previous slide">
             ‹
         </button>
 
-
-        {{-- NEXT --}}
-
-        <button
-            type="button"
-            class="slider-arrow slider-next"
-            onclick="changeSlide(1)"
-            aria-label="Next slide"
-        >
+        <button type="button" class="slider-arrow slider-next"
+                onclick="changeSlide(1)" aria-label="Next slide">
             ›
         </button>
 
-
-        {{-- DOTS --}}
-
         <div class="slider-dots">
-
-            <button
-                type="button"
-                class="slider-dot active"
-                onclick="goToSlide(0)"
-                aria-label="Slide 1"
-            ></button>
-
-            <button
-                type="button"
-                class="slider-dot"
-                onclick="goToSlide(1)"
-                aria-label="Slide 2"
-            ></button>
-
-            <button
-                type="button"
-                class="slider-dot"
-                onclick="goToSlide(2)"
-                aria-label="Slide 3"
-            ></button>
-
+            <button type="button" class="slider-dot active"
+                    onclick="goToSlide(0)" aria-label="Slide 1"></button>
+            <button type="button" class="slider-dot"
+                    onclick="goToSlide(1)" aria-label="Slide 2"></button>
+            <button type="button" class="slider-dot"
+                    onclick="goToSlide(2)" aria-label="Slide 3"></button>
         </div>
-
     </section>
 
-
-    {{-- =========================
-         FEATURES
-    ========================= --}}
-
+    {{-- FEATURES --}}
     <section class="features">
-
-
         <div class="feature">
-
-            <div class="feature-icon">
-                🍕
-            </div>
-
+            <div class="feature-icon">🍕</div>
             <div class="feature-content">
-
-                <h3>
-                    Fresh Pizza
-                </h3>
-
-                <p>
-                    Freshly prepared pizza made
-                    with delicious ingredients.
-                </p>
-
+                <h3>Fresh Pizza</h3>
+                <p>Freshly prepared pizza made with delicious ingredients.</p>
             </div>
-
         </div>
 
-
         <div class="feature">
-
-            <div class="feature-icon">
-                🚚
-            </div>
-
+            <div class="feature-icon">🚚</div>
             <div class="feature-content">
-
-                <h3>
-                    Fast Delivery
-                </h3>
-
-                <p>
-                    Get your favorite pizza delivered
-                    right to your location.
-                </p>
-
+                <h3>Fast Delivery</h3>
+                <p>Get your favorite pizza delivered right to your location.</p>
             </div>
-
         </div>
 
-
         <div class="feature">
-
-            <div class="feature-icon">
-                ❤️
-            </div>
-
+            <div class="feature-icon">❤️</div>
             <div class="feature-content">
-
-                <h3>
-                    Made With Love
-                </h3>
-
-                <p>
-                    We prepare every pizza with care
-                    for our customers.
-                </p>
-
+                <h3>Made With Love</h3>
+                <p>We prepare every pizza with care for our customers.</p>
             </div>
-
         </div>
-
     </section>
 
-
-    {{-- =========================
-         ORDER SECTION
-    ========================= --}}
-
+    {{-- ORDER SECTION --}}
     <section class="order-section">
-
-        <h2>
-            Hungry for Pizza?
-        </h2>
-
-        <p>
-            Choose your favorite pizza and
-            order now from Abuyog Andrea Pizza!
-        </p>
-
-        <a
-            href="{{ route('menu') }}"
-            class="order-btn"
-        >
-            🍕 View Our Menu
-        </a>
-
+        <h2>Hungry for Pizza?</h2>
+        <p>Choose your favorite pizza and order now from Abuyog Andrea Pizza!</p>
+        <a href="{{ route('menu') }}" class="order-btn">🍕 View Our Menu</a>
     </section>
 
+    {{-- CUSTOMER RATINGS AND REVIEWS --}}
+    @php
+        $approvedFeedbacks = collect($feedbacks ?? [])
+            ->filter(function ($feedback) {
+                return $feedback->status === 'approved'
+                    && $feedback->type === 'feedback'
+                    && !is_null($feedback->rating);
+            })
+            ->sortByDesc('created_at')
+            ->values();
 
-    {{-- =====================================================
-         RATINGS & REVIEWS
-    ====================================================== --}}
+        $reviewCount = $approvedFeedbacks->count();
 
-    <section class="reviews-section">
+        $averageRating = $reviewCount > 0
+            ? round($approvedFeedbacks->avg('rating'), 1)
+            : 0;
+    @endphp
 
+    <section class="reviews-section" id="reviews">
 
         <div class="reviews-title">
-    <h2>
-        <a href="{{ route('reviews.index') }}">
-            Ratings & Reviews
-        </a>
-    </h2>
+            <h2>
+                <a href="{{ route('reviews.index') }}">Ratings &amp; Reviews</a>
+            </h2>
 
-    <a href="{{ route('reviews.index') }}" aria-label="View all reviews">
-        ›
-    </a>
-</div>
-
-
-        @php
-
-            /*
-            |--------------------------------------------------------------------------
-            | GET APPROVED REVIEWS
-            |--------------------------------------------------------------------------
-            |
-            | This fallback keeps the page working even if the controller
-            | does not pass a $feedbacks variable.
-            |
-            */
-
-            $publicFeedbacks =
-                isset($feedbacks)
-                    ? $feedbacks
-                    : collect();
-
-            $approvedFeedbacks =
-                $publicFeedbacks
-                    ->where('status', 'approved')
-                    ->where('type', 'feedback')
-                    ->whereNotNull('rating');
-
-            $reviewCount =
-                $approvedFeedbacks->count();
-
-            $averageRating =
-                $reviewCount > 0
-                    ? round(
-                        $approvedFeedbacks->avg('rating'),
-                        1
-                    )
-                    : 0;
-
-        @endphp
-
-
-        <div class="rating-summary">
-
-
-            <div class="average-rating">
-
-                {{ number_format($averageRating, 1) }}
-
-            </div>
-
-
-            <div class="rating-details">
-
-                <div class="rating-stars">
-
-                    @for($i = 1; $i <= 5; $i++)
-
-                        @if($i <= round($averageRating))
-
-                            ★
-
-                        @else
-
-                            ☆
-
-                        @endif
-
-                    @endfor
-
-                </div>
-
-
-                <div class="rating-count">
-
-                    {{ $reviewCount }}
-
-                    {{ $reviewCount == 1 ? 'Rating' : 'Ratings' }}
-
-                </div>
-
-            </div>
-
+            <a href="{{ route('reviews.index') }}"
+               class="all-reviews-link"
+               aria-label="View all reviews">›</a>
         </div>
 
+        <div class="rating-summary">
+            <div class="average-rating">
+                {{ number_format($averageRating, 1) }}
+            </div>
 
-        @if($reviewCount > 0)
+            <div class="rating-details">
+                <div class="rating-stars" aria-label="Average rating">
+                    @for ($i = 1; $i <= 5; $i++)
+                        {{ $i <= round($averageRating) ? '★' : '☆' }}
+                    @endfor
+                </div>
 
+                <div class="rating-count">
+                    {{ $reviewCount }}
+                    {{ $reviewCount === 1 ? 'Rating' : 'Ratings' }}
+                </div>
+            </div>
+        </div>
 
-            <div class="review-grid">
+        <div class="review-grid">
+            @forelse ($approvedFeedbacks->take(6) as $feedback)
 
+                @php
+                    $customer = $feedback->user;
+                    $customerName = $customer?->name ?? 'Customer';
 
-                @foreach(
-                    $approvedFeedbacks->take(6)
-                    as $feedback
-                )
+                    $firstLetter = mb_strtoupper(
+                        mb_substr(trim($customerName) ?: 'C', 0, 1)
+                    );
 
+                    $profilePhoto = $customer?->profile_picture;
 
-                    @php
+                    $profilePhotoUrl = null;
 
-                        $customerName =
-                            optional($feedback->user)->name
-                            ?? 'Customer';
-
-                        $firstLetter =
-                            strtoupper(
-                                substr(
-                                    $customerName,
-                                    0,
-                                    1
-                                )
+                    if (is_string($profilePhoto) && trim($profilePhoto) !== '') {
+                        if (
+                            str_starts_with($profilePhoto, 'https://') ||
+                            str_starts_with($profilePhoto, 'http://')
+                        ) {
+                            $profilePhotoUrl = $profilePhoto;
+                        } else {
+                            $profilePhotoUrl = asset(
+                                'storage/' . ltrim($profilePhoto, '/')
                             );
+                        }
+                    }
 
-                    @endphp
+                    $rating = max(0, min(5, (int) $feedback->rating));
+                @endphp
 
+                <article class="review-card">
 
-                    <div class="review-card">
+                    <div class="review-top">
 
+                        <div class="review-user">
 
-                        <div class="review-top">
+                            <div class="review-avatar">
 
+                                @if ($profilePhotoUrl)
+                                    <img
+                                        src="{{ $profilePhotoUrl }}"
+                                        alt="{{ $customerName }}"
+                                        loading="lazy"
+                                        onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                                    >
 
-                            <div class="review-user">
-
-
-                                <div class="review-avatar">
-
-                                    {{ $firstLetter }}
-
-                                </div>
-
-
-                                <div>
-
-                                    <div class="review-name">
-
-                                        {{ $customerName }}
-
-                                    </div>
-
-
-                                    <div class="review-stars">
-
-                                        @for(
-                                            $i = 1;
-                                            $i <= 5;
-                                            $i++
-                                        )
-
-                                            @if(
-                                                $i <=
-                                                (int) $feedback->rating
-                                            )
-
-                                                ★
-
-                                            @else
-
-                                                ☆
-
-                                            @endif
-
-                                        @endfor
-
-                                    </div>
-
-                                </div>
-
+                                    <span class="review-avatar-initial"
+                                          style="display:none;">
+                                        {{ $firstLetter }}
+                                    </span>
+                                @else
+                                    <span class="review-avatar-initial">
+                                        {{ $firstLetter }}
+                                    </span>
+                                @endif
 
                             </div>
 
+                            <div class="review-user-info">
+                                <div class="review-name">
+                                    {{ $customerName }}
+                                </div>
 
-                            <div class="review-date">
-
-                                {{ optional($feedback->created_at)->format('M d, Y') }}
-
+                                <div class="review-stars"
+                                     aria-label="{{ $rating }} out of 5 stars">
+                                    @for ($i = 1; $i <= 5; $i++)
+                                        {{ $i <= $rating ? '★' : '☆' }}
+                                    @endfor
+                                </div>
                             </div>
-
 
                         </div>
 
-
-                        <div class="review-message">
-
-                            {{ $feedback->message }}
-
-                        </div>
-
-
-                        @if(
-                            !empty(
-                                $feedback->admin_reply
-                            )
-                        )
-
-                            <div class="review-reply">
-
-                                <strong>
-                                    Admin Reply:
-                                </strong>
-
-                                {{ $feedback->admin_reply }}
-
-                            </div>
-
-                        @endif
-
+                        <time class="review-date"
+                              datetime="{{ $feedback->created_at?->toDateString() }}">
+                            {{ $feedback->created_at?->format('M d, Y') }}
+                        </time>
 
                     </div>
 
+                    <p class="review-message">{{ $feedback->message }}</p>
 
-                @endforeach
+                    @if (!empty($feedback->admin_reply))
+                        <div class="review-reply">
+                            <strong>Reply from Andrea's Pizza</strong>
+                            {{ $feedback->admin_reply }}
+                        </div>
+                    @endif
 
+                </article>
 
-            </div>
+            @empty
 
+                <div class="no-reviews">
+                    <div style="font-size:32px;">⭐</div>
+                    <strong>No approved reviews yet.</strong>
+                    <p>Be the first to share your experience!</p>
+                </div>
 
-        @else
-
-
-            <div class="no-reviews">
-
-                ⭐ No approved reviews yet.
-                Be the first to share your experience!
-
-            </div>
-
-
-        @endif
-
+            @endforelse
+        </div>
 
     </section>
 
-
-    {{-- =====================================================
-         SEND FEEDBACK / CONCERN
-    ====================================================== --}}
-
+    {{-- CUSTOMER FEEDBACK FORM --}}
     <section class="feedback-section">
 
-
         <div class="feedback-header">
-
-
-            <div class="feedback-icon">
-                💬
-            </div>
-
+            <div class="feedback-icon">💬</div>
 
             <div>
-
-                <h2>
-                    Send Us Your Feedback
-                </h2>
-
+                <h2>Send Us Your Feedback</h2>
                 <p>
                     Have feedback or a concern?
                     Let us know so we can improve our service.
                 </p>
-
             </div>
-
-
         </div>
 
-
-        {{-- SUCCESS MESSAGE --}}
-
-        @if(session('success'))
-
+        @if (session('success'))
             <div class="feedback-success">
-
-                ✅
-
-                {{ session('success') }}
-
+                ✅ {{ session('success') }}
             </div>
-
         @endif
 
-
-        {{-- ERROR MESSAGE --}}
-
-        @if($errors->any())
-
+        @if ($errors->any())
             <div class="feedback-error">
-
-                <strong>
-                    Please check the following:
-                </strong>
-
-
+                <strong>Please check the following:</strong>
                 <ul>
-
-                    @foreach($errors->all() as $error)
-
-                        <li>
-                            {{ $error }}
-                        </li>
-
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
                     @endforeach
-
                 </ul>
-
             </div>
-
         @endif
-
 
         @auth
-
-
             <form
                 action="{{ route('customer.feedback.general') }}"
                 method="POST"
                 class="feedback-form"
+                id="customerFeedbackForm"
             >
-
                 @csrf
 
+                <input type="hidden" name="type" value="feedback">
 
-                {{-- TYPE --}}
+                <div class="feedback-field full-width">
+                    <label>Rate your experience</label>
 
-                <div class="feedback-field">
+                    <div class="feedback-stars">
+                        @for ($star = 1; $star <= 5; $star++)
+                            <button
+                                type="button"
+                                class="feedback-star"
+                                data-rating="{{ $star }}"
+                                aria-label="Rate {{ $star }} stars"
+                                aria-pressed="false"
+                            >★</button>
+                        @endfor
+                    </div>
 
-                    <label for="type">
-                        What would you like to send?
-                    </label>
-
-
-                    <select
-                        name="type"
-                        id="type"
+                    <input
+                        type="hidden"
+                        name="rating"
+                        id="feedbackRating"
+                        value="{{ old('rating') }}"
                         required
                     >
 
-                        <option value="">
-                            Select an option
-                        </option>
-
-
-                        <option
-                            value="feedback"
-                            {{ old('type') === 'feedback' ? 'selected' : '' }}
-                        >
-                            ⭐ Feedback
-                        </option>
-
-
-                        <option
-                            value="concern"
-                            {{ old('type') === 'concern' ? 'selected' : '' }}
-                        >
-                            ⚠️ Concern
-                        </option>
-
-                    </select>
-
+                    <small id="ratingLabel">Tap a star to rate</small>
                 </div>
 
+                <div class="feedback-field full-width">
+                    <label for="order_id">Your delivered order</label>
 
-                {{-- RATING --}}
+                    <select name="order_id" id="order_id" required>
+                        <option value="">Select an order</option>
 
-                <div class="feedback-field">
-
-                    <label for="rating">
-                        Rate your experience
-                    </label>
-
-
-                    <select
-                        name="rating"
-                        id="rating"
-                    >
-
-                        <option value="">
-                            Select rating
-                        </option>
-
-
-                        <option
-                            value="5"
-                            {{ old('rating') == 5 ? 'selected' : '' }}
-                        >
-                            ★★★★★ — Excellent
-                        </option>
-
-
-                        <option
-                            value="4"
-                            {{ old('rating') == 4 ? 'selected' : '' }}
-                        >
-                            ★★★★☆ — Very Good
-                        </option>
-
-
-                        <option
-                            value="3"
-                            {{ old('rating') == 3 ? 'selected' : '' }}
-                        >
-                            ★★★☆☆ — Good
-                        </option>
-
-
-                        <option
-                            value="2"
-                            {{ old('rating') == 2 ? 'selected' : '' }}
-                        >
-                            ★★☆☆☆ — Needs Improvement
-                        </option>
-
-
-                        <option
-                            value="1"
-                            {{ old('rating') == 1 ? 'selected' : '' }}
-                        >
-                            ★☆☆☆☆ — Poor
-                        </option>
-
+                        @foreach (
+                            \App\Models\Order::where('user_id', auth()->id())
+                                ->where('status', 'delivered')
+                                ->latest()
+                                ->get() as $order
+                        )
+                            <option
+                                value="{{ $order->id }}"
+                                @selected(old('order_id') == $order->id)
+                            >
+                                Order #{{ $order->order_number }}
+                            </option>
+                        @endforeach
                     </select>
-
                 </div>
 
-
-                {{-- MESSAGE --}}
-
-                <div class="feedback-field">
-
-                    <label for="message">
-                        Your message
-                    </label>
-
+                <div class="feedback-field full-width">
+                    <label for="message">Comment (optional)</label>
 
                     <textarea
                         name="message"
                         id="message"
-                        rows="5"
-                        maxlength="2000"
-                        placeholder="Tell us about your experience or concern..."
-                        required
+                        rows="4"
+                        maxlength="1000"
+                        placeholder="How was your pizza?"
                     >{{ old('message') }}</textarea>
-
                 </div>
 
-
-                {{-- SUBMIT --}}
-
-                <button
-                    type="submit"
-                    class="feedback-submit"
-                >
-                    📩 Send to Admin
+                <button type="submit" class="feedback-submit">
+                    Submit Review
                 </button>
 
-
                 <p class="feedback-note">
-
-                    Your message will be reviewed by our admin
-                    before it appears publicly.
-
+                    Your review will appear after admin approval.
                 </p>
-
-
             </form>
-
-
         @else
-
-
             <div class="feedback-login">
+                <div class="feedback-login-icon">🔐</div>
 
+                <h3>Want to leave a review?</h3>
 
-                <div class="feedback-login-icon">
-                    🔐
-                </div>
+                <p>Please log in to review your delivered order.</p>
 
-
-                <h3>
-                    Want to send feedback?
-                </h3>
-
-
-                <p>
-                    Please log in to your customer account
-                    to send feedback or report a concern.
-                </p>
-
-
-                <a
-                    href="{{ route('login') }}"
-                    class="feedback-login-btn"
-                >
-                    Login to Send Feedback
+                <a href="{{ route('login') }}" class="feedback-login-btn">
+                    Login to Review
                 </a>
-
-
             </div>
-
-
         @endauth
-
 
     </section>
 
-
-    {{-- =========================
-         FOOTER
-    ========================= --}}
-
+    {{-- FOOTER --}}
     <footer>
-
         © {{ date('Y') }}
-
-        <span>
-            Abuyog Andrea Pizza
-        </span>
-
+        <span>Abuyog Andrea Pizza</span>
         All Rights Reserved.
-
     </footer>
 
-
-    {{-- =========================
-         SLIDESHOW
-    ========================= --}}
-
+    {{-- HERO SLIDER SCRIPT --}}
     <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            let currentSlide = 0;
 
-        let currentSlide = 0;
+            const slides = document.querySelectorAll('.hero-slide');
+            const dots = document.querySelectorAll('.slider-dot');
+            let slideTimer;
 
+            function showSlide(index) {
+                if (!slides.length) return;
 
-        const slides =
-            document.querySelectorAll(
-                '.hero-slide'
-            );
+                currentSlide = (index + slides.length) % slides.length;
 
+                slides.forEach((slide, i) => {
+                    slide.classList.toggle('active', i === currentSlide);
+                });
 
-        const dots =
-            document.querySelectorAll(
-                '.slider-dot'
-            );
-
-
-        function showSlide(index) {
-
-            if (
-                index >=
-                slides.length
-            ) {
-
-                currentSlide = 0;
-
+                dots.forEach((dot, i) => {
+                    dot.classList.toggle('active', i === currentSlide);
+                });
             }
 
-            else if (
-                index < 0
-            ) {
+            window.changeSlide = function (direction) {
+                showSlide(currentSlide + direction);
+                resetTimer();
+            };
 
-                currentSlide =
-                    slides.length - 1;
+            window.goToSlide = function (index) {
+                showSlide(index);
+                resetTimer();
+            };
 
+            function resetTimer() {
+                clearInterval(slideTimer);
+                slideTimer = setInterval(function () {
+                    showSlide(currentSlide + 1);
+                }, 5000);
             }
 
-            else {
+            showSlide(0);
+            resetTimer();
 
-                currentSlide = index;
+            /* Customer feedback star rating */
+            const stars = document.querySelectorAll('.feedback-star');
+            const ratingInput = document.getElementById('feedbackRating');
+            const ratingLabel = document.getElementById('ratingLabel');
+            const feedbackForm = document.getElementById('customerFeedbackForm');
 
-            }
+            const labels = {
+                1: 'Poor',
+                2: 'Needs improvement',
+                3: 'Good',
+                4: 'Very good',
+                5: 'Excellent'
+            };
 
+            function updateStars(rating) {
+                stars.forEach(function (star) {
+                    const selected = Number(star.dataset.rating) <= rating;
 
-            slides.forEach(
-                (slide, i) => {
+                    star.classList.toggle('active', selected);
+                    star.setAttribute('aria-pressed', selected ? 'true' : 'false');
+                });
 
-                    slide.classList.toggle(
-                        'active',
-                        i === currentSlide
-                    );
-
+                if (ratingLabel) {
+                    ratingLabel.textContent = rating
+                        ? rating + '/5 — ' + labels[rating]
+                        : 'Tap a star to rate';
                 }
-            );
+            }
 
+            stars.forEach(function (star) {
+                star.addEventListener('click', function () {
+                    ratingInput.value = star.dataset.rating;
+                    updateStars(Number(ratingInput.value));
+                });
+            });
 
-            dots.forEach(
-                (dot, i) => {
+            updateStars(Number(ratingInput?.value) || 0);
 
-                    dot.classList.toggle(
-                        'active',
-                        i === currentSlide
-                    );
+            if (feedbackForm) {
+                feedbackForm.addEventListener('submit', function (event) {
+                    if (!ratingInput.value) {
+                        event.preventDefault();
+                        updateStars(0);
 
-                }
-            );
-
-        }
-
-
-        function changeSlide(direction) {
-
-            showSlide(
-                currentSlide + direction
-            );
-
-        }
-
-
-        function goToSlide(index) {
-
-            showSlide(index);
-
-        }
-
-
-        setInterval(
-            function () {
-
-                changeSlide(1);
-
-            },
-            5000
-        );
-
+                        if (ratingLabel) {
+                            ratingLabel.textContent = 'Please select a star rating first.';
+                        }
+                    }
+                });
+            }
+        });
     </script>
 
-
 </body>
-
 </html>

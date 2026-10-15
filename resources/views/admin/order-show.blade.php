@@ -3,477 +3,80 @@
 
 @section('content')
 <style>
-    .order-page {
-        max-width: 1400px;
-        margin: 0 auto;
-        padding: 24px;
-        color: #1f2937;
-    }
-
-    .order-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 16px;
-        margin-bottom: 24px;
-    }
-
-    .order-header h1 {
-        margin: 0;
-        font-size: 28px;
-        font-weight: 800;
-    }
-
-    .order-subtitle {
-        margin-top: 6px;
-        color: #6b7280;
-        font-size: 14px;
-    }
-
-    .header-actions {
-        display: flex;
-        gap: 8px;
-        flex-wrap: wrap;
-    }
-
-    .back-btn {
-        display: inline-block;
-        padding: 10px 14px;
-        border: 1px solid #d1d5db;
-        border-radius: 8px;
-        background: #fff;
-        color: #374151;
-        text-decoration: none;
-        font-size: 13px;
-        font-weight: 700;
-        cursor: pointer;
-    }
-
-    .back-btn:hover {
-        background: #f9fafb;
-    }
-
-    .order-grid {
-        display: grid;
-        grid-template-columns: minmax(0, 1.7fr) minmax(300px, 1fr);
-        gap: 20px;
-        align-items: start;
-    }
-
-    .order-column {
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
-        min-width: 0;
-    }
-
-    .order-card {
-        background: #fff;
-        border: 1px solid #e5e7eb;
-        border-radius: 12px;
-        overflow: hidden;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, .04);
-    }
-
-    .order-card-title {
-        padding: 16px 20px;
-        border-bottom: 1px solid #e5e7eb;
-        background: #f9fafb;
-    }
-
-    .order-card-title h2 {
-        margin: 0;
-        font-size: 17px;
-        font-weight: 750;
-    }
-
-    .order-card-body {
-        padding: 20px;
-    }
-
-    .info-row,
-    .side-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        gap: 16px;
-        padding: 11px 0;
-        border-bottom: 1px solid #f3f4f6;
-    }
-
-    .info-row:last-child,
-    .side-row:last-child {
-        border-bottom: none;
-    }
-
-    .info-label,
-    .side-label {
-        color: #6b7280;
-        font-size: 13px;
-        flex-shrink: 0;
-    }
-
-    .info-value,
-    .side-value {
-        text-align: right;
-        font-size: 13px;
-        font-weight: 650;
-        overflow-wrap: anywhere;
-    }
-
-    .badge {
-        display: inline-block;
-        padding: 5px 10px;
-        border-radius: 999px;
-        font-size: 11px;
-        font-weight: 750;
-    }
-
-    .status-pending {
-        background: #fef3c7;
-        color: #92400e;
-    }
-
-    .status-confirmed {
-        background: #dbeafe;
-        color: #1d4ed8;
-    }
-
-    .status-preparing {
-        background: #f3e8ff;
-        color: #7e22ce;
-    }
-
-    .status-ready_for_delivery {
-        background: #e0f2fe;
-        color: #075985;
-    }
-
-    .status-out_for_delivery {
-        background: #ffedd5;
-        color: #9a3412;
-    }
-
-    .status-delivered {
-        background: #dcfce7;
-        color: #166534;
-    }
-
-    .status-cancelled {
-        background: #fee2e2;
-        color: #991b1b;
-    }
-
-    .items-table-wrap {
-        width: 100%;
-        overflow-x: auto;
-    }
-
-    .items-table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-
-    .items-table th,
-    .items-table td {
-        padding: 13px 12px;
-        border-bottom: 1px solid #e5e7eb;
-        text-align: left;
-        font-size: 13px;
-    }
-
-    .items-table th {
-        color: #6b7280;
-        background: #f9fafb;
-        font-weight: 700;
-    }
-
-    .items-table td:last-child,
-    .items-table th:last-child {
-        text-align: right;
-    }
-
-    .items-table tr:last-child td {
-        border-bottom: none;
-    }
-
-    .total-row {
-        display: flex;
-        justify-content: space-between;
-        gap: 12px;
-        padding: 9px 0;
-        font-size: 14px;
-    }
-
-    .grand-total {
-        margin-top: 8px;
-        padding-top: 14px;
-        border-top: 2px solid #e5e7eb;
-        font-size: 18px;
-        font-weight: 800;
-    }
-
-    .status-buttons {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 10px;
-    }
-
-    .status-buttons form {
-        margin: 0;
-        min-width: 0;
-    }
-
-    .status-button {
-        width: 100%;
-        min-height: 44px;
-        padding: 10px;
-        border: 1px solid #d1d5db;
-        border-radius: 8px;
-        background: #fff;
-        color: #374151;
-        font-size: 12px;
-        font-weight: 700;
-        cursor: pointer;
-        transition: .2s;
-    }
-
-    .status-button:hover:not(:disabled) {
-        background: #f3f4f6;
-        border-color: #9ca3af;
-    }
-
-    .status-button:disabled {
-        cursor: default;
-        opacity: 1;
-    }
-
-    .status-btn-pending.status-active {
-        background: #fef3c7;
-        color: #92400e;
-        border-color: #f59e0b;
-    }
-
-    .status-btn-confirmed.status-active {
-        background: #dbeafe;
-        color: #1d4ed8;
-        border-color: #60a5fa;
-    }
-
-    .status-btn-preparing.status-active {
-        background: #f3e8ff;
-        color: #7e22ce;
-        border-color: #c084fc;
-    }
-
-    .status-btn-ready_for_delivery.status-active {
-        background: #e0f2fe;
-        color: #075985;
-        border-color: #38bdf8;
-    }
-
-    .status-btn-out_for_delivery.status-active {
-        background: #ffedd5;
-        color: #9a3412;
-        border-color: #fb923c;
-    }
-
-    .status-btn-delivered.status-active {
-        background: #dcfce7;
-        color: #166534;
-        border-color: #4ade80;
-    }
-
-    .status-btn-cancelled.status-active {
-        background: #fee2e2;
-        color: #991b1b;
-        border-color: #f87171;
-    }
-
-    .btn {
-        display: block;
-        width: 100%;
-        padding: 12px 16px;
-        border: none;
-        border-radius: 8px;
-        color: #fff;
-        font-size: 13px;
-        font-weight: 750;
-        text-align: center;
-        cursor: pointer;
-    }
-
-    .btn-success {
-        background: #16a34a;
-    }
-
-    .btn-success:hover {
-        background: #15803d;
-    }
-
-    .help-text {
-        margin: 9px 0 0;
-        color: #6b7280;
-        font-size: 12px;
-        line-height: 1.5;
-    }
-
-    .payment-approval {
-        margin-top: 16px;
-        padding-top: 16px;
-        border-top: 1px solid #e5e7eb;
-    }
-
-    .notes-box {
-        padding: 12px;
-        background: #f9fafb;
-        border-radius: 8px;
-        color: #4b5563;
-        font-size: 13px;
-        line-height: 1.6;
-        overflow-wrap: anywhere;
-    }
-
-    .alert {
-        margin-bottom: 20px;
-        padding: 13px 16px;
-        border-radius: 8px;
-        font-size: 14px;
-    }
-
-    .alert-success {
-        color: #166534;
-        background: #dcfce7;
-        border: 1px solid #bbf7d0;
-    }
-
-    .alert-error {
-        color: #991b1b;
-        background: #fee2e2;
-        border: 1px solid #fecaca;
-    }
-
-    #print-order-summary {
-        display: none;
-    }
-
-    @media (max-width: 900px) {
-        .order-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .order-page {
-            padding: 14px;
-        }
-    }
-
-    @media (max-width: 420px) {
-        .status-buttons {
-            grid-template-columns: 1fr;
-        }
-
-        .info-row,
-        .side-row {
-            gap: 10px;
-        }
-    }
-
-    @media print {
-        @page {
-            size: A4;
-            margin: 12mm;
-        }
-
-        body * {
-            visibility: hidden !important;
-        }
-
-        #print-order-summary,
-        #print-order-summary * {
-            visibility: visible !important;
-        }
-
-        #print-order-summary {
-            display: block !important;
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            color: #111 !important;
-            background: #fff !important;
-            font-family: Arial, sans-serif;
-            font-size: 12px;
-        }
-
-        #print-order-summary h1 {
-            margin: 0 0 6px;
-            font-size: 23px;
-            text-align: center;
-        }
-
-        #print-order-summary h2 {
-            margin: 0 0 8px;
-            font-size: 17px;
-            text-align: center;
-        }
-
-        #print-order-summary .print-header {
-            text-align: center;
-        }
-
-        #print-order-summary h3 {
-            margin: 15px 0 8px;
-            font-size: 14px;
-        }
-
-        #print-order-summary p {
-            margin: 6px 0;
-            overflow-wrap: anywhere;
-        }
-
-        .print-items-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 8px;
-        }
-
-        .print-items-table th,
-        .print-items-table td {
-            border: 1px solid #ccc;
-            padding: 8px;
-            text-align: left;
-        }
-
-        .print-items-table th {
-            background: #f3f4f6 !important;
-            print-color-adjust: exact;
-            -webkit-print-color-adjust: exact;
-        }
-
-        .print-totals {
-            width: 300px;
-            max-width: 100%;
-            margin: 12px 0 0 auto;
-        }
-
-        .print-totals p {
-            display: flex;
-            justify-content: space-between;
-            gap: 15px;
-        }
-
-        .print-grand-total {
-            padding-top: 8px;
-            border-top: 2px solid #111;
-            font-size: 15px;
-        }
-
-        .print-footer {
-            margin-top: 30px;
-            text-align: center;
-            font-weight: bold;
-        }
+    .order-page{max-width:1400px;margin:auto;padding:24px;color:#1f2937}
+    .order-header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;margin-bottom:24px}
+    .order-header h1{margin:0;font-size:28px;font-weight:800}
+    .order-subtitle{margin-top:6px;color:#6b7280;font-size:14px}
+    .header-actions{display:flex;gap:8px;flex-wrap:wrap}
+    .back-btn{display:inline-block;padding:10px 14px;border:1px solid #d1d5db;border-radius:8px;background:#fff;color:#374151;text-decoration:none;font-size:13px;font-weight:700;cursor:pointer}
+    .back-btn:hover{background:#f9fafb}
+    .order-grid{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(300px,1fr);gap:20px;align-items:start}
+    .order-column{display:flex;flex-direction:column;gap:20px;min-width:0}
+    .order-card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+    .order-card-title{padding:16px 20px;border-bottom:1px solid #e5e7eb;background:#f9fafb}
+    .order-card-title h2{margin:0;font-size:17px;font-weight:750}
+    .order-card-body{padding:20px}
+    .info-row,.side-row{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;padding:11px 0;border-bottom:1px solid #f3f4f6}
+    .info-row:last-child,.side-row:last-child{border-bottom:none}
+    .info-label,.side-label{color:#6b7280;font-size:13px;flex-shrink:0}
+    .info-value,.side-value{text-align:right;font-size:13px;font-weight:650;overflow-wrap:anywhere}
+    .badge{display:inline-block;padding:5px 10px;border-radius:999px;font-size:11px;font-weight:750}
+    .status-pending{background:#fef3c7;color:#92400e}
+    .status-confirmed{background:#dbeafe;color:#1d4ed8}
+    .status-preparing{background:#f3e8ff;color:#7e22ce}
+    .status-ready_for_delivery{background:#e0f2fe;color:#075985}
+    .status-out_for_delivery{background:#ffedd5;color:#9a3412}
+    .status-delivered{background:#dcfce7;color:#166534}
+    .status-cancelled{background:#fee2e2;color:#991b1b}
+    .items-table-wrap{width:100%;overflow-x:auto}
+    .items-table{width:100%;border-collapse:collapse}
+    .items-table th,.items-table td{padding:13px 12px;border-bottom:1px solid #e5e7eb;text-align:left;font-size:13px}
+    .items-table th{color:#6b7280;background:#f9fafb;font-weight:700}
+    .items-table td:last-child,.items-table th:last-child{text-align:right}
+    .items-table tr:last-child td{border-bottom:none}
+    .total-row{display:flex;justify-content:space-between;gap:12px;padding:9px 0;font-size:14px}
+    .grand-total{margin-top:8px;padding-top:14px;border-top:2px solid #e5e7eb;font-size:18px;font-weight:800}
+    .status-buttons{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+    .status-buttons form{margin:0;min-width:0}
+    .status-button{width:100%;min-height:44px;padding:10px;border:1px solid #d1d5db;border-radius:8px;background:#fff;color:#374151;font-size:12px;font-weight:700;cursor:pointer;transition:.2s}
+    .status-button:hover:not(:disabled){background:#f3f4f6;border-color:#9ca3af}
+    .status-button:disabled{cursor:default;opacity:1}
+    .status-btn-pending.status-active{background:#fef3c7;color:#92400e;border-color:#f59e0b}
+    .status-btn-confirmed.status-active{background:#dbeafe;color:#1d4ed8;border-color:#60a5fa}
+    .status-btn-preparing.status-active{background:#f3e8ff;color:#7e22ce;border-color:#c084fc}
+    .status-btn-ready_for_delivery.status-active{background:#e0f2fe;color:#075985;border-color:#38bdf8}
+    .status-btn-out_for_delivery.status-active{background:#ffedd5;color:#9a3412;border-color:#fb923c}
+    .status-btn-delivered.status-active{background:#dcfce7;color:#166534;border-color:#4ade80}
+    .status-btn-cancelled.status-active{background:#fee2e2;color:#991b1b;border-color:#f87171}
+    .btn{display:block;width:100%;padding:12px 16px;border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:750;text-align:center;cursor:pointer}
+    .btn-success{background:#16a34a}
+    .btn-success:hover{background:#15803d}
+    .help-text{margin:9px 0 0;color:#6b7280;font-size:12px;line-height:1.5}
+    .payment-approval{margin-top:16px;padding-top:16px;border-top:1px solid #e5e7eb}
+    .notes-box{padding:12px;background:#f9fafb;border-radius:8px;color:#4b5563;font-size:13px;line-height:1.6;overflow-wrap:anywhere}
+    .alert{margin-bottom:20px;padding:13px 16px;border-radius:8px;font-size:14px}
+    .alert-success{color:#166534;background:#dcfce7;border:1px solid #bbf7d0}
+    .alert-error{color:#991b1b;background:#fee2e2;border:1px solid #fecaca}
+    #print-order-summary{display:none}
+    @media(max-width:900px){.order-grid{grid-template-columns:1fr}.order-page{padding:14px}}
+    @media(max-width:420px){.status-buttons{grid-template-columns:1fr}.info-row,.side-row{gap:10px}}
+    @media print{
+        @page{size:A4;margin:12mm}
+        body *{visibility:hidden!important}
+        #print-order-summary,#print-order-summary *{visibility:visible!important}
+        #print-order-summary{display:block!important;position:absolute;top:0;left:0;width:100%;color:#111!important;background:#fff!important;font-family:Arial,sans-serif;font-size:12px}
+        #print-order-summary h1{margin:0 0 6px;font-size:23px;text-align:center}
+        #print-order-summary h2{margin:0 0 8px;font-size:17px;text-align:center}
+        #print-order-summary .print-header{text-align:center}
+        #print-order-summary h3{margin:15px 0 8px;font-size:14px}
+        #print-order-summary p{margin:6px 0;overflow-wrap:anywhere}
+        .print-items-table{width:100%;border-collapse:collapse;margin-top:8px}
+        .print-items-table th,.print-items-table td{border:1px solid #ccc;padding:8px;text-align:left}
+        .print-items-table th{background:#f3f4f6!important;print-color-adjust:exact;-webkit-print-color-adjust:exact}
+        .print-totals{width:300px;max-width:100%;margin:12px 0 0 auto}
+        .print-totals p{display:flex;justify-content:space-between;gap:15px}
+        .print-grand-total{padding-top:8px;border-top:2px solid #111;font-size:15px}
+        .print-footer{margin-top:30px;text-align:center;font-weight:bold}
     }
 </style>
 
@@ -506,7 +109,6 @@
 @endphp
 
 <div class="order-page">
-
     {{-- FLASH MESSAGES --}}
     @if(session('success'))
         <div class="alert alert-success">
@@ -517,6 +119,17 @@
     @if(session('error'))
         <div class="alert alert-error">
             {{ session('error') }}
+        </div>
+    @endif
+
+    @if($errors->any())
+        <div class="alert alert-error">
+            <strong>Unable to update order:</strong>
+            <ul style="margin:8px 0 0;padding-left:20px;">
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
         </div>
     @endif
 
@@ -534,21 +147,15 @@
                 ← Back to Orders
             </a>
 
-            <button
-                type="button"
-                class="back-btn"
-                onclick="printOrderSummary()"
-            >
+            <button type="button" class="back-btn" onclick="printOrderSummary()">
                 🖨️ Print Order
             </button>
         </div>
     </div>
 
     <div class="order-grid">
-
         {{-- LEFT COLUMN --}}
         <div class="order-column">
-
             {{-- ORDER INFORMATION --}}
             <div class="order-card">
                 <div class="order-card-title">
@@ -565,31 +172,23 @@
 
                     <div class="info-row">
                         <span class="info-label">Customer</span>
-                        <span class="info-value">
-                            {{ $order->user->name ?? 'N/A' }}
-                        </span>
+                        <span class="info-value">{{ $order->user->name ?? 'N/A' }}</span>
                     </div>
 
                     <div class="info-row">
                         <span class="info-label">Email</span>
-                        <span class="info-value">
-                            {{ $order->user->email ?? 'N/A' }}
-                        </span>
+                        <span class="info-value">{{ $order->user->email ?? 'N/A' }}</span>
                     </div>
 
                     <div class="info-row">
                         <span class="info-label">Contact Number</span>
-                        <span class="info-value">
-                            {{ $order->contact_number ?? 'N/A' }}
-                        </span>
+                        <span class="info-value">{{ $order->contact_number ?? 'N/A' }}</span>
                     </div>
 
                     <div class="info-row">
                         <span class="info-label">Order Date</span>
                         <span class="info-value">
-                            {{ $order->created_at
-                                ? $order->created_at->format('M d, Y h:i A')
-                                : 'N/A' }}
+                            {{ $order->created_at ? $order->created_at->format('M d, Y h:i A') : 'N/A' }}
                         </span>
                     </div>
 
@@ -604,20 +203,13 @@
 
                     <div class="info-row">
                         <span class="info-label">Delivery Address</span>
-                        <span class="info-value">
-                            {{ $order->delivery_address ?? 'N/A' }}
-                        </span>
+                        <span class="info-value">{{ $order->delivery_address ?? 'N/A' }}</span>
                     </div>
 
                     @if($order->notes)
                         <div style="margin-top:16px;">
-                            <strong style="display:block;margin-bottom:8px;font-size:13px;">
-                                Order Notes
-                            </strong>
-
-                            <div class="notes-box">
-                                {{ $order->notes }}
-                            </div>
+                            <strong style="display:block;margin-bottom:8px;font-size:13px;">Order Notes</strong>
+                            <div class="notes-box">{{ $order->notes }}</div>
                         </div>
                     @endif
                 </div>
@@ -639,20 +231,12 @@
                                 <th>Subtotal</th>
                             </tr>
                         </thead>
-
                         <tbody>
                             @forelse($order->orderItems as $item)
                                 <tr>
-                                    <td>
-                                        {{ $item->pizza->name ?? $item->name ?? 'Pizza' }}
-                                    </td>
-
+                                    <td>{{ $item->pizza->name ?? $item->name ?? 'Pizza' }}</td>
                                     <td>{{ $item->quantity }}</td>
-
-                                    <td>
-                                        ₱{{ number_format($item->price, 2) }}
-                                    </td>
-
+                                    <td>₱{{ number_format($item->price, 2) }}</td>
                                     <td>
                                         ₱{{ number_format(
                                             $item->subtotal ?? ($item->quantity * $item->price),
@@ -662,9 +246,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="4" style="text-align:center;">
-                                        No order items found.
-                                    </td>
+                                    <td colspan="4" style="text-align:center;">No order items found.</td>
                                 </tr>
                             @endforelse
                         </tbody>
@@ -674,32 +256,24 @@
                 <div class="order-card-body">
                     <div class="total-row">
                         <span>Subtotal</span>
-                        <strong>
-                            ₱{{ number_format($order->subtotal ?? 0, 2) }}
-                        </strong>
+                        <strong>₱{{ number_format($order->subtotal ?? 0, 2) }}</strong>
                     </div>
 
                     <div class="total-row">
                         <span>Delivery Fee</span>
-                        <strong>
-                            ₱{{ number_format($order->delivery_fee ?? 0, 2) }}
-                        </strong>
+                        <strong>₱{{ number_format($order->delivery_fee ?? 0, 2) }}</strong>
                     </div>
 
                     <div class="total-row grand-total">
                         <span>Total Amount</span>
-                        <span>
-                            ₱{{ number_format($order->total_amount ?? 0, 2) }}
-                        </span>
+                        <span>₱{{ number_format($order->total_amount ?? 0, 2) }}</span>
                     </div>
                 </div>
             </div>
-
         </div>
 
         {{-- RIGHT COLUMN --}}
         <div class="order-column">
-
             {{-- UPDATE ORDER STATUS --}}
             <div class="order-card">
                 <div class="order-card-title">
@@ -716,16 +290,13 @@
                             <form
                                 action="{{ route('admin.orders.status', $order->id) }}"
                                 method="POST"
-                                onsubmit="return confirm('Change order status to {{ $label }}?');"
+                                onsubmit="return verifyOrderStatus(this, '{{ $value }}', '{{ $label }}');"
                             >
                                 @csrf
                                 @method('PUT')
 
-                                <input
-                                    type="hidden"
-                                    name="status"
-                                    value="{{ $value }}"
-                                >
+                                <input type="hidden" name="status" value="{{ $value }}">
+                                <input type="hidden" name="order_number" value="">
 
                                 <button
                                     type="submit"
@@ -741,6 +312,10 @@
                             </form>
                         @endforeach
                     </div>
+
+                    <p class="help-text">
+                        The exact order number is required before confirming an order.
+                    </p>
                 </div>
             </div>
 
@@ -752,12 +327,9 @@
 
                 <div class="order-card-body">
                     @if($payment)
-
                         <div class="side-row">
                             <span class="side-label">Amount</span>
-                            <span class="side-value">
-                                ₱{{ number_format($payment->amount ?? 0, 2) }}
-                            </span>
+                            <span class="side-value">₱{{ number_format($payment->amount ?? 0, 2) }}</span>
                         </div>
 
                         <div class="side-row">
@@ -779,17 +351,11 @@
                             <span class="side-label">Payment Status</span>
                             <span class="side-value">
                                 @if($paymentStatus === 'paid')
-                                    <span class="badge" style="background:#dcfce7;color:#166534;">
-                                        ✓ Paid
-                                    </span>
+                                    <span class="badge" style="background:#dcfce7;color:#166534;">✓ Paid</span>
                                 @elseif($paymentStatus === 'failed')
-                                    <span class="badge" style="background:#fee2e2;color:#991b1b;">
-                                        ✕ Failed
-                                    </span>
+                                    <span class="badge" style="background:#fee2e2;color:#991b1b;">✕ Failed</span>
                                 @else
-                                    <span class="badge" style="background:#fef3c7;color:#92400e;">
-                                        ⏳ Pending Approval
-                                    </span>
+                                    <span class="badge" style="background:#fef3c7;color:#92400e;">⏳ Pending Approval</span>
                                 @endif
                             </span>
                         </div>
@@ -797,22 +363,18 @@
                         @if($payment->reference_number)
                             <div class="side-row">
                                 <span class="side-label">Reference Number</span>
-                                <span class="side-value">
-                                    {{ $payment->reference_number }}
-                                </span>
+                                <span class="side-value">{{ $payment->reference_number }}</span>
                             </div>
                         @endif
 
                         @if($payment->paid_at)
                             <div class="side-row">
                                 <span class="side-label">Paid At</span>
-                                <span class="side-value">
-                                    {{ $payment->paid_at->format('M d, Y h:i A') }}
-                                </span>
+                                <span class="side-value">{{ $payment->paid_at->format('M d, Y h:i A') }}</span>
                             </div>
                         @endif
 
-                        {{-- ADMIN APPROVAL: GCASH ONLY --}}
+                        {{-- GCASH PAYMENT APPROVAL --}}
                         @if(
                             $isGcash &&
                             $paymentStatus !== 'paid' &&
@@ -837,19 +399,12 @@
                                     Verify the GCash reference number before approving the payment.
                                 </p>
                             </div>
-
-                        {{-- COD: RIDER MUST CONFIRM CASH RECEIPT --}}
-                        @elseif(
-                            $isCod &&
-                            $paymentStatus !== 'paid' &&
-                            $paymentStatus !== 'failed'
-                        )
+                        @elseif($isCod && $paymentStatus !== 'paid' && $paymentStatus !== 'failed')
                             <div class="payment-approval">
                                 <p class="help-text">
                                     The rider must confirm that the cash has been received before the COD payment can be marked as paid.
                                 </p>
                             </div>
-
                         @elseif(
                             $isGcash &&
                             $paymentStatus !== 'paid' &&
@@ -861,7 +416,6 @@
                                 <strong>Ready for Delivery</strong>.
                             </p>
                         @endif
-
                     @else
                         <p style="margin:0;color:#6b7280;font-size:13px;">
                             No payment record found for this order.
@@ -880,48 +434,35 @@
                     <div class="side-row">
                         <span class="side-label">Delivery Method</span>
                         <span class="side-value">
-                            {{ ucwords(str_replace(
-                                '_',
-                                ' ',
-                                $order->delivery_option ?? $order->delivery_method ?? 'N/A'
-                            )) }}
+                            {{ ucwords(str_replace('_', ' ', $order->delivery_option ?? $order->delivery_method ?? 'N/A')) }}
                         </span>
                     </div>
 
                     <div class="side-row">
                         <span class="side-label">Address</span>
-                        <span class="side-value">
-                            {{ $order->delivery_address ?? 'N/A' }}
-                        </span>
+                        <span class="side-value">{{ $order->delivery_address ?? 'N/A' }}</span>
                     </div>
 
                     <div class="side-row">
                         <span class="side-label">Contact Number</span>
-                        <span class="side-value">
-                            {{ $order->contact_number ?? 'N/A' }}
-                        </span>
+                        <span class="side-value">{{ $order->contact_number ?? 'N/A' }}</span>
                     </div>
 
                     @if($order->delivery && $order->delivery->picked_up_at)
                         <div class="side-row">
                             <span class="side-label">Picked Up At</span>
-                            <span class="side-value">
-                                {{ $order->delivery->picked_up_at->format('M d, Y h:i A') }}
-                            </span>
+                            <span class="side-value">{{ $order->delivery->picked_up_at->format('M d, Y h:i A') }}</span>
                         </div>
                     @endif
 
                     @if($order->delivery && $order->delivery->delivered_at)
                         <div class="side-row">
                             <span class="side-label">Delivered At</span>
-                            <span class="side-value">
-                                {{ $order->delivery->delivered_at->format('M d, Y h:i A') }}
-                            </span>
+                            <span class="side-value">{{ $order->delivery->delivered_at->format('M d, Y h:i A') }}</span>
                         </div>
                     @endif
                 </div>
             </div>
-
         </div>
     </div>
 </div>
@@ -939,35 +480,17 @@
 
         <p>
             <strong>Date:</strong>
-            {{ $order->created_at
-                ? $order->created_at->format('M d, Y h:i A')
-                : 'N/A' }}
+            {{ $order->created_at ? $order->created_at->format('M d, Y h:i A') : 'N/A' }}
         </p>
     </div>
 
     <hr>
 
     <h3>Customer Information</h3>
-
-    <p>
-        <strong>Customer:</strong>
-        {{ $order->user->name ?? 'N/A' }}
-    </p>
-
-    <p>
-        <strong>Email:</strong>
-        {{ $order->user->email ?? 'N/A' }}
-    </p>
-
-    <p>
-        <strong>Contact Number:</strong>
-        {{ $order->contact_number ?? 'N/A' }}
-    </p>
-
-    <p>
-        <strong>Delivery Address:</strong>
-        {{ $order->delivery_address ?? 'N/A' }}
-    </p>
+    <p><strong>Customer:</strong> {{ $order->user->name ?? 'N/A' }}</p>
+    <p><strong>Email:</strong> {{ $order->user->email ?? 'N/A' }}</p>
+    <p><strong>Contact Number:</strong> {{ $order->contact_number ?? 'N/A' }}</p>
+    <p><strong>Delivery Address:</strong> {{ $order->delivery_address ?? 'N/A' }}</p>
 
     <hr>
 
@@ -982,20 +505,12 @@
                 <th>Subtotal</th>
             </tr>
         </thead>
-
         <tbody>
             @forelse($order->orderItems as $item)
                 <tr>
-                    <td>
-                        {{ $item->pizza->name ?? $item->name ?? 'Pizza' }}
-                    </td>
-
+                    <td>{{ $item->pizza->name ?? $item->name ?? 'Pizza' }}</td>
                     <td>{{ $item->quantity }}</td>
-
-                    <td>
-                        ₱{{ number_format($item->price, 2) }}
-                    </td>
-
+                    <td>₱{{ number_format($item->price, 2) }}</td>
                     <td>
                         ₱{{ number_format(
                             $item->subtotal ?? ($item->quantity * $item->price),
@@ -1014,30 +529,21 @@
     <div class="print-totals">
         <p>
             <span>Subtotal</span>
-            <strong>
-                ₱{{ number_format($order->subtotal ?? 0, 2) }}
-            </strong>
+            <strong>₱{{ number_format($order->subtotal ?? 0, 2) }}</strong>
         </p>
-
         <p>
             <span>Delivery Fee</span>
-            <strong>
-                ₱{{ number_format($order->delivery_fee ?? 0, 2) }}
-            </strong>
+            <strong>₱{{ number_format($order->delivery_fee ?? 0, 2) }}</strong>
         </p>
-
         <p class="print-grand-total">
             <span>Total Amount</span>
-            <strong>
-                ₱{{ number_format($order->total_amount ?? 0, 2) }}
-            </strong>
+            <strong>₱{{ number_format($order->total_amount ?? 0, 2) }}</strong>
         </p>
     </div>
 
     <hr>
 
     <h3>Payment Information</h3>
-
     <p>
         <strong>Payment Method:</strong>
         @if($isGcash)
@@ -1051,16 +557,11 @@
 
     <p>
         <strong>Payment Status:</strong>
-        {{ $paymentStatus === 'paid'
-            ? 'Paid'
-            : ($paymentStatus === 'failed' ? 'Failed' : 'Pending Approval') }}
+        {{ $paymentStatus === 'paid' ? 'Paid' : ($paymentStatus === 'failed' ? 'Failed' : 'Pending Approval') }}
     </p>
 
     @if($payment && $payment->reference_number)
-        <p>
-            <strong>Reference Number:</strong>
-            {{ $payment->reference_number }}
-        </p>
+        <p><strong>Reference Number:</strong> {{ $payment->reference_number }}</p>
     @endif
 
     <p>
@@ -1080,6 +581,23 @@
 <script>
     function printOrderSummary() {
         window.print();
+    }
+
+    function verifyOrderStatus(form, status, label) {
+        if (status === 'confirmed') {
+            const orderNumber = prompt(
+                'Enter the exact order number to confirm this order:'
+            );
+
+            if (orderNumber === null || orderNumber.trim() === '') {
+                return false;
+            }
+
+            form.querySelector('[name="order_number"]').value =
+                orderNumber.trim();
+        }
+
+        return confirm('Change order status to ' + label + '?');
     }
 </script>
 @endsection

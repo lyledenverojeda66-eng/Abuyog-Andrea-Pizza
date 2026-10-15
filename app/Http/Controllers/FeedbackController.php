@@ -6,13 +6,12 @@ use App\Models\Feedback;
 use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 
 class FeedbackController extends Controller
 {
     /**
-     * Display all approved customer reviews.
-     *
-     * GET /reviews
+     * Public page: approved customer reviews only.
      */
     public function index()
     {
@@ -27,20 +26,37 @@ class FeedbackController extends Controller
     }
 
     /**
-     * Store customer feedback or concern.
+     * Save feedback or concern.
      */
     public function store(Request $request)
+    {
+        return $this->saveFeedback($request);
+    }
+
+    /**
+     * Save feedback submitted from the homepage.
+     */
+    public function storeGeneral(Request $request)
+    {
+        return $this->saveFeedback($request);
+    }
+
+    /**
+     * Validate and save customer feedback or concern.
+     */
+    private function saveFeedback(Request $request)
     {
         if (!Auth::check()) {
             return redirect()
                 ->route('login')
-                ->with(
-                    'error',
-                    'Please login first before sending feedback or concern.'
-                );
+                ->with('error', 'Please login first before sending feedback or concern.');
         }
 
         $validated = $request->validate([
+            'type' => [
+                'required',
+                Rule::in(['feedback', 'concern']),
+            ],
             'order_id' => [
                 'nullable',
                 'integer',
@@ -52,113 +68,109 @@ class FeedbackController extends Controller
                 'min:1',
                 'max:5',
             ],
-            'type' => [
-                'required',
-                'in:feedback,concern',
-            ],
             'concern' => [
                 'nullable',
                 'string',
                 'max:100',
             ],
-            'message' => [
-                'required',
-                'string',
-                'max:1000',
-            ],
+           'message' => [
+    'nullable',
+    'string',
+    'max:1000',
+],
         ]);
 
-        // Check selected order belongs to the logged-in user.
+        $userId = Auth::id();
         $order = null;
+        $rating = null;
+        $concern = null;
+        $orderId = null;
 
-        if (!empty($validated['order_id'])) {
+        /*
+         * FEEDBACK:
+         * Must be connected to the logged-in customer's
+         * delivered order, and only one feedback per order.
+         */
+        if ($validated['type'] === 'feedback') {
+            if (empty($validated['order_id'])) {
+                return back()
+                    ->withInput()
+                    ->with('error', 'Please select a delivered order before submitting feedback.');
+            }
+
+            if (empty($validated['rating'])) {
+                return back()
+                    ->withInput()
+                    ->with('error', 'Please select a rating from 1 to 5 stars.');
+            }
+
             $order = Order::where('id', $validated['order_id'])
-                ->where('user_id', Auth::id())
+                ->where('user_id', $userId)
                 ->first();
 
             if (!$order) {
                 return back()
                     ->withInput()
-                    ->with(
-                        'error',
-                        'Invalid order selected.'
-                    );
+                    ->with('error', 'The selected order does not belong to your account.');
             }
 
-            // Feedback is allowed only after delivery.
-            if (
-                $validated['type'] === 'feedback' &&
-                $order->status !== 'delivered'
-            ) {
+            if ($order->status !== 'delivered') {
                 return back()
                     ->withInput()
-                    ->with(
-                        'error',
-                        'You can only give feedback after your order has been delivered.'
-                    );
+                    ->with('error', 'You can only review an order after it has been delivered.');
             }
 
-            // Prevent duplicate feedback for the same order.
-            if ($validated['type'] === 'feedback') {
-                $existingFeedback = Feedback::where(
-                    'user_id',
-                    Auth::id()
-                )
-                    ->where('order_id', $order->id)
-                    ->where('type', 'feedback')
-                    ->first();
+            $alreadyReviewed = Feedback::where('user_id', $userId)
+                ->where('order_id', $order->id)
+                ->where('type', 'feedback')
+                ->exists();
 
-                if ($existingFeedback) {
-                    return back()
-                        ->withInput()
-                        ->with(
-                            'error',
-                            'You have already submitted feedback for this order.'
-                        );
-                }
-            }
-        }
-
-        // Validate rating for feedback.
-        $rating = null;
-
-        if ($validated['type'] === 'feedback') {
-            if (empty($validated['rating'])) {
+            if ($alreadyReviewed) {
                 return back()
                     ->withInput()
-                    ->with(
-                        'error',
-                        'Please select a rating from 1 to 5 stars.'
-                    );
+                    ->with('error', 'You have already submitted feedback for this order.');
             }
 
+            $orderId = $order->id;
             $rating = (int) $validated['rating'];
         }
 
-        // Validate concern category for concerns.
-        $concern = null;
-
+        /*
+         * CONCERN:
+         * A concern does not require a rating or a delivered order.
+         */
         if ($validated['type'] === 'concern') {
             if (empty($validated['concern'])) {
                 return back()
                     ->withInput()
-                    ->with(
-                        'error',
-                        'Please select the type of concern.'
-                    );
+                    ->with('error', 'Please select the type of concern.');
             }
 
             $concern = $validated['concern'];
+
+            // Optionally link a concern to the customer's own order.
+            if (!empty($validated['order_id'])) {
+                $customerOrder = Order::where('id', $validated['order_id'])
+                    ->where('user_id', $userId)
+                    ->first();
+
+                if (!$customerOrder) {
+                    return back()
+                        ->withInput()
+                        ->with('error', 'The selected order does not belong to your account.');
+                }
+
+                $orderId = $customerOrder->id;
+            }
         }
 
-        // Save feedback or concern.
         Feedback::create([
-            'user_id' => Auth::id(),
-            'order_id' => $validated['order_id'] ?? null,
-            'rating' => $rating,
-            'message' => $validated['message'],
-            'concern' => $concern,
+            'user_id' => $userId,
+            'order_id' => $orderId,
             'type' => $validated['type'],
+            'rating' => $rating,
+            'concern' => $concern,
+           'message' => $validated['message'] ?? '',
             'status' => 'pending',
             'admin_reply' => null,
         ]);
@@ -169,53 +181,6 @@ class FeedbackController extends Controller
                 'Your concern has been sent to the admin successfully!'
             );
         }
-
-        return back()->with(
-            'success',
-            'Thank you! Your feedback has been submitted and is waiting for approval.'
-        );
-    }
-
-    /**
-     * Store general customer feedback.
-     *
-     * POST /customer/feedback/general
-     */
-    public function storeGeneral(Request $request)
-    {
-        if (!Auth::check()) {
-            return redirect()
-                ->route('login')
-                ->with(
-                    'error',
-                    'Please login first before sending feedback.'
-                );
-        }
-
-        $validated = $request->validate([
-            'rating' => [
-                'required',
-                'integer',
-                'min:1',
-                'max:5',
-            ],
-            'message' => [
-                'required',
-                'string',
-                'max:1000',
-            ],
-        ]);
-
-        Feedback::create([
-            'user_id' => Auth::id(),
-            'order_id' => null,
-            'type' => 'feedback',
-            'rating' => (int) $validated['rating'],
-            'message' => $validated['message'],
-            'concern' => null,
-            'status' => 'pending',
-            'admin_reply' => null,
-        ]);
 
         return back()->with(
             'success',
