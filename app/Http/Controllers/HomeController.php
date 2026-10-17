@@ -14,9 +14,8 @@ class HomeController extends Controller
     public function index()
     {
         $banners = Banner::where('status', true)
-            ->orderBy('sort_order')
-            ->orderByDesc('id')
-            ->get();
+    ->orderByDesc('id')
+    ->get();
 
         $pizzas = Pizza::latest()->get();
 

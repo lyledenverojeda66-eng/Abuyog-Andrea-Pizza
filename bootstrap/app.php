@@ -1,3 +1,4 @@
+
 <?php
 
 use Illuminate\Foundation\Application;
@@ -15,6 +16,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
             'rider' => \App\Http\Middleware\RiderMiddleware::class,
+            'customer.not-banned' => \App\Http\Middleware\EnsureCustomerNotBanned::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

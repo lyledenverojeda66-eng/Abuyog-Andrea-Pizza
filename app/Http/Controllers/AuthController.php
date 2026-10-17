@@ -49,7 +49,7 @@ class AuthController extends Controller
             ],
         ]);
 
-        // Create customer account
+        // Create customer account.
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
@@ -57,7 +57,7 @@ class AuthController extends Controller
             'role' => 'customer',
         ]);
 
-        // Automatically login the customer
+        // Automatically log in the customer.
         Auth::login($user);
 
         $request->session()->regenerate();
@@ -89,7 +89,7 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        // Validate login credentials
+        // Validate login credentials.
         $credentials = $request->validate([
             'email' => [
                 'required',
@@ -101,45 +101,29 @@ class AuthController extends Controller
             ],
         ]);
 
-        // Check email and password
-        if (Auth::attempt($credentials)) {
+        // Check email and password.
+        if (!Auth::attempt($credentials)) {
+            return back()
+                ->withErrors([
+                    'email' => 'The email or password is incorrect.',
+                ])
+                ->withInput(
+                    $request->only('email')
+                );
+        }
 
-            // Regenerate session after successful login
-            $request->session()->regenerate();
+        $user = Auth::user();
 
-            $user = Auth::user();
+        /*
+        |--------------------------------------------------------------------------
+        | SUSPENDED CUSTOMER ACCOUNT
+        |--------------------------------------------------------------------------
+        */
 
-            // ADMIN
-            if ($user->role === 'admin') {
-                return redirect()
-                    ->route('admin.dashboard')
-                    ->with(
-                        'success',
-                        'Welcome to Admin Dashboard!'
-                    );
-            }
-
-            // RIDER
-            if ($user->role === 'rider') {
-                return redirect()
-                    ->route('rider.dashboard')
-                    ->with(
-                        'success',
-                        'Welcome to Rider Dashboard!'
-                    );
-            }
-
-            // CUSTOMER
-            if ($user->role === 'customer') {
-                return redirect()
-                    ->route('customer.dashboard')
-                    ->with(
-                        'success',
-                        'Welcome back!'
-                    );
-            }
-
-            // Unknown role: logout safely
+        if (
+            $user->role === 'customer' &&
+            !is_null($user->banned_at)
+        ) {
             Auth::logout();
 
             $request->session()->invalidate();
@@ -148,23 +132,93 @@ class AuthController extends Controller
             return redirect()
                 ->route('login')
                 ->withErrors([
-                    'email' => 'Your account role is not recognized.',
-                ]);
+                    'email' => 'Your account has been suspended due to repeated inappropriate language in feedback. Please contact the administrator for assistance.',
+                ])
+                ->withInput(
+                    $request->only('email')
+                );
+        }
+
+        // Regenerate session after successful login.
+        $request->session()->regenerate();
+
+        /*
+        |--------------------------------------------------------------------------
+        | ADMIN
+        |--------------------------------------------------------------------------
+        */
+
+        if ($user->role === 'admin') {
+            return redirect()
+                ->route('admin.dashboard')
+                ->with(
+                    'success',
+                    'Welcome to Admin Dashboard!'
+                );
         }
 
         /*
         |--------------------------------------------------------------------------
-        | LOGIN FAILED
+        | RIDER
         |--------------------------------------------------------------------------
         */
 
-        return back()
+        if ($user->role === 'rider') {
+            return redirect()
+                ->route('rider.dashboard')
+                ->with(
+                    'success',
+                    'Welcome to Rider Dashboard!'
+                );
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | STAFF
+        |--------------------------------------------------------------------------
+if ($user->role === 'staff') {
+    Auth::logout();
+
+    $request->session()->invalidate();
+    $request->session()->regenerateToken();
+
+    return redirect()
+        ->route('login')
+        ->withErrors([
+            'email' => 'The staff dashboard is not configured yet. Please contact the administrator.',
+        ]);
+}
+        /*
+        |--------------------------------------------------------------------------
+        | CUSTOMER
+        |--------------------------------------------------------------------------
+        */
+
+        if ($user->role === 'customer') {
+            return redirect()
+                ->route('customer.dashboard')
+                ->with(
+                    'success',
+                    'Welcome back!'
+                );
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | UNKNOWN ROLE
+        |--------------------------------------------------------------------------
+        */
+
+        Auth::logout();
+
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()
+            ->route('login')
             ->withErrors([
-                'email' => 'The email or password is incorrect.',
-            ])
-            ->withInput(
-                $request->only('email')
-            );
+                'email' => 'Your account role is not recognized.',
+            ]);
     }
 
     /*
@@ -175,16 +229,15 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
-        // Logout user
+        // Log out the current user.
         Auth::logout();
 
-        // Invalidate session
+        // Invalidate the current session.
         $request->session()->invalidate();
 
-        // Regenerate CSRF token
+        // Regenerate the CSRF token.
         $request->session()->regenerateToken();
 
-        // Return to home page
         return redirect()
             ->route('home')
             ->with(

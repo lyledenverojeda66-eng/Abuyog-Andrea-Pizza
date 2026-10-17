@@ -9,29 +9,18 @@ use Illuminate\Support\Facades\File;
 
 class BannerController extends Controller
 {
-    /**
-     * Display all banners.
-     */
     public function index()
     {
-        $banners = Banner::orderBy('sort_order')
-            ->orderByDesc('id')
-            ->get();
+        $banners = Banner::orderByDesc('id')->get();
 
         return view('admin.banners.index', compact('banners'));
     }
 
-    /**
-     * Show the create banner form.
-     */
     public function create()
     {
         return view('admin.banners.create');
     }
 
-    /**
-     * Store a new banner.
-     */
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -42,11 +31,7 @@ class BannerController extends Controller
                 'mimes:jpg,jpeg,png,webp',
                 'max:5120',
             ],
-            'image_position' => [
-                'nullable',
-                'string',
-                'max:50',
-            ],
+            'image_position' => ['nullable', 'string', 'max:50'],
         ]);
 
         $destination = public_path('image/banners');
@@ -55,18 +40,15 @@ class BannerController extends Controller
             File::makeDirectory($destination, 0755, true);
         }
 
-        $imageName = time()
-            . '_'
-            . uniqid()
-            . '.'
+        $imageName = time() . '_' . uniqid() . '.'
             . $request->file('image')->extension();
 
-        $request->file('image')->move(
-            $destination,
-            $imageName
-        );
+        $request->file('image')->move($destination, $imageName);
 
         $nextSortOrder = (Banner::max('sort_order') ?? 0) + 1;
+
+        // Only one uploaded banner should control the homepage hero.
+        Banner::query()->update(['status' => false]);
 
         Banner::create([
             'title' => $validated['title'] ?? null,
@@ -81,20 +63,14 @@ class BannerController extends Controller
 
         return redirect()
             ->route('admin.banners.index')
-            ->with('success', 'Banner uploaded successfully!');
+            ->with('success', 'Banner uploaded and activated successfully!');
     }
 
-    /**
-     * Show the edit banner form.
-     */
     public function edit(Banner $banner)
     {
         return view('admin.banners.edit', compact('banner'));
     }
 
-    /**
-     * Update an existing banner.
-     */
     public function update(Request $request, Banner $banner)
     {
         $validated = $request->validate([
@@ -110,100 +86,95 @@ class BannerController extends Controller
                 'mimes:jpg,jpeg,png,webp',
                 'max:5120',
             ],
-            'image_position' => [
-                'nullable',
-                'string',
-                'max:50',
-            ],
+            'image_position' => ['nullable', 'string', 'max:50'],
         ]);
 
+        $destination = public_path('image/banners');
         $imageName = $banner->image;
+        $oldImage = null;
 
         if ($request->hasFile('image')) {
-            $destination = public_path('image/banners');
-
             if (!File::exists($destination)) {
                 File::makeDirectory($destination, 0755, true);
             }
 
-            $newImageName = time()
-                . '_'
-                . uniqid()
-                . '.'
+            $newImageName = time() . '_' . uniqid() . '.'
                 . $request->file('image')->extension();
 
-            $request->file('image')->move(
-                $destination,
-                $newImageName
-            );
+            $request->file('image')->move($destination, $newImageName);
 
             $oldImage = $destination . DIRECTORY_SEPARATOR . $banner->image;
-
             $imageName = $newImageName;
-
-            if (File::exists($oldImage)) {
-                File::delete($oldImage);
-            }
         }
 
         $banner->title = $validated['title'] ?? null;
-        $banner->description = $validated['description']
-            ?? $banner->description;
-        $banner->button_text = $validated['button_text']
-            ?? $banner->button_text;
-        $banner->button_link = $validated['button_link']
-            ?? $banner->button_link;
-        $banner->sort_order = $validated['sort_order']
-            ?? $banner->sort_order;
+        $banner->description = $validated['description'] ?? null;
+        $banner->button_text = $validated['button_text'] ?? null;
+        $banner->button_link = $validated['button_link'] ?? null;
+        $banner->sort_order = $validated['sort_order'] ?? $banner->sort_order;
         $banner->image = $imageName;
         $banner->image_position = $validated['image_position']
             ?? $banner->image_position
             ?? '50% 50%';
 
-        if ($request->has('status')) {
-            $banner->status = $request->boolean('status');
+        // Saving a banner activates it unless the form explicitly deactivates it.
+        $shouldActivate = !$request->has('status')
+            || $request->boolean('status')
+            || $request->hasFile('image');
+
+        if ($shouldActivate) {
+            Banner::where('id', '!=', $banner->id)
+                ->update(['status' => false]);
+
+            $banner->status = true;
+        } else {
+            $banner->status = false;
         }
 
         $banner->save();
+
+        if ($oldImage && File::exists($oldImage)) {
+            File::delete($oldImage);
+        }
 
         return redirect()
             ->route('admin.banners.index')
             ->with('success', 'Banner updated successfully!');
     }
 
-    /**
-     * Delete a banner.
-     */
     public function destroy(Banner $banner)
     {
-        $image = public_path(
-            'image/banners/' . $banner->image
-        );
+        $image = public_path('image/banners/' . $banner->image);
+
+        $banner->delete();
 
         if (File::exists($image)) {
             File::delete($image);
         }
-
-        $banner->delete();
 
         return redirect()
             ->route('admin.banners.index')
             ->with('success', 'Banner deleted successfully!');
     }
 
-    /**
-     * Activate or deactivate a banner.
-     */
     public function toggle(Banner $banner)
     {
-        $banner->status = !$banner->status;
+        if ($banner->status) {
+            $banner->status = false;
+            $banner->save();
+
+            return back()->with(
+                'success',
+                'Banner deactivated. The default hero banner will be displayed.'
+            );
+        }
+
+        Banner::where('id', '!=', $banner->id)
+            ->update(['status' => false]);
+
+        $banner->status = true;
         $banner->save();
 
-        return back()->with(
-            'success',
-            $banner->status
-                ? 'Banner activated!'
-                : 'Banner deactivated!'
-        );
+        return back()->with('success', 'Banner activated successfully!');
     }
 }

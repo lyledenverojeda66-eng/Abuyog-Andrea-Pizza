@@ -3,26 +3,22 @@
 namespace App\Http\Controllers;
 
 use App\Models\Pizza;
+use App\Services\DeliveryFeeService;
 use Illuminate\Http\Request;
 
 class CartController extends Controller
 {
-    public function index()
+    /**
+     * Display the cart and calculate the barangay-based delivery fee.
+     */
+    public function index(DeliveryFeeService $deliveryFeeService)
     {
         $cart = session()->get('cart', []);
 
-        /*
-        |--------------------------------------------------------------------------
-        | Refresh cart data from database
-        |--------------------------------------------------------------------------
-        | This fixes old cart session data where image was saved as null.
-        */
         foreach ($cart as $pizzaId => &$item) {
-
             $pizza = Pizza::find($pizzaId);
 
             if ($pizza) {
-                // Always get the latest pizza information from database
                 $item['name'] = $pizza->name;
                 $item['price'] = (float) $pizza->price;
                 $item['image'] = $pizza->image;
@@ -31,19 +27,51 @@ class CartController extends Controller
 
         unset($item);
 
-        // Save the refreshed cart back into the session
         session()->put('cart', $cart);
 
         $total = 0;
 
         foreach ($cart as $item) {
-            $total += (float) $item['price'] * (int) $item['quantity'];
+            $total += (float) ($item['price'] ?? 0)
+                * (int) ($item['quantity'] ?? 0);
         }
 
         $deliveryOption = session('delivery_option', 'delivery');
         $paymentMethod = session('payment_method', 'cash_on_delivery');
+        $deliveryAddress = session('delivery_address', '');
 
-        $deliveryFee = $deliveryOption === 'delivery' ? 50 : 0;
+        $deliveryDistance = null;
+        $deliveryFee = 0;
+        $distanceError = null;
+        $deliveryQuote = null;
+
+        if ($deliveryOption === 'delivery') {
+            if (trim($deliveryAddress) !== '') {
+                $deliveryQuote = $deliveryFeeService->quote(
+                    $deliveryAddress
+                );
+
+                if ($deliveryQuote['known']) {
+                    $deliveryFee = (float) $deliveryQuote['fee'];
+
+                    session([
+                        'delivery_fee' => $deliveryFee,
+                    ]);
+                } else {
+                    $distanceError = $deliveryQuote['message'];
+
+                    session()->forget('delivery_fee');
+                }
+            } else {
+                session()->forget('delivery_fee');
+            }
+        } else {
+            $deliveryFee = 0;
+
+            session([
+                'delivery_fee' => 0,
+            ]);
+        }
 
         $grandTotal = $total + $deliveryFee;
 
@@ -52,12 +80,18 @@ class CartController extends Controller
             'total',
             'deliveryOption',
             'paymentMethod',
+            'deliveryAddress',
+            'deliveryDistance',
+            'distanceError',
             'deliveryFee',
-            'grandTotal'
+            'grandTotal',
+            'deliveryQuote'
         ));
     }
 
-
+    /**
+     * Add a pizza to the cart.
+     */
     public function add(Request $request, Pizza $pizza)
     {
         if (!$pizza->status) {
@@ -80,47 +114,29 @@ class CartController extends Controller
             $quantity = 1;
         }
 
-        if ($quantity > $pizza->stock) {
+        $cart = session()->get('cart', []);
+
+        $existingQuantity = isset($cart[$pizza->id])
+            ? (int) $cart[$pizza->id]['quantity']
+            : 0;
+
+        if (($existingQuantity + $quantity) > $pizza->stock) {
             return back()->with(
                 'error',
-                'Only ' . $pizza->stock .
-                ' stock is available for ' . $pizza->name . '.'
+                'Only ' . $pizza->stock
+                    . ' stock is available for '
+                    . $pizza->name . '.'
             );
         }
 
-        $cart = session()->get('cart', []);
-
-        /*
-        |--------------------------------------------------------------------------
-        | Existing item
-        |--------------------------------------------------------------------------
-        */
         if (isset($cart[$pizza->id])) {
+            $cart[$pizza->id]['quantity'] =
+                $existingQuantity + $quantity;
 
-            $newQuantity =
-                (int) $cart[$pizza->id]['quantity'] + $quantity;
-
-            if ($newQuantity > $pizza->stock) {
-                return back()->with(
-                    'error',
-                    'You cannot add more than the available stock.'
-                );
-            }
-
-            $cart[$pizza->id]['quantity'] = $newQuantity;
-
-            // Refresh latest pizza information
             $cart[$pizza->id]['name'] = $pizza->name;
             $cart[$pizza->id]['price'] = (float) $pizza->price;
             $cart[$pizza->id]['image'] = $pizza->image;
-
         } else {
-
-            /*
-            |--------------------------------------------------------------------------
-            | New item
-            |--------------------------------------------------------------------------
-            */
             $cart[$pizza->id] = [
                 'name' => $pizza->name,
                 'price' => (float) $pizza->price,
@@ -137,19 +153,16 @@ class CartController extends Controller
         );
     }
 
-
+    /**
+     * Update the quantity of a cart item.
+     */
     public function update(Request $request, Pizza $pizza)
     {
         $request->validate([
-            'quantity' => [
-                'required',
-                'integer',
-                'min:1'
-            ]
+            'quantity' => ['required', 'integer', 'min:1'],
         ]);
 
         $quantity = (int) $request->quantity;
-
         $cart = session()->get('cart', []);
 
         if (!isset($cart[$pizza->id])) {
@@ -159,24 +172,23 @@ class CartController extends Controller
             );
         }
 
-        if ($pizza->stock <= 0) {
+        if (!$pizza->status || $pizza->stock <= 0) {
             return back()->with(
                 'error',
-                $pizza->name . ' is currently out of stock.'
+                $pizza->name . ' is currently unavailable.'
             );
         }
 
         if ($quantity > $pizza->stock) {
             return back()->with(
                 'error',
-                'Only ' . $pizza->stock .
-                ' stock is available for ' . $pizza->name . '.'
+                'Only ' . $pizza->stock
+                    . ' stock is available for '
+                    . $pizza->name . '.'
             );
         }
 
         $cart[$pizza->id]['quantity'] = $quantity;
-
-        // Refresh latest pizza information
         $cart[$pizza->id]['name'] = $pizza->name;
         $cart[$pizza->id]['price'] = (float) $pizza->price;
         $cart[$pizza->id]['image'] = $pizza->image;
@@ -189,7 +201,9 @@ class CartController extends Controller
         );
     }
 
-
+    /**
+     * Remove a pizza from the cart.
+     */
     public function remove(Pizza $pizza)
     {
         $cart = session()->get('cart', []);
@@ -206,35 +220,48 @@ class CartController extends Controller
         );
     }
 
-
+    /**
+     * Clear the cart and related order options.
+     */
     public function clear()
     {
-        session()->forget('cart');
-
         session()->forget([
+            'cart',
             'delivery_option',
-            'payment_method'
+            'payment_method',
+            'delivery_address',
+            'delivery_distance_km',
+            'delivery_fee',
         ]);
 
         return redirect()
             ->route('cart')
-            ->with(
-                'success',
-                'Your cart has been cleared.'
-            );
+            ->with('success', 'Your cart has been cleared.');
     }
 
-
-    public function options(Request $request)
-    {
+    /**
+     * Save delivery address, delivery/pickup option, and payment method
+     * together using the single Save Order Options form.
+     */
+    public function options(
+        Request $request,
+        DeliveryFeeService $deliveryFeeService
+    ) {
         $validated = $request->validate([
             'delivery_option' => [
                 'required',
-                'in:delivery,pickup'
+                'in:delivery,pickup',
             ],
             'payment_method' => [
                 'required',
-                'in:cash_on_delivery,cash_on_pickup,gcash'
+                'in:cash_on_delivery,cash_on_pickup,gcash',
+            ],
+            'delivery_address' => [
+                'required_if:delivery_option,delivery',
+                'nullable',
+                'string',
+                'min:3',
+                'max:1000',
             ],
         ]);
 
@@ -242,27 +269,27 @@ class CartController extends Controller
         $paymentMethod = $validated['payment_method'];
 
         if (
-            $deliveryOption === 'delivery' &&
-            $paymentMethod === 'cash_on_pickup'
+            $deliveryOption === 'delivery'
+            && $paymentMethod === 'cash_on_pickup'
         ) {
             return back()
+                ->withInput()
                 ->with(
                     'error',
                     'Cash on Pickup is only available for pickup orders.'
-                )
-                ->withInput();
+                );
         }
 
         if (
-            $deliveryOption === 'pickup' &&
-            $paymentMethod === 'cash_on_delivery'
+            $deliveryOption === 'pickup'
+            && $paymentMethod === 'cash_on_delivery'
         ) {
             return back()
+                ->withInput()
                 ->with(
                     'error',
                     'Cash on Delivery is only available for delivery orders.'
-                )
-                ->withInput();
+                );
         }
 
         session([
@@ -270,9 +297,113 @@ class CartController extends Controller
             'payment_method' => $paymentMethod,
         ]);
 
-        return back()->with(
-            'success',
-            'Order options saved successfully!'
-        );
+        if ($deliveryOption === 'pickup') {
+            session([
+                'delivery_fee' => 0,
+            ]);
+
+            session()->forget('delivery_distance_km');
+
+            return redirect()
+                ->route('cart')
+                ->with(
+                    'success',
+                    'Order options saved successfully. No delivery fee applies to pickup orders.'
+                );
+        }
+
+        $address = trim($validated['delivery_address']);
+
+        session([
+            'delivery_address' => $address,
+        ]);
+
+        session()->forget('delivery_distance_km');
+
+        $quote = $deliveryFeeService->quote($address);
+
+        if (
+            ($quote['known'] ?? false)
+            && isset($quote['fee'])
+        ) {
+            $fee = (float) $quote['fee'];
+
+            session([
+                'delivery_fee' => $fee,
+            ]);
+
+            return redirect()
+                ->route('cart')
+                ->with(
+                    'success',
+                    'Order options saved successfully. Delivery fee: ₱'
+                    . number_format($fee, 2)
+                );
+        }
+
+        session()->forget('delivery_fee');
+
+        return redirect()
+            ->route('cart')
+            ->with(
+                'warning',
+                'Your order options and delivery address were saved, but the delivery fee could not be confirmed. '
+                . ($quote['message'] ?? 'Please check your address.')
+            );
+    }
+
+    /**
+     * Keep the old address-saving endpoint for compatibility with
+     * any existing links or forms that still use it.
+     */
+    public function saveAddress(
+        Request $request,
+        DeliveryFeeService $deliveryFeeService
+    ) {
+        $validated = $request->validate([
+            'delivery_address' => [
+                'required',
+                'string',
+                'min:3',
+                'max:1000',
+            ],
+        ]);
+
+        $address = trim($validated['delivery_address']);
+
+        session([
+            'delivery_address' => $address,
+        ]);
+
+        session()->forget('delivery_distance_km');
+
+        $quote = $deliveryFeeService->quote($address);
+
+        if (
+            ($quote['known'] ?? false)
+            && isset($quote['fee'])
+        ) {
+            session([
+                'delivery_fee' => (float) $quote['fee'],
+            ]);
+
+            return redirect()
+                ->route('cart')
+                ->with(
+                    'success',
+                    'Delivery address saved. Delivery fee: ₱'
+                    . number_format($quote['fee'], 2)
+                );
+        }
+
+        session()->forget('delivery_fee');
+
+        return redirect()
+            ->route('cart')
+            ->with(
+                'warning',
+                'Address saved. '
+                . ($quote['message'] ?? 'The delivery fee could not be confirmed.')
+            );
     }
 }

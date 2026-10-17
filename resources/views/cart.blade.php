@@ -1,1387 +1,1101 @@
+
+@php
+    $cart = $cart ?? session('cart', []);
+
+    $deliveryOption = old(
+        'delivery_option',
+        $deliveryOption ?? session('delivery_option', 'delivery')
+    );
+
+    $paymentMethod = old(
+        'payment_method',
+        $paymentMethod ?? session('payment_method', 'cash_on_delivery')
+    );
+
+    $deliveryAddress = old(
+        'delivery_address',
+        $deliveryAddress ?? session('delivery_address', '')
+    );
+
+    $deliveryFee = (float) ($deliveryFee ?? session('delivery_fee', 0));
+
+    $pizzaImages = [
+        'bacon' => 'bacon.png.webp',
+        'beef' => 'Beef.png',
+        'ham & cheese' => 'Ham & Cheese Pizza.png',
+        'hawaiian' => 'Hawaiian pizza.png',
+        'pepperoni' => 'Pepperoni pizza.png',
+        'vegetarian' => 'Vegetarian.png',
+    ];
+
+    $subtotal = 0;
+
+    foreach ($cart as $item) {
+        $subtotal +=
+            (float) ($item['price'] ?? 0) *
+            (int) ($item['quantity'] ?? 1);
+    }
+
+    $grandTotal = $subtotal + (
+        $deliveryOption === 'pickup' ? 0 : $deliveryFee
+    );
+@endphp
+
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <title>Your Cart - Abuyog Andrea Pizza</title>
+    <title>Order Your Pizza | Abuyog Andrea Pizza</title>
 
     <style>
+        :root {
+            --green: #16803c;
+            --green-hover: #11682f;
+            --black: #171717;
+            --cream: #fff8ee;
+            --border: #eadfd3;
+            --gray: #6b7280;
+            --white: #fff;
+        }
 
         * {
             box-sizing: border-box;
-            margin: 0;
-            padding: 0;
         }
 
         body {
+            margin: 0;
+            background: var(--cream);
+            color: var(--black);
             font-family: Arial, Helvetica, sans-serif;
-            background: #fff8ee;
-            color: #222;
+            font-size: 13px;
         }
 
-        a {
-            text-decoration: none;
+        .page {
+            width: min(1100px, 96%);
+            margin: 14px auto 24px;
         }
 
-        button,
-        input,
-        select {
-            font-family: inherit;
+        .page-heading {
+            margin-bottom: 12px;
         }
 
-
-        /* =========================
-           PAGE HEADER
-        ========================= */
-
-        .cart-header {
-            text-align: center;
-            padding: 35px 20px 25px;
+        h1 {
+            margin: 0 0 4px;
+            font-size: 25px;
+            font-weight: 800;
         }
 
-        .cart-header h1 {
-            color: #e51b23;
-            font-size: 38px;
-            margin-bottom: 8px;
+        .intro {
+            margin: 0;
+            color: var(--gray);
+            font-size: 12px;
+            line-height: 1.5;
         }
 
-        .cart-header p {
-            color: #666;
-            font-size: 16px;
-        }
-
-
-        /* =========================
-           MAIN CONTAINER
-        ========================= */
-
-        .cart-container {
-            width: 92%;
-            max-width: 1250px;
-            margin: 0 auto 50px;
-        }
-
-        .cart-layout {
+        .layout {
             display: grid;
-            grid-template-columns: minmax(0, 1fr) 390px;
-            gap: 25px;
+            grid-template-columns: minmax(0, 1.5fr) minmax(270px, .9fr);
+            gap: 12px;
             align-items: start;
         }
 
-
-        /* =========================
-           CART CARD
-        ========================= */
-
-        .cart-card {
-            background: #fff;
-            border-radius: 16px;
-            padding: 22px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.07);
-        }
-
-        .cart-item {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            padding: 12px 0 22px;
-            margin-bottom: 18px;
-            border-bottom: 1px solid #e5e5e5;
-        }
-
-        .cart-item:last-child {
-            border-bottom: none;
-            margin-bottom: 0;
-            padding-bottom: 5px;
-        }
-
-
-        /* =========================
-           PIZZA IMAGE
-        ========================= */
-
-        .cart-image {
-            width: 130px;
-            height: 130px;
-            flex-shrink: 0;
-
-            border-radius: 12px;
-            overflow: hidden;
-
-            background: #f3f3f3;
-
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .cart-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
-        }
-
-        .no-image {
-            color: #999;
-            font-size: 14px;
-            text-align: center;
-        }
-
-
-        /* =========================
-           ITEM DETAILS
-        ========================= */
-
-        .cart-details {
-            flex: 1;
+        .main-column,
+        .side-column {
             min-width: 0;
         }
 
-        .cart-details h2 {
-            font-size: 23px;
-            color: #111;
-            margin-bottom: 6px;
-        }
-
-        .cart-price {
-            color: #e51b23;
-            font-size: 19px;
-            font-weight: bold;
-            margin-bottom: 7px;
-        }
-
-        .cart-subtotal {
-            color: #555;
-            font-size: 16px;
+        .card {
+            padding: 13px;
             margin-bottom: 12px;
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 11px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, .025);
+            min-width: 0;
         }
 
+        .card h2 {
+            font-size: 17px;
+            margin: 0 0 12px;
+            font-weight: 800;
+        }
 
-        /* =========================
-           ACTIONS
-        ========================= */
+        .pizza-item {
+            display: grid;
+            grid-template-columns: 65px minmax(0, 1fr);
+            gap: 10px;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee6de;
+        }
 
-        .cart-actions {
+        .pizza-item:first-of-type {
+            padding-top: 0;
+        }
+
+        .pizza-item:last-child {
+            border-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .pizza-image,
+        .placeholder {
+            display: block;
+            width: 65px;
+            height: 65px;
+            border-radius: 8px;
+            background: #f4eee7;
+        }
+
+        .pizza-image {
+            object-fit: cover;
+        }
+
+        .placeholder {
             display: flex;
             align-items: center;
-            gap: 9px;
+            justify-content: center;
+            font-size: 27px;
+        }
+
+        .pizza-name {
+            margin: 0 0 4px;
+            font-size: 14px;
+            font-weight: 800;
+            overflow-wrap: anywhere;
+        }
+
+        .price {
+            margin-bottom: 6px;
+            color: var(--green);
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .actions,
+        .inline-form {
+            display: flex;
+            align-items: center;
             flex-wrap: wrap;
+            gap: 5px;
         }
 
-        .qty-label {
-            font-weight: bold;
-            color: #222;
+        .inline-form {
+            gap: 5px;
         }
 
-        .qty-input {
-            width: 70px;
-            height: 42px;
-
-            border: 1px solid #ccc;
+        input,
+        textarea,
+        select {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid #d8d0c7;
             border-radius: 7px;
-
-            padding: 7px 10px;
-
-            font-size: 15px;
-            text-align: center;
-
-            outline: none;
+            background: white;
+            color: var(--black);
+            font: inherit;
         }
 
-        .qty-input:focus {
-            border-color: #16a34a;
+        input:focus,
+        textarea:focus,
+        select:focus {
+            outline: 2px solid rgba(22, 128, 60, .13);
+            border-color: var(--green);
+        }
+
+        input[type="radio"] {
+            width: 15px;
+            height: 15px;
+            flex: 0 0 15px;
+            margin: 2px 0 0;
+            padding: 0;
+            accent-color: var(--green);
+        }
+
+        input[type="number"] {
+            width: 55px;
+            padding: 6px;
+        }
+
+        textarea {
+            min-height: 55px;
+            resize: vertical;
+        }
+
+        .field {
+            margin-bottom: 10px;
+        }
+
+        .field label,
+        .group-label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .choice {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            padding: 8px;
+            margin-bottom: 6px;
+            border: 1px solid #ded5cc;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+
+        .choice:has(input:checked) {
+            background: #effaf2;
+            border-color: var(--green);
+        }
+
+        .choice:has(input:disabled) {
+            opacity: .5;
+            cursor: not-allowed;
+        }
+
+        .choice strong {
+            display: block;
+        }
+
+        .choice small {
+            display: block;
+            margin-top: 2px;
+            color: var(--gray);
+            font-size: 11px;
         }
 
         .btn {
-            border: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 32px;
+            padding: 7px 10px;
+            border: 1px solid var(--green);
             border-radius: 7px;
-
-            min-height: 42px;
-
-            padding: 9px 17px;
-
-            font-size: 14px;
-            font-weight: bold;
-
-            cursor: pointer;
-            transition: 0.2s;
-        }
-
-        .update-btn {
-            background: #16a34a;
+            background: var(--green);
             color: white;
-        }
-
-        .update-btn:hover {
-            background: #15803d;
-        }
-
-        .remove-btn {
-            background: #ef1b25;
-            color: white;
-        }
-
-        .remove-btn:hover {
-            background: #c9151d;
-        }
-
-
-        /* =========================
-           EMPTY CART
-        ========================= */
-
-        .empty-cart {
-            background: white;
-            border-radius: 16px;
-            padding: 55px 25px;
-
+            font-size: 12px;
+            font-weight: 700;
+            text-decoration: none;
             text-align: center;
-
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.07);
+            cursor: pointer;
+            transition: background .15s ease;
         }
 
-        .empty-cart-icon {
-            font-size: 55px;
-            margin-bottom: 12px;
+        .btn:hover {
+            background: var(--green-hover);
+            border-color: var(--green-hover);
         }
 
-        .empty-cart h2 {
-            font-size: 25px;
-            margin-bottom: 8px;
+        .btn-black {
+            background: var(--black);
+            border-color: var(--black);
         }
 
-        .empty-cart p {
-            color: #777;
-            margin-bottom: 22px;
+        .btn-black:hover {
+            background: #333;
+            border-color: #333;
         }
 
-        .shop-btn {
-            display: inline-block;
-
-            background: #16a34a;
-            color: white;
-
-            padding: 12px 25px;
-            border-radius: 8px;
-
-            font-weight: bold;
+        .btn:disabled {
+            opacity: .65;
+            cursor: not-allowed;
         }
 
-        .shop-btn:hover {
-            background: #15803d;
+        .btn.full {
+            display: flex;
+            width: 100%;
         }
 
-
-        /* =========================
-           ORDER SUMMARY
-        ========================= */
-
-        .summary-card {
-            background: white;
-            border-radius: 16px;
-            padding: 25px;
-
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.07);
-
-            position: sticky;
-            top: 20px;
-        }
-
-        .summary-card h2 {
-            font-size: 27px;
-            margin-bottom: 22px;
-            color: #222;
+        .small-btn {
+            min-height: 28px;
+            padding: 5px 8px;
+            font-size: 11px;
         }
 
         .summary-row {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-
-            padding: 12px 0;
-
-            border-bottom: 1px solid #ddd;
-
-            font-size: 17px;
+            align-items: flex-start;
+            gap: 8px;
+            margin: 8px 0;
+            font-size: 12px;
+            line-height: 1.4;
         }
 
-        .summary-row:last-of-type {
-            border-bottom: none;
+        .summary-row span:first-child {
+            min-width: 0;
+            overflow-wrap: anywhere;
         }
 
-        .summary-total {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-
-            padding: 17px 0 12px;
-
-            color: #e51b23;
-
-            font-size: 25px;
-            font-weight: bold;
+        .summary-row span:last-child {
+            flex-shrink: 0;
+            text-align: right;
+            font-weight: 700;
         }
 
-
-        /* =========================
-           SUMMARY BUTTONS
-        ========================= */
-
-        .checkout-btn {
-            width: 100%;
-
-            display: block;
-
-            background: #16a34a;
-            color: white;
-
-            text-align: center;
-
-            padding: 14px 15px;
-
-            border-radius: 8px;
-
-            font-size: 17px;
-            font-weight: bold;
-
-            margin-top: 8px;
-        }
-
-        .checkout-btn:hover {
-            background: #15803d;
-        }
-
-        .continue-btn {
-            width: 100%;
-
-            display: block;
-
-            background: #222;
-            color: white;
-
-            text-align: center;
-
-            padding: 14px 15px;
-
-            border-radius: 8px;
-
+        .grand-total {
+            padding-top: 10px;
+            margin-top: 10px;
+            border-top: 1px solid var(--border);
             font-size: 16px;
-            font-weight: bold;
-
-            margin-top: 12px;
+            font-weight: 800;
         }
 
-        .continue-btn:hover {
-            background: #000;
+        .grand-total span:last-child {
+            color: var(--green);
         }
 
-        .clear-form {
-            text-align: center;
-            margin-top: 18px;
+        .hint,
+        .status {
+            font-size: 11px;
+            line-height: 1.5;
+            color: var(--gray);
         }
 
-        .clear-btn {
-            border: none;
-            background: transparent;
-
-            color: #e51b23;
-
-            font-weight: bold;
-            font-size: 14px;
-
-            cursor: pointer;
+        .hint {
+            margin: 6px 0 0;
         }
 
-        .clear-btn:hover {
-            text-decoration: underline;
+        .status {
+            margin-top: 5px;
         }
 
-
-        /* =========================
-           ORDER OPTION
-        ========================= */
-
-        .options-card {
-            background: white;
-
-            border-radius: 16px;
-
-            padding: 25px;
-
-            margin-top: 25px;
-
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.07);
+        .success-text {
+            color: var(--green);
         }
 
-        .options-card h2 {
-            font-size: 25px;
-            margin-bottom: 20px;
+        .error-text {
+            color: #b42318;
         }
-
-        .option-group {
-            margin-bottom: 20px;
-        }
-
-        .option-group:last-child {
-            margin-bottom: 0;
-        }
-
-        .option-group label.title {
-            display: block;
-
-            font-weight: bold;
-
-            font-size: 16px;
-
-            margin-bottom: 10px;
-        }
-
-        .option-list {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-
-        .option-item {
-            flex: 1;
-            min-width: 190px;
-        }
-
-        .option-item input {
-            display: none;
-        }
-
-        .option-item label {
-            display: block;
-
-            padding: 14px 15px;
-
-            border: 1px solid #d5d5d5;
-
-            border-radius: 9px;
-
-            cursor: pointer;
-
-            background: #fff;
-
-            transition: 0.2s;
-        }
-
-        .option-item label:hover {
-            border-color: #16a34a;
-            background: #f0fdf4;
-        }
-
-        .option-item input:checked + label {
-            border-color: #16a34a;
-            background: #dcfce7;
-            color: #166534;
-            font-weight: bold;
-        }
-
-        .option-item strong {
-            display: block;
-            margin-bottom: 4px;
-        }
-
-        .option-item span {
-            display: block;
-            font-size: 13px;
-            color: #777;
-        }
-
-        .option-item input:checked + label span {
-            color: #166534;
-        }
-
-        .save-options-btn {
-            width: 100%;
-
-            border: none;
-
-            background: #16a34a;
-            color: white;
-
-            padding: 13px;
-
-            border-radius: 8px;
-
-            font-weight: bold;
-            font-size: 15px;
-
-            cursor: pointer;
-        }
-
-        .save-options-btn:hover {
-            background: #15803d;
-        }
-
-
-        /* =========================
-           ALERTS
-        ========================= */
 
         .alert {
-            width: 92%;
-            max-width: 1250px;
-
-            margin: 20px auto 0;
-
-            padding: 13px 17px;
-
+            padding: 10px 12px;
+            margin-bottom: 10px;
             border-radius: 8px;
-
-            font-size: 14px;
+            font-size: 12px;
+            line-height: 1.5;
         }
 
         .alert-success {
-            background: #dcfce7;
-            color: #166534;
-            border: 1px solid #bbf7d0;
+            background: #d4edda;
+            color: #155724;
         }
 
         .alert-error {
-            background: #fee2e2;
-            color: #991b1b;
-            border: 1px solid #fecaca;
+            background: #f8d7da;
+            color: #842029;
         }
 
         .alert ul {
-            margin-left: 18px;
+            margin: 5px 0 0;
+            padding-left: 20px;
         }
 
+        .address-field[hidden] {
+            display: none !important;
+        }
 
-        /* =========================
-           RESPONSIVE
-        ========================= */
+        .empty {
+            padding: 30px 15px;
+            text-align: center;
+        }
 
-        @media (max-width: 950px) {
+        .empty .emoji {
+            margin-bottom: 8px;
+            font-size: 42px;
+        }
 
-            .cart-layout {
+        .empty h2 {
+            margin-bottom: 6px;
+        }
+
+        .empty p {
+            margin-bottom: 15px;
+        }
+
+        .summary-actions {
+            display: grid;
+            gap: 7px;
+            margin-top: 12px;
+        }
+
+        @media (max-width: 760px) {
+            .layout {
                 grid-template-columns: 1fr;
             }
 
-            .summary-card {
-                position: static;
+            .side-column {
+                order: -1;
             }
-
         }
 
-
-        @media (max-width: 650px) {
-
-            .cart-header {
-                padding: 28px 15px 20px;
-            }
-
-            .cart-header h1 {
-                font-size: 31px;
-            }
-
-            .cart-header p {
-                font-size: 14px;
-            }
-
-            .cart-container {
+        @media (max-width: 420px) {
+            .page {
                 width: 94%;
+                margin-top: 10px;
             }
 
-            .cart-card {
-                padding: 17px;
+            .card {
+                padding: 10px;
             }
 
-            .cart-item {
-                align-items: flex-start;
-                gap: 14px;
+            .pizza-item {
+                grid-template-columns: 55px minmax(0, 1fr);
+                gap: 8px;
             }
 
-            .cart-image {
-                width: 95px;
-                height: 95px;
+            .pizza-image,
+            .placeholder {
+                width: 55px;
+                height: 55px;
             }
 
-            .cart-details h2 {
-                font-size: 19px;
-            }
-
-            .cart-price {
-                font-size: 17px;
-            }
-
-            .cart-subtotal {
-                font-size: 14px;
-            }
-
-            .cart-actions {
-                gap: 7px;
-            }
-
-            .qty-input {
-                width: 58px;
-            }
-
-            .btn {
-                padding: 8px 12px;
+            .pizza-name {
                 font-size: 13px;
             }
 
-            .summary-card {
-                padding: 20px;
+            .btn {
+                padding: 6px 8px;
+                font-size: 11px;
             }
-
-            .options-card {
-                padding: 20px;
-            }
-
-            .option-item {
-                min-width: 100%;
-            }
-
         }
-
-
-        @media (max-width: 450px) {
-
-            .cart-item {
-                display: grid;
-                grid-template-columns: 80px 1fr;
-            }
-
-            .cart-image {
-                width: 80px;
-                height: 80px;
-            }
-
-            .cart-details {
-                width: 100%;
-            }
-
-            .cart-actions {
-                grid-column: 1 / -1;
-            }
-
-            .qty-input {
-                width: 60px;
-            }
-
-        }
-
     </style>
-
 </head>
 
-
 <body>
+@include('partials.navbar')
 
-
-    {{-- =========================
-         NAVIGATION
-    ========================= --}}
-
-    @include('partials.navbar')
-
-
-    {{-- =========================
-         ALERTS
-    ========================= --}}
+<main class="page">
+    <header class="page-heading">
+        <h1>🍕 Order Your Pizza</h1>
+        <p class="intro">Choose your pizzas, select your payment method, and place your order in one page.</p>
+    </header>
 
     @if(session('success'))
-
-        <div class="alert alert-success">
-
+        <div class="alert alert-success" role="status">
             {{ session('success') }}
-
         </div>
-
     @endif
-
 
     @if(session('error'))
-
-        <div class="alert alert-error">
-
+        <div class="alert alert-error" role="alert">
             {{ session('error') }}
-
         </div>
-
     @endif
-
 
     @if($errors->any())
-
-        <div class="alert alert-error">
-
+        <div class="alert alert-error" role="alert">
+            <strong>Please correct the following:</strong>
             <ul>
-
                 @foreach($errors->all() as $error)
-
-                    <li>
-                        {{ $error }}
-                    </li>
-
+                    <li>{{ $error }}</li>
                 @endforeach
-
             </ul>
-
         </div>
-
     @endif
 
-
-    {{-- =========================
-         PAGE HEADER
-    ========================= --}}
-
-    <section class="cart-header">
-
-        <h1>
-            Your Cart
-        </h1>
-
-        <p>
-            Review your selected pizzas before checking out.
-        </p>
-
-    </section>
-
-
-    {{-- =========================
-         CART CONTENT
-    ========================= --}}
-
-    <main class="cart-container">
-
-
-        @if(empty($cart))
-
-
-            {{-- =========================
-                 EMPTY CART
-            ========================= --}}
-
-            <div class="empty-cart">
-
-                <div class="empty-cart-icon">
-                    🛒
-                </div>
-
-                <h2>
-                    Your cart is empty
-                </h2>
-
-                <p>
-                    Add some delicious pizzas to your cart.
-                </p>
-
-                <a
-                    href="{{ route('menu') }}"
-                    class="shop-btn"
-                >
-                    🍕 Browse Pizza Menu
-                </a>
-
-            </div>
-
-
-        @else
-
-
-            {{-- =========================
-                 CART + SUMMARY
-            ========================= --}}
-
-            <div class="cart-layout">
-
-
-                {{-- =========================
-                     CART ITEMS
-                ========================= --}}
-
-                <div>
-
-                    <div class="cart-card">
-
-
-                        @foreach($cart as $pizzaId => $item)
-
-                            <div class="cart-item">
-
-
-                               {{-- PIZZA IMAGE --}}
-<div class="cart-image">
-    @php
-        $pizzaImages = [
-            'Ham & Cheese' => 'Ham & Cheese Pizza.png',
-            'Hawaiian' => 'Hawaiian pizza.png',
-            'Pepperoni' => 'Pepperoni pizza.png',
-            'Bacon' => 'bacon.png.webp',
-            'Beef' => 'Beef.png',
-            'Vegetarian' => 'Vegetarian.png',
-        ];
-
-        $pizzaName = trim($item['name'] ?? '');
-
-        // Unahin ang image path na naka-save sa cart.
-        $savedImage = trim($item['image'] ?? '');
-
-        if ($savedImage !== '') {
-            if (
-                str_starts_with($savedImage, 'http://') ||
-                str_starts_with($savedImage, 'https://')
-            ) {
-                $pizzaImageUrl = $savedImage;
-            } else {
-                $pizzaImageUrl = asset(
-                    'image/pizzas/' . ltrim($savedImage, '/')
-                );
-            }
-        } elseif (isset($pizzaImages[$pizzaName])) {
-            // Gamitin ang fallback image ayon sa pangalan.
-            $pizzaImageUrl = asset(
-                'image/pizzas/' . $pizzaImages[$pizzaName]
-            );
-        } else {
-            $pizzaImageUrl = null;
-        }
-    @endphp
-
-    @if($pizzaImageUrl)
-        <img
-            src="{{ $pizzaImageUrl }}"
-            alt="{{ $pizzaName }}"
-            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
-        >
-        <div class="no-image" style="display:none;">
-            No Image
-        </div>
+    @if(empty($cart))
+        <section class="card empty">
+            <div class="emoji">🍕</div>
+            <h2>Your Cart Is Empty</h2>
+            <p class="hint">Explore our menu and add your favorite pizzas.</p>
+            <a href="{{ route('menu') }}" class="btn full">Browse Menu</a>
+        </section>
     @else
-        <div class="no-image">
-            No Image
-        </div>
-    @endif
-</div>
+        <div class="layout">
+            <div class="main-column">
+                <section class="card">
+                    <h2>Your Items ({{ count($cart) }})</h2>
 
-                                {{-- PIZZA DETAILS --}}
+                    @foreach($cart as $pizzaId => $item)
+                        @php
+                            $itemName = $item['name'] ?? 'Pizza';
+                            $quantity = (int) ($item['quantity'] ?? 1);
+                            $price = (float) ($item['price'] ?? 0);
+                            $itemSubtotal = $price * $quantity;
+                            $itemNameLower = strtolower($itemName);
 
-                                <div class="cart-details">
+                            $filename = null;
 
-                                    <h2>
-                                        {{ $item['name'] }}
-                                    </h2>
+                            foreach ($pizzaImages as $key => $candidate) {
+                                if (str_contains($itemNameLower, $key)) {
+                                    $filename = $candidate;
+                                    break;
+                                }
+                            }
 
-                                    <div class="cart-price">
+                            $imageUrl = $filename
+                                ? asset('image/pizzas/' . rawurlencode($filename))
+                                : null;
+                        @endphp
 
-                                        ₱{{ number_format(
-                                            $item['price'],
-                                            2
-                                        ) }}
-
-                                    </div>
-
-                                    <div class="cart-subtotal">
-
-                                        Subtotal:
-
-                                        ₱{{ number_format(
-                                            $item['price'] *
-                                            $item['quantity'],
-                                            2
-                                        ) }}
-
-                                    </div>
-
-
-                                    {{-- ACTIONS --}}
-
-                                    <div class="cart-actions">
-
-
-                                        <span class="qty-label">
-                                            Qty:
-                                        </span>
-
-
-                                        <form
-                                            action="{{ route('cart.update', $pizzaId) }}"
-                                            method="POST"
-                                            style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;"
-                                        >
-
-                                            @csrf
-
-                                            <input
-                                                type="number"
-                                                name="quantity"
-                                                value="{{ $item['quantity'] }}"
-                                                min="1"
-                                                class="qty-input"
-                                                required
-                                            >
-
-
-                                            <button
-                                                type="submit"
-                                                class="btn update-btn"
-                                            >
-                                                Update
-                                            </button>
-
-                                        </form>
-
-
-                                        <form
-                                            action="{{ route('cart.remove', $pizzaId) }}"
-                                            method="POST"
-                                        >
-
-                                            @csrf
-
-                                            <button
-                                                type="submit"
-                                                class="btn remove-btn"
-                                            >
-                                                Remove
-                                            </button>
-
-                                        </form>
-
-
-                                    </div>
-
-                                </div>
-
+                        <article class="pizza-item">
+                            <div>
+                                @if($imageUrl)
+                                    <img
+                                        class="pizza-image"
+                                        src="{{ $imageUrl }}"
+                                        alt="{{ $itemName }}"
+                                        loading="lazy"
+                                        onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"
+                                    >
+                                    <div class="placeholder" style="display:none">🍕</div>
+                                @else
+                                    <div class="placeholder">🍕</div>
+                                @endif
                             </div>
 
-                        @endforeach
+                            <div>
+                                <h3 class="pizza-name">{{ $itemName }}</h3>
+                                <div class="price">₱{{ number_format($price, 2) }} each</div>
 
+                                <div class="summary-row" style="margin:0 0 7px">
+                                    <span>Item subtotal</span>
+                                    <span>₱{{ number_format($itemSubtotal, 2) }}</span>
+                                </div>
 
-                    </div>
+                                <div class="actions">
+                                    <form
+                                        action="{{ route('cart.update', $pizzaId) }}"
+                                        method="POST"
+                                        class="inline-form"
+                                    >
+                                        @csrf
+                                        @method('PATCH')
 
+                                        <label for="qty-{{ $pizzaId }}" class="hint">Qty</label>
 
-                    {{-- =========================
-                         ORDER OPTION
-                    ========================= --}}
+                                        <input
+                                            id="qty-{{ $pizzaId }}"
+                                            type="number"
+                                            name="quantity"
+                                            min="1"
+                                            max="99"
+                                            value="{{ $quantity }}"
+                                            required
+                                        >
 
-                    <div class="options-card">
+                                        <button type="submit" class="btn small-btn">Update</button>
+                                    </form>
 
-                        <h2>
-                            Order Option
-                        </h2>
+                                    <form
+                                        action="{{ route('cart.remove', $pizzaId) }}"
+                                        method="POST"
+                                        onsubmit="return confirm('Remove this pizza from your cart?')"
+                                    >
+                                        @csrf
+                                        @method('DELETE')
 
+                                        <button type="submit" class="btn btn-black small-btn">
+                                            Remove
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </article>
+                    @endforeach
+
+                    <div class="actions" style="margin-top:12px">
+                        <a href="{{ route('menu') }}" class="btn btn-black">Continue Shopping</a>
 
                         <form
-                            action="{{ route('cart.options') }}"
+                            action="{{ route('cart.clear') }}"
                             method="POST"
+                            onsubmit="return confirm('Remove all items from your cart?')"
                         >
-
                             @csrf
+                            @method('DELETE')
 
-
-                            {{-- DELIVERY OPTION --}}
-
-                            <div class="option-group">
-
-                                <label class="title">
-                                    How would you like to receive your order?
-                                </label>
-
-
-                                <div class="option-list">
-
-
-                                    <div class="option-item">
-
-                                        <input
-                                            type="radio"
-                                            id="delivery"
-                                            name="delivery_option"
-                                            value="delivery"
-                                            {{ $deliveryOption === 'delivery' ? 'checked' : '' }}
-                                        >
-
-                                        <label for="delivery">
-
-                                            <strong>
-                                                🚚 Delivery
-                                            </strong>
-
-                                            <span>
-                                                Delivery fee: ₱50.00
-                                            </span>
-
-                                        </label>
-
-                                    </div>
-
-
-                                    <div class="option-item">
-
-                                        <input
-                                            type="radio"
-                                            id="pickup"
-                                            name="delivery_option"
-                                            value="pickup"
-                                            {{ $deliveryOption === 'pickup' ? 'checked' : '' }}
-                                        >
-
-                                        <label for="pickup">
-
-                                            <strong>
-                                                🏪 Pickup
-                                            </strong>
-
-                                            <span>
-                                                No delivery fee
-                                            </span>
-
-                                        </label>
-
-                                    </div>
-
-
-                                </div>
-
-                            </div>
-
-
-                            {{-- PAYMENT OPTION --}}
-
-                            <div class="option-group">
-
-                                <label class="title">
-                                    Payment Method
-                                </label>
-
-
-                                <div class="option-list">
-
-
-                                    <div
-                                        class="option-item"
-                                        data-payment="delivery-cash"
-                                    >
-
-                                        <input
-                                            type="radio"
-                                            id="cash_delivery"
-                                            name="payment_method"
-                                            value="cash_on_delivery"
-                                            {{ $paymentMethod === 'cash_on_delivery' ? 'checked' : '' }}
-                                        >
-
-                                        <label for="cash_delivery">
-
-                                            <strong>
-                                                💵 Cash on Delivery
-                                            </strong>
-
-                                            <span>
-                                                Pay when your order arrives
-                                            </span>
-
-                                        </label>
-
-                                    </div>
-
-
-                                    <div
-                                        class="option-item"
-                                        data-payment="pickup-cash"
-                                    >
-
-                                        <input
-                                            type="radio"
-                                            id="cash_pickup"
-                                            name="payment_method"
-                                            value="cash_on_pickup"
-                                            {{ $paymentMethod === 'cash_on_pickup' ? 'checked' : '' }}
-                                        >
-
-                                        <label for="cash_pickup">
-
-                                            <strong>
-                                                💵 Cash on Pickup
-                                            </strong>
-
-                                            <span>
-                                                Pay when you pick up your order
-                                            </span>
-
-                                        </label>
-
-                                    </div>
-
-
-                                    <div class="option-item">
-
-                                        <input
-                                            type="radio"
-                                            id="gcash"
-                                            name="payment_method"
-                                            value="gcash"
-                                            {{ $paymentMethod === 'gcash' ? 'checked' : '' }}
-                                        >
-
-                                        <label for="gcash">
-
-                                            <strong>
-                                                📱 GCash
-                                            </strong>
-
-                                            <span>
-                                                Pay using GCash
-                                            </span>
-
-                                        </label>
-
-                                    </div>
-
-
-                                </div>
-
-                            </div>
-
-
-                            <button
-                                type="submit"
-                                class="save-options-btn"
-                            >
-                                Save Order Options
-                            </button>
-
-
+                            <button type="submit" class="btn btn-black">Clear Cart</button>
                         </form>
-
                     </div>
+                </section>
 
+                <section class="card">
+                    <h2>Delivery and Payment</h2>
 
-                </div>
-
-
-                {{-- =========================
-                     ORDER SUMMARY
-                ========================= --}}
-
-                <aside class="summary-card">
-
-
-                    <h2>
-                        Order Summary
-                    </h2>
-
-
-                    <div class="summary-row">
-
-                        <span>
-                            Items
-                        </span>
-
-                        <span>
-                            {{ count($cart) }}
-                        </span>
-
-                    </div>
-
-
-                    <div class="summary-row">
-
-                        <span>
-                            Subtotal
-                        </span>
-
-                        <span>
-                            ₱{{ number_format(
-                                $total,
-                                2
-                            ) }}
-                        </span>
-
-                    </div>
-
-
-                    <div class="summary-row">
-
-                        <span>
-                            Delivery Fee
-                        </span>
-
-                        <span>
-
-                            ₱{{ number_format(
-                                $deliveryFee,
-                                2
-                            ) }}
-
-                        </span>
-
-                    </div>
-
-
-                    <div class="summary-total">
-
-                        <span>
-                            Total
-                        </span>
-
-                        <span>
-                            ₱{{ number_format(
-                                $grandTotal,
-                                2
-                            ) }}
-                        </span>
-
-                    </div>
-
-
-                    <a
-                        href="{{ route('checkout') }}"
-                        class="checkout-btn"
-                    >
-                        Proceed to Checkout
-                    </a>
-
-
-                    <a
-                        href="{{ route('menu') }}"
-                        class="continue-btn"
-                    >
-                        Continue Shopping
-                    </a>
-
-
-                    <form
-                        action="{{ route('cart.clear') }}"
-                        method="POST"
-                        class="clear-form"
-                    >
-
+                    <form id="place-order-form" action="{{ route('checkout.store') }}" method="POST">
                         @csrf
 
-                        <button
-                            type="submit"
-                            class="clear-btn"
-                            onclick="return confirm('Are you sure you want to clear your cart?')"
-                        >
-                            Clear Cart
+                        <div class="field">
+                            <span class="group-label">Order Type</span>
+
+                            <label class="choice">
+                                <input
+                                    type="radio"
+                                    name="delivery_option"
+                                    value="delivery"
+                                    {{ $deliveryOption === 'delivery' ? 'checked' : '' }}
+                                    required
+                                >
+                                <span>
+                                    <strong>🚚 Delivery</strong>
+                                    <small>Have your order delivered to your address.</small>
+                                </span>
+                            </label>
+
+                            <label class="choice">
+                                <input
+                                    type="radio"
+                                    name="delivery_option"
+                                    value="pickup"
+                                    {{ $deliveryOption === 'pickup' ? 'checked' : '' }}
+                                    required
+                                >
+                                <span>
+                                    <strong>🏪 Pickup</strong>
+                                    <small>Collect your order at the store. No delivery fee.</small>
+                                </span>
+                            </label>
+                        </div>
+
+                        <div class="field address-field" id="address-field">
+                            <label for="delivery_address">Delivery Address</label>
+
+                            <textarea
+                                id="delivery_address"
+                                name="delivery_address"
+                                maxlength="1000"
+                                placeholder="Enter your complete address, barangay, municipality, and nearby landmark."
+                            >{{ $deliveryAddress }}</textarea>
+
+                            <div id="fee-status" class="status" aria-live="polite"></div>
+
+                            <p class="hint">
+                                The delivery fee must be confirmed before placing a delivery order.
+                            </p>
+                        </div>
+
+                        <div class="field">
+                            <label for="contact_number">Contact Number</label>
+
+                            <input
+                                id="contact_number"
+                                name="contact_number"
+                                type="tel"
+                                value="{{ old('contact_number', auth()->user()->phone ?? '') }}"
+                                maxlength="30"
+                                required
+                                placeholder="Enter your contact number"
+                            >
+                        </div>
+
+                        <div class="field">
+                            <span class="group-label">Payment Method</span>
+
+                            <label class="choice">
+                                <input
+                                    type="radio"
+                                    name="payment_method"
+                                    value="cash_on_delivery"
+                                    {{ $paymentMethod === 'cash_on_delivery' ? 'checked' : '' }}
+                                    required
+                                >
+                                <span>
+                                    <strong>💵 Cash on Delivery</strong>
+                                    <small>Pay when your order arrives.</small>
+                                </span>
+                            </label>
+
+                            <label class="choice">
+                                <input
+                                    type="radio"
+                                    name="payment_method"
+                                    value="cash_on_pickup"
+                                    {{ $paymentMethod === 'cash_on_pickup' ? 'checked' : '' }}
+                                    required
+                                >
+                                <span>
+                                    <strong>💰 Cash on Pickup</strong>
+                                    <small>Pay when collecting your order.</small>
+                                </span>
+                            </label>
+
+                            <label class="choice">
+                                <input
+                                    type="radio"
+                                    name="payment_method"
+                                    value="gcash"
+                                    {{ $paymentMethod === 'gcash' ? 'checked' : '' }}
+                                    required
+                                >
+                                <span>
+                                    <strong>📱 GCash</strong>
+                                    <small>Continue to the existing GCash payment process.</small>
+                                </span>
+                            </label>
+                        </div>
+
+                        <div class="field">
+                            <label for="notes">Order Notes (Optional)</label>
+
+                            <textarea
+                                id="notes"
+                                name="notes"
+                                maxlength="2000"
+                                placeholder="Special instructions for your order..."
+                            >{{ old('notes') }}</textarea>
+                        </div>
+
+                        <button type="submit" id="place-order-button" class="btn full">
+                            Place Order
                         </button>
-
                     </form>
-
-
-                </aside>
-
-
+                </section>
             </div>
 
+            <aside class="side-column">
+                <section class="card">
+                    <h2>Order Summary</h2>
 
-        @endif
+                    @foreach($cart as $item)
+                        @php
+                            $name = $item['name'] ?? 'Pizza';
+                            $qty = (int) ($item['quantity'] ?? 1);
+                            $price = (float) ($item['price'] ?? 0);
+                        @endphp
 
+                        <div class="summary-row">
+                            <span>{{ $name }} × {{ $qty }}</span>
+                            <span>₱{{ number_format($price * $qty, 2) }}</span>
+                        </div>
+                    @endforeach
 
-    </main>
+                    <div class="summary-row">
+                        <span>Subtotal</span>
+                        <span id="subtotal-display">₱{{ number_format($subtotal, 2) }}</span>
+                    </div>
 
+                    <div class="summary-row">
+                        <span>Order Type</span>
+                        <span id="order-type-display">{{ $deliveryOption === 'pickup' ? 'Pickup' : 'Delivery' }}</span>
+                    </div>
 
-    <script>
+                    <div class="summary-row">
+                        <span>Delivery Fee</span>
+                        <span id="fee-display">
+                            @if($deliveryOption === 'pickup')
+                                ₱0.00
+                            @elseif($deliveryAddress === '' || (isset($deliveryQuote) && !($deliveryQuote['known'] ?? false)))
+                                To be confirmed
+                            @else
+                                ₱{{ number_format($deliveryFee, 2) }}
+                            @endif
+                        </span>
+                    </div>
 
-        document.addEventListener(
-            'DOMContentLoaded',
-            function () {
+                    <div class="summary-row">
+                        <span>Payment</span>
+                        <span id="payment-display">
+                            {{ [
+                                'cash_on_delivery' => 'Cash on Delivery',
+                                'cash_on_pickup' => 'Cash on Pickup',
+                                'gcash' => 'GCash'
+                            ][$paymentMethod] ?? 'Cash on Delivery' }}
+                        </span>
+                    </div>
 
-                const delivery =
-                    document.getElementById(
-                        'delivery'
-                    );
+                    <div class="summary-row grand-total">
+                        <span>Total</span>
+                        <span id="total-display">
+                            @if($deliveryOption === 'pickup')
+                                ₱{{ number_format($subtotal, 2) }}
+                            @elseif($deliveryAddress === '' || (isset($deliveryQuote) && !($deliveryQuote['known'] ?? false)))
+                                To be confirmed
+                            @else
+                                ₱{{ number_format($grandTotal, 2) }}
+                            @endif
+                        </span>
+                    </div>
 
-                const pickup =
-                    document.getElementById(
-                        'pickup'
-                    );
+                    <p id="summary-note" class="hint">
+                        Confirm the delivery fee for your current address before placing the order.
+                    </p>
 
-                const cashDelivery =
-                    document.getElementById(
-                        'cash_delivery'
-                    );
+                    <div class="summary-actions">
+                        <a href="{{ route('menu') }}" class="btn btn-black full">Continue Shopping</a>
+                    </div>
+                </section>
+            </aside>
+        </div>
+    @endif
+</main>
 
-                const cashPickup =
-                    document.getElementById(
-                        'cash_pickup'
-                    );
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('place-order-form');
 
+    if (!form) {
+        return;
+    }
 
-                function updatePaymentOptions() {
+    const addressField = document.getElementById('address-field');
+    const addressInput = document.getElementById('delivery_address');
+    const feeStatus = document.getElementById('fee-status');
+    const feeDisplay = document.getElementById('fee-display');
+    const totalDisplay = document.getElementById('total-display');
+    const orderTypeDisplay = document.getElementById('order-type-display');
+    const paymentDisplay = document.getElementById('payment-display');
+    const summaryNote = document.getElementById('summary-note');
+    const placeButton = document.getElementById('place-order-button');
 
-                    if (!delivery || !pickup) {
-                        return;
-                    }
+    const subtotal = Number(@json($subtotal));
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
 
+    let quoteKnown = false;
+    let quotedAddress = '';
+    let quotedFee = 0;
+    let timer = null;
+    let requestNumber = 0;
+    let activeController = null;
 
-                    if (delivery.checked) {
+    function selected(name) {
+        return document.querySelector('input[name="' + name + '"]:checked')?.value || '';
+    }
 
-                        cashDelivery.disabled = false;
+    function peso(amount) {
+        return '₱' + Number(amount).toLocaleString('en-PH', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+    }
 
-                        cashPickup.disabled = true;
+    function setStatus(message, className = '') {
+        feeStatus.textContent = message;
+        feeStatus.className = 'status ' + className;
+    }
 
-                        if (cashPickup.checked) {
+    function updatePaymentAvailability() {
+        const isDelivery = selected('delivery_option') === 'delivery';
 
-                            cashDelivery.checked = true;
+        const cod = document.querySelector('input[name="payment_method"][value="cash_on_delivery"]');
+        const cop = document.querySelector('input[name="payment_method"][value="cash_on_pickup"]');
 
-                        }
+        cod.disabled = !isDelivery;
+        cop.disabled = isDelivery;
 
-                    }
+        if (isDelivery && cop.checked) {
+            cod.checked = true;
+        }
 
+        if (!isDelivery && cod.checked) {
+            cop.checked = true;
+        }
 
-                    if (pickup.checked) {
+        const labels = {
+            cash_on_delivery: 'Cash on Delivery',
+            cash_on_pickup: 'Cash on Pickup',
+            gcash: 'GCash'
+        };
 
-                        cashDelivery.disabled = true;
+        paymentDisplay.textContent = labels[selected('payment_method')] || 'Not selected';
+    }
 
-                        cashPickup.disabled = false;
+    function updateSummary() {
+        const isDelivery = selected('delivery_option') === 'delivery';
+        const address = addressInput.value.trim();
 
-                        if (cashDelivery.checked) {
+        addressField.hidden = !isDelivery;
+        addressInput.required = isDelivery;
 
-                            cashPickup.checked = true;
+        orderTypeDisplay.textContent = isDelivery ? 'Delivery' : 'Pickup';
 
-                        }
+        updatePaymentAvailability();
 
-                    }
+        if (!isDelivery) {
+            feeDisplay.textContent = peso(0);
+            totalDisplay.textContent = peso(subtotal);
+            summaryNote.textContent = 'Pickup orders have no delivery fee.';
+            return;
+        }
 
-                }
+        if (!address || !quoteKnown || quotedAddress !== address) {
+            feeDisplay.textContent = 'To be confirmed';
+            totalDisplay.textContent = 'To be confirmed';
+            summaryNote.textContent = 'Confirm the delivery fee for your current address before placing the order.';
+            return;
+        }
 
+        feeDisplay.textContent = peso(quotedFee);
+        totalDisplay.textContent = peso(subtotal + quotedFee);
+        summaryNote.textContent = 'Delivery fee confirmed. Review your order details.';
+    }
 
-                if (delivery) {
+    async function quoteDeliveryFee() {
+        const address = addressInput.value.trim();
+        const currentRequest = ++requestNumber;
 
-                    delivery.addEventListener(
-                        'change',
-                        updatePaymentOptions
-                    );
+        if (activeController) {
+            activeController.abort();
+        }
 
-                }
+        activeController = null;
+        quoteKnown = false;
+        quotedAddress = '';
+        quotedFee = 0;
 
+        if (selected('delivery_option') !== 'delivery') {
+            setStatus('No delivery fee applies to pickup orders.', 'success-text');
+            updateSummary();
+            return;
+        }
 
-                if (pickup) {
+        if (address.length < 3) {
+            setStatus('Enter your complete delivery address.');
+            updateSummary();
+            return;
+        }
 
-                    pickup.addEventListener(
-                        'change',
-                        updatePaymentOptions
-                    );
+        const controller = new AbortController();
+        activeController = controller;
 
-                }
+        setStatus('Checking delivery fee...');
+        updateSummary();
 
+        try {
+            const response = await fetch(@json(route('delivery-fee.quote')), {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken
+                },
+                body: JSON.stringify({ address: address }),
+                signal: controller.signal
+            });
 
-                updatePaymentOptions();
+            const data = await response.json();
 
+            if (currentRequest !== requestNumber) {
+                return;
             }
-        );
 
-    </script>
+            if (!response.ok) {
+                throw new Error(data.message || 'Unable to calculate the delivery fee.');
+            }
 
+            if (data.known === true && Number.isFinite(Number(data.fee))) {
+                quoteKnown = true;
+                quotedAddress = address;
+                quotedFee = Number(data.fee);
 
+                setStatus(
+                    (data.barangay ? data.barangay + ': ' : '') +
+                    'Estimated delivery fee: ' + peso(quotedFee),
+                    'success-text'
+                );
+            } else {
+                setStatus(
+                    data.message || 'The delivery fee could not be confirmed for this address.',
+                    'error-text'
+                );
+            }
+
+            updateSummary();
+        } catch (error) {
+            if (error.name !== 'AbortError' && currentRequest === requestNumber) {
+                setStatus(error.message || 'Unable to calculate the delivery fee.', 'error-text');
+                updateSummary();
+            }
+        } finally {
+            if (currentRequest === requestNumber) {
+                activeController = null;
+            }
+        }
+    }
+
+    document.querySelectorAll('input[name="delivery_option"]').forEach(function (radio) {
+        radio.addEventListener('change', function () {
+            clearTimeout(timer);
+
+            quoteKnown = false;
+            quotedAddress = '';
+            quotedFee = 0;
+
+            updateSummary();
+
+            if (selected('delivery_option') === 'delivery') {
+                quoteDeliveryFee();
+            } else {
+                if (activeController) {
+                    activeController.abort();
+                }
+
+                setStatus('No delivery fee applies to pickup orders.', 'success-text');
+                updateSummary();
+            }
+        });
+    });
+
+    document.querySelectorAll('input[name="payment_method"]').forEach(function (radio) {
+        radio.addEventListener('change', updateSummary);
+    });
+
+    addressInput.addEventListener('input', function () {
+        quoteKnown = false;
+        quotedAddress = '';
+        quotedFee = 0;
+
+        clearTimeout(timer);
+        updateSummary();
+
+        if (selected('delivery_option') === 'delivery') {
+            setStatus('Checking the updated address...');
+            timer = setTimeout(quoteDeliveryFee, 600);
+        }
+    });
+
+    form.addEventListener('submit', function (event) {
+        const orderType = selected('delivery_option');
+        const payment = selected('payment_method');
+        const address = addressInput.value.trim();
+
+        if (orderType === 'delivery' && address.length < 3) {
+            event.preventDefault();
+            setStatus('Please enter your complete delivery address.', 'error-text');
+            addressInput.focus();
+            return;
+        }
+
+        if (orderType === 'delivery' && payment === 'cash_on_pickup') {
+            event.preventDefault();
+            setStatus('Cash on Pickup is only available for pickup orders.', 'error-text');
+            return;
+        }
+
+        if (orderType === 'pickup' && payment === 'cash_on_delivery') {
+            event.preventDefault();
+            setStatus('Cash on Delivery is only available for delivery orders.', 'error-text');
+            return;
+        }
+
+        if (orderType === 'delivery' && (!quoteKnown || quotedAddress !== address)) {
+            event.preventDefault();
+            setStatus('Please wait until the delivery fee is confirmed.', 'error-text');
+            quoteDeliveryFee();
+            return;
+        }
+
+        placeButton.disabled = true;
+        placeButton.textContent = 'Placing Order...';
+    });
+
+    updatePaymentAvailability();
+    updateSummary();
+
+    if (selected('delivery_option') === 'delivery' && addressInput.value.trim()) {
+        quoteDeliveryFee();
+    } else {
+        setStatus('No delivery fee applies to pickup orders.', 'success-text');
+    }
+});
+</script>
 </body>
-
 </html>

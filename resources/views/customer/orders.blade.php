@@ -455,7 +455,7 @@
                         {{-- TRACK ORDER --}}
 
                         <a
-    href="{{ route('orders.tracking', ['orderId' => $order->id]) }}"
+   href="{{ route('orders.live-tracking', ['orderId' => $order->id]) }}"
     class="btn track-btn"
 >
     Track Order

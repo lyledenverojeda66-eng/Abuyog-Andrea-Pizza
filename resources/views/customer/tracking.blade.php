@@ -1,2684 +1,711 @@
-<!DOCTYPE html>
+{{-- resources/views/customer/tracking.blade.php --}}
 
-<html lang="en">
-
-
-
-<head>
-
-
-
-    <meta charset="UTF-8">
-
-
-
-    <meta
-
-        name="viewport"
-
-        content="width=device-width, initial-scale=1.0"
-
-    >
-
-
-
-    <title>Track Your Order - Abuyog Andrea Pizza</title>
-
-
-
-
-
-    <style>
-
-
-
-        /* =========================
-
-           RESET
-
-        ========================= */
-
-
-
-        \* {
-
-            box-sizing: border-box;
-
-            margin: 0;
-
-            padding: 0;
-
-        }
-
-
-
-
-
-        body {
-
-            font-family: Arial, Helvetica, sans-serif;
-
-            background: #fff8ee;
-
-            color: #111;
-
-            min-height: 100vh;
-
-        }
-
-
-
-
-
-        /* =========================
-
-           ALERT
-
-        ========================= */
-
-
-
-        .alert {
-
-            width: 90%;
-
-            max-width: 1000px;
-
-            margin: 15px auto;
-
-            padding: 12px 16px;
-
-            border-radius: 8px;
-
-            font-size: 14px;
-
-            font-weight: bold;
-
-        }
-
-
-
-
-
-        .alert-success {
-
-            background: #dcfce7;
-
-            color: #166534;
-
-            border: 1px solid #bbf7d0;
-
-        }
-
-
-
-
-
-        .alert-error {
-
-            background: #fee2e2;
-
-            color: #991b1b;
-
-            border: 1px solid #fecaca;
-
-        }
-
-
-
-
-
-        /* =========================
-
-           PAGE HEADER
-
-        ========================= */
-
-
-
-        .tracking-header {
-
-            width: 90%;
-
-            max-width: 1000px;
-
-            margin: 30px auto 22px;
-
-            text-align: center;
-
-        }
-
-
-
-
-
-        .tracking-header h1 {
-
-            color: #16a34a;
-
-            font-size: 30px;
-
-            font-weight: 900;
-
-            margin-bottom: 7px;
-
-        }
-
-
-
-
-
-        .tracking-header p {
-
-            color: #666;
-
-            font-size: 14px;
-
-        }
-
-
-
-
-
-        /* =========================
-
-           MAIN CONTAINER
-
-        ========================= */
-
-
-
-        .tracking-container {
-
-            width: 90%;
-
-            max-width: 1000px;
-
-            margin: 0 auto 45px;
-
-        }
-
-
-
-
-
-        /* =========================
-
-           ORDER INFORMATION
-
-        ========================= */
-
-
-
-        .order-info {
-
-            background: white;
-
-            border-radius: 12px;
-
-            padding: 18px;
-
-            display: grid;
-
-            grid-template-columns: repeat(3, 1fr);
-
-            gap: 15px;
-
-            border: 1px solid #eeeeee;
-
-            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.07);
-
-            margin-bottom: 20px;
-
-        }
-
-
-
-
-
-        .info-box {
-
-            background: #fffaf3;
-
-            border-radius: 8px;
-
-            padding: 14px;
-
-            border: 1px solid #eeeeee;
-
-        }
-
-
-
-
-
-        .info-label {
-
-            color: #666;
-
-            font-size: 11px;
-
-            margin-bottom: 5px;
-
-            font-weight: bold;
-
-            text-transform: uppercase;
-
-        }
-
-
-
-
-
-        .info-value {
-
-            color: #111;
-
-            font-size: 15px;
-
-            font-weight: 800;
-
-            word-break: break-word;
-
-        }
-
-
-
-
-
-        /* =========================
-
-           CANCELLED
-
-        ========================= */
-
-
-
-        .cancelled-message {
-
-            background: #fee2e2;
-
-            color: #991b1b;
-
-            border: 1px solid #fecaca;
-
-            border-radius: 8px;
-
-            padding: 12px;
-
-            margin-bottom: 20px;
-
-            font-size: 14px;
-
-            font-weight: bold;
-
-            text-align: center;
-
-        }
-
-
-
-
-
-        /* =========================
-
-           STATUS SECTION
-
-        ========================= */
-
-
-
-        .status-section {
-
-            background: white;
-
-            border-radius: 12px;
-
-            padding: 22px;
-
-            border: 1px solid #eeeeee;
-
-            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.07);
-
-            margin-bottom: 20px;
-
-        }
-
-
-
-
-
-        .status-section h2 {
-
-            color: #16a34a;
-
-            font-size: 22px;
-
-            margin-bottom: 22px;
-
-            padding-bottom: 10px;
-
-            border-bottom: 2px solid #16a34a;
-
-        }
-
-
-
-
-
-        /* =========================
-
-           TIMELINE
-
-        ========================= */
-
-
-
-        .timeline {
-
-            display: flex;
-
-            flex-direction: column;
-
-        }
-
-
-
-
-
-        .timeline-item {
-
-            position: relative;
-
-            display: flex;
-
-            gap: 14px;
-
-            min-height: 80px;
-
-        }
-
-
-
-
-
-        .timeline-item:last-child {
-
-            min-height: auto;
-
-        }
-
-
-
-
-
-        .timeline-icon-area {
-
-            width: 44px;
-
-            min-width: 44px;
-
-            display: flex;
-
-            flex-direction: column;
-
-            align-items: center;
-
-        }
-
-
-
-
-
-        .timeline-icon {
-
-            width: 40px;
-
-            height: 40px;
-
-            border-radius: 50%;
-
-            display: flex;
-
-            align-items: center;
-
-            justify-content: center;
-
-            background: #e5e7eb;
-
-            color: #6b7280;
-
-            font-size: 17px;
-
-            font-weight: bold;
-
-            z-index: 2;
-
-            border: 2px solid #e5e7eb;
-
-        }
-
-
-
-
-
-        .timeline-line {
-
-            width: 3px;
-
-            flex: 1;
-
-            background: #e5e7eb;
-
-            margin-top: 2px;
-
-            margin-bottom: 2px;
-
-        }
-
-
-
-
-
-        /* =========================
-
-           COMPLETED
-
-        ========================= */
-
-
-
-        .timeline-item.completed .timeline-icon {
-
-            background: #16a34a;
-
-            color: white;
-
-            border-color: #16a34a;
-
-        }
-
-
-
-
-
-        .timeline-item.completed .timeline-line {
-
-            background: #16a34a;
-
-        }
-
-
-
-
-
-        /* =========================
-
-           CURRENT
-
-        ========================= */
-
-
-
-        .timeline-item.current .timeline-icon {
-
-            background: #16a34a;
-
-            color: white;
-
-            border-color: #16a34a;
-
-            box-shadow: 0 0 0 4px #dcfce7;
-
-        }
-
-
-
-
-
-        .timeline-item.current .timeline-content h3 {
-
-            color: #16a34a;
-
-        }
-
-
-
-
-
-        /* =========================
-
-           TIMELINE CONTENT
-
-        ========================= */
-
-
-
-        .timeline-content {
-
-            padding-top: 2px;
-
-            padding-bottom: 20px;
-
-            flex: 1;
-
-        }
-
-
-
-
-
-        .timeline-content h3 {
-
-            color: #222;
-
-            font-size: 16px;
-
-            margin-bottom: 5px;
-
-        }
-
-
-
-
-
-        .timeline-content p {
-
-            color: #666;
-
-            font-size: 13px;
-
-            line-height: 1.45;
-
-            max-width: 650px;
-
-        }
-
-
-
-
-
-        .current-status {
-
-            display: inline-block;
-
-            margin-top: 8px;
-
-            background: #dcfce7;
-
-            color: #166534;
-
-            padding: 5px 10px;
-
-            border-radius: 15px;
-
-            font-size: 11px;
-
-            font-weight: bold;
-
-        }
-
-
-
-
-
-        /* =========================
-
-           INFORMATION CARD
-
-        ========================= */
-
-
-
-        .information-card {
-
-            background: white;
-
-            border-radius: 12px;
-
-            padding: 20px;
-
-            border: 1px solid #eeeeee;
-
-            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.07);
-
-            margin-bottom: 20px;
-
-        }
-
-
-
-
-
-        .information-card h2 {
-
-            color: #16a34a;
-
-            font-size: 21px;
-
-            margin-bottom: 16px;
-
-            padding-bottom: 10px;
-
-            border-bottom: 2px solid #16a34a;
-
-        }
-
-
-
-
-
-        .information-grid {
-
-            display: grid;
-
-            grid-template-columns: repeat(2, 1fr);
-
-            gap: 12px;
-
-        }
-
-
-
-
-
-        .information-item {
-
-            background: #fffaf3;
-
-            padding: 12px;
-
-            border-radius: 8px;
-
-            border: 1px solid #eeeeee;
-
-        }
-
-
-
-
-
-        .information-item strong {
-
-            display: block;
-
-            color: #555;
-
-            font-size: 11px;
-
-            margin-bottom: 5px;
-
-        }
-
-
-
-
-
-        .information-item span {
-
-            color: #111;
-
-            font-weight: bold;
-
-            font-size: 14px;
-
-            word-break: break-word;
-
-        }
-
-
-
-
-
-        /* =========================
-
-           ACTION BUTTONS
-
-        ========================= */
-
-
-
-        .tracking-actions {
-
-            display: flex;
-
-            justify-content: center;
-
-            gap: 10px;
-
-            margin-top: 25px;
-
-            flex-wrap: wrap;
-
-        }
-
-
-
-
-
-        .back-btn,
-
-        .order-again-btn {
-
-            display: inline-block;
-
-            text-decoration: none;
-
-            padding: 11px 20px;
-
-            border-radius: 22px;
-
-            font-size: 14px;
-
-            font-weight: bold;
-
-            transition: 0.2s;
-
-            text-align: center;
-
-        }
-
-
-
-
-
-        .back-btn {
-
-            background: #111;
-
-            color: white;
-
-        }
-
-
-
-
-
-        .back-btn:hover {
-
-            background: #333;
-
-            transform: translateY(-2px);
-
-        }
-
-
-
-
-
-        .order-again-btn {
-
-            background: #16a34a;
-
-            color: white;
-
-        }
-
-
-
-
-
-        .order-again-btn:hover {
-
-            background: #15803d;
-
-            transform: translateY(-2px);
-
-        }
-
-
-
-
-
-        /* =========================
-
-           FOOTER
-
-        ========================= */
-
-
-
-        footer {
-
-            background: #080808;
-
-            color: white;
-
-            text-align: center;
-
-            padding: 22px;
-
-            margin-top: 40px;
-
-            font-size: 14px;
-
-        }
-
-
-
-
-
-        footer span {
-
-            color: #16a34a;
-
-            font-weight: bold;
-
-        }
-
-
-
-
-
-        /* =========================
-
-           TABLET
-
-        ========================= */
-
-
-
-        @media (max-width: 750px) {
-
-
-
-            .order-info {
-
-                grid-template-columns: 1fr;
-
-            }
-
-
-
-
-
-            .information-grid {
-
-                grid-template-columns: 1fr;
-
-            }
-
-
-
-        }
-
-
-
-
-
-        /* =========================
-
-           MOBILE
-
-        ========================= */
-
-
-
-        @media (max-width: 600px) {
-
-
-
-            .tracking-header {
-
-                margin-top: 25px;
-
-            }
-
-
-
-
-
-            .tracking-header h1 {
-
-                font-size: 26px;
-
-            }
-
-
-
-
-
-            .tracking-header p {
-
-                font-size: 13px;
-
-            }
-
-
-
-
-
-            .tracking-container {
-
-                width: 92%;
-
-            }
-
-
-
-
-
-            .order-info,
-
-            .status-section,
-
-            .information-card {
-
-                padding: 17px;
-
-            }
-
-
-
-
-
-            .status-section h2,
-
-            .information-card h2 {
-
-                font-size: 19px;
-
-            }
-
-
-
-
-
-            .timeline-item {
-
-                gap: 10px;
-
-            }
-
-
-
-
-
-            .timeline-icon-area {
-
-                width: 40px;
-
-                min-width: 40px;
-
-            }
-
-
-
-
-
-            .timeline-icon {
-
-                width: 37px;
-
-                height: 37px;
-
-                font-size: 15px;
-
-            }
-
-
-
-
-
-            .timeline-content h3 {
-
-                font-size: 15px;
-
-            }
-
-
-
-
-
-            .timeline-content p {
-
-                font-size: 12px;
-
-            }
-
-
-
-
-
-            .tracking-actions {
-
-                flex-direction: column;
-
-            }
-
-
-
-
-
-            .back-btn,
-
-            .order-again-btn {
-
-                width: 100%;
-
-            }
-
-
-
-        }
-
-
-
-
-        /* =========================
-           COMPACT TRACKING LAYOUT
-        ========================= */
-
-        body {
-            overflow-x: hidden;
-        }
-
-        .tracking-header {
-            width: min(94%, 1100px);
-            margin: 22px auto 16px;
-            text-align: left;
-        }
-
-        .tracking-header h1 {
-            font-size: 28px;
-            margin-bottom: 6px;
-        }
-
-        .tracking-container {
-            width: min(94%, 1100px);
-            margin: 0 auto 30px;
-        }
-
-        .order-info {
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 12px;
-            padding: 12px;
-            margin-bottom: 14px;
-        }
-
-        .info-box {
-            min-width: 0;
-            padding: 12px;
-        }
-
-        .info-value {
-            font-size: 14px;
-            overflow-wrap: anywhere;
-        }
-
-        .status-section {
-            padding: 18px;
-            margin-bottom: 14px;
-        }
-
-        .status-section h2 {
-            font-size: 20px;
-            margin-bottom: 16px;
-            padding-bottom: 8px;
-        }
-
-        .timeline-item {
-            min-height: 65px;
-            gap: 12px;
-        }
-
-        .timeline-icon-area {
-            width: 38px;
-            min-width: 38px;
-        }
-
-        .timeline-icon {
-            width: 34px;
-            height: 34px;
-            font-size: 15px;
-        }
-
-        .timeline-content {
-            padding-top: 2px;
-            padding-bottom: 14px;
-        }
-
-        .timeline-content h3 {
-            font-size: 15px;
-            margin-bottom: 4px;
-        }
-
-        .timeline-content p {
-            font-size: 12px;
-            line-height: 1.4;
-        }
-
-        .information-card {
-            padding: 16px;
-            margin-bottom: 14px;
-        }
-
-        .information-card h2 {
-            font-size: 19px;
-            margin-bottom: 12px;
-            padding-bottom: 8px;
-        }
-
-        .information-grid {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 10px;
-        }
-
-        .information-item {
-            min-width: 0;
-            padding: 10px;
-        }
-
-        .information-item span {
-            font-size: 13px;
-            overflow-wrap: anywhere;
-        }
-
-        .tracking-actions {
-            margin-top: 18px;
-        }
-
-        footer {
-            margin-top: 24px;
-            padding: 16px;
-        }
-
-        @media (max-width: 700px) {
-            .tracking-header,
-            .tracking-container {
-                width: 94%;
-            }
-
-            .order-info,
-            .information-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .tracking-header h1 {
-                font-size: 24px;
-            }
-        }
-
-    </style>
-
-
-
-</head>
-
-
-
-
-
-<body>
-
-
-
-
-
-    {{-- =========================
-
-         SAME NAVIGATION AS HOME
-
-    ========================= --}}
-
-
-
-    @include('partials.navbar')
-
-
-
-
-
-    {{-- =========================
-
-         ALERTS
-
-    ========================= --}}
-
-
-
-    @if(session('success'))
-
-
-
-        <div class="alert alert-success">
-
-
-
-            ✅ {{ session('success') }}
-
-
-
-        </div>
-
-
-
-    @endif
-
-
-
-
-
-    @if(session('error'))
-
-
-
-        <div class="alert alert-error">
-
-
-
-            ❌ {{ session('error') }}
-
-
-
-        </div>
-
-
-
-    @endif
-
-
-
-
-
-    {{-- =========================
-
-         PAGE HEADER
-
-    ========================= --}}
-
-
-
-    <section class="tracking-header">
-
-
-
-        <h1>
-
-            📦 Track Your Order
-
-        </h1>
-
-
-
-        <p>
-
-            Follow the progress of your pizza order.
-
-        </p>
-
-
-
-    </section>
-
-
-
-
-
-    <div class="tracking-container">
-
-
-
-
-
-        {{-- =========================
-
-             ORDER INFORMATION
-
-        ========================= --}}
-
-
-
-        <div class="order-info">
-
-
-
-
-
-            <div class="info-box">
-
-
-
-                <div class="info-label">
-
-                    Order Number
-
-                </div>
-
-
-
-                <div class="info-value">
-
-
-
-                    #{{ $order->order_number }}
-
-
-
-                </div>
-
-
-
-            </div>
-
-
-
-
-
-            <div class="info-box">
-
-
-
-                <div class="info-label">
-
-                    Order Date
-
-                </div>
-
-
-
-                <div class="info-value">
-
-
-
-                    {{ $order->created_at->format('M d, Y h:i A') }}
-
-
-
-                </div>
-
-
-
-            </div>
-
-
-
-
-
-            <div class="info-box">
-
-
-
-                <div class="info-label">
-
-                    Total Amount
-
-                </div>
-
-
-
-                <div class="info-value">
-
-
-
-                    ₱{{ number_format($order->total_amount, 2) }}
-
-
-
-                </div>
-
-
-
-            </div>
-
-
-
-
-
-        </div>
-
-
-
-
-
-        {{-- =========================
-
-             CANCELLED
-
-        ========================= --}}
-
-
-
-        @if($order->status === 'cancelled')
-
-
-
-            <div class="cancelled-message">
-
-
-
-                ❌ This order has been cancelled.
-
-
-
-            </div>
-
-
-
-        @endif
-
-
-
-
-
-        {{-- =========================
-
-             STATUS
-
-        ========================= --}}
-
-
-
-        @php
-
-
-
-            $statuses = [
-
-                'pending',
-
-                'confirmed',
-
-                'preparing',
-
-                'ready_for_delivery',
-
-                'out_for_delivery',
-
-                'delivered'
-
-            ];
-
-
-
-            $currentIndex = array_search(
-
-                $order->status,
-
-                $statuses
-
-            );
-
-
-
-            if ($currentIndex === false) {
-
-                $currentIndex = 0;
-
-            }
-
-
-
-        @endphp
-
-
-
-
-
-        <div class="status-section">
-
-
-
-
-
-            <h2>
-
-                Order Status
-
-            </h2>
-
-
-
-
-
-            <div class="timeline">
-
-
-
-
-
-                {{-- ORDER PLACED --}}
-
-
-
-                <div
-
-                    class="
-
-                        timeline-item
-
-                        {{ $currentIndex >= 0 && $order->status !== 'cancelled'
-
-                            ? 'completed'
-
-                            : '' }}
-
-                        {{ $order->status === 'pending'
-
-                            ? 'current'
-
-                            : '' }}
-
-                    "
-
-                >
-
-
-
-                    <div class="timeline-icon-area">
-
-
-
-                        <div class="timeline-icon">
-
-
-
-                            {{ $currentIndex >= 0 && $order->status !== 'cancelled'
-
-                                ? '✓'
-
-                                : '1' }}
-
-
-
-                        </div>
-
-
-
-                        <div class="timeline-line"></div>
-
-
-
-                    </div>
-
-
-
-
-
-                    <div class="timeline-content">
-
-
-
-                        <h3>
-
-                            Order Placed
-
-                        </h3>
-
-
-
-                        <p>
-
-                            Your order has been received and is waiting for confirmation.
-
-                        </p>
-
-
-
-
-
-                        @if($order->status === 'pending')
-
-
-
-                            <span class="current-status">
-
-                                ● Current Status
-
-                            </span>
-
-
-
-                        @endif
-
-
-
-                    </div>
-
-
-
-                </div>
-
-
-
-
-
-                {{-- ORDER CONFIRMED --}}
-
-
-
-                <div
-
-                    class="
-
-                        timeline-item
-
-                        {{ $currentIndex >= 1 && $order->status !== 'cancelled'
-
-                            ? 'completed'
-
-                            : '' }}
-
-                        {{ $order->status === 'confirmed'
-
-                            ? 'current'
-
-                            : '' }}
-
-                    "
-
-                >
-
-
-
-                    <div class="timeline-icon-area">
-
-
-
-                        <div class="timeline-icon">
-
-
-
-                            {{ $currentIndex >= 1 && $order->status !== 'cancelled'
-
-                                ? '✓'
-
-                                : '2' }}
-
-
-
-                        </div>
-
-
-
-                        <div class="timeline-line"></div>
-
-
-
-                    </div>
-
-
-
-
-
-                    <div class="timeline-content">
-
-
-
-                        <h3>
-
-                            Order Confirmed
-
-                        </h3>
-
-
-
-                        <p>
-
-                            Your order has been confirmed by the restaurant.
-
-                        </p>
-
-
-
-
-
-                        @if($order->status === 'confirmed')
-
-
-
-                            <span class="current-status">
-
-                                ● Current Status
-
-                            </span>
-
-
-
-                        @endif
-
-
-
-                    </div>
-
-
-
-                </div>
-
-
-
-
-
-                {{-- PREPARING --}}
-
-
-
-                <div
-
-                    class="
-
-                        timeline-item
-
-                        {{ $currentIndex >= 2 && $order->status !== 'cancelled'
-
-                            ? 'completed'
-
-                            : '' }}
-
-                        {{ $order->status === 'preparing'
-
-                            ? 'current'
-
-                            : '' }}
-
-                    "
-
-                >
-
-
-
-                    <div class="timeline-icon-area">
-
-
-
-                        <div class="timeline-icon">
-
-
-
-                            {{ $currentIndex >= 2 && $order->status !== 'cancelled'
-
-                                ? '✓'
-
-                                : '3' }}
-
-
-
-                        </div>
-
-
-
-                        <div class="timeline-line"></div>
-
-
-
-                    </div>
-
-
-
-
-
-                    <div class="timeline-content">
-
-
-
-                        <h3>
-
-                            Preparing Your Order
-
-                        </h3>
-
-
-
-                        <p>
-
-                            Your pizza is currently being prepared.
-
-                        </p>
-
-
-
-
-
-                        @if($order->status === 'preparing')
-
-
-
-                            <span class="current-status">
-
-                                ● Current Status
-
-                            </span>
-
-
-
-                        @endif
-
-
-
-                    </div>
-
-
-
-                </div>
-
-
-
-
-
-                {{-- READY FOR DELIVERY --}}
-
-
-
-                <div
-
-                    class="
-
-                        timeline-item
-
-                        {{ $currentIndex >= 3 && $order->status !== 'cancelled'
-
-                            ? 'completed'
-
-                            : '' }}
-
-                        {{ $order->status === 'ready_for_delivery'
-
-                            ? 'current'
-
-                            : '' }}
-
-                    "
-
-                >
-
-
-
-                    <div class="timeline-icon-area">
-
-
-
-                        <div class="timeline-icon">
-
-
-
-                            {{ $currentIndex >= 3 && $order->status !== 'cancelled'
-
-                                ? '✓'
-
-                                : '4' }}
-
-
-
-                        </div>
-
-
-
-                        <div class="timeline-line"></div>
-
-
-
-                    </div>
-
-
-
-
-
-                    <div class="timeline-content">
-
-
-
-                        <h3>
-
-                            Ready for Delivery
-
-                        </h3>
-
-
-
-                        <p>
-
-                            Your order is ready and waiting for delivery.
-
-                        </p>
-
-
-
-
-
-                        @if($order->status === 'ready_for_delivery')
-
-
-
-                            <span class="current-status">
-
-                                ● Current Status
-
-                            </span>
-
-
-
-                        @endif
-
-
-
-                    </div>
-
-
-
-                </div>
-
-
-
-
-
-                {{-- OUT FOR DELIVERY --}}
-
-
-
-                <div
-
-                    class="
-
-                        timeline-item
-
-                        {{ $currentIndex >= 4 && $order->status !== 'cancelled'
-
-                            ? 'completed'
-
-                            : '' }}
-
-                        {{ $order->status === 'out_for_delivery'
-
-                            ? 'current'
-
-                            : '' }}
-
-                    "
-
-                >
-
-
-
-                    <div class="timeline-icon-area">
-
-
-
-                        <div class="timeline-icon">
-
-
-
-                            {{ $currentIndex >= 4 && $order->status !== 'cancelled'
-
-                                ? '🚚'
-
-                                : '5' }}
-
-
-
-                        </div>
-
-
-
-                        <div class="timeline-line"></div>
-
-
-
-                    </div>
-
-
-
-
-
-                    <div class="timeline-content">
-
-
-
-                        <h3>
-
-                            Out for Delivery
-
-                        </h3>
-
-
-
-                        <p>
-
-                            Your order is on its way to your delivery address.
-
-                        </p>
-
-
-
-
-
-                        @if($order->status === 'out_for_delivery')
-
-
-
-                            <span class="current-status">
-
-                                ● Current Status
-
-                            </span>
-
-
-
-                        @endif
-
-
-
-                    </div>
-
-
-
-                </div>
-
-
-
-
-
-                {{-- DELIVERED --}}
-
-
-
-                <div
-
-                    class="
-
-                        timeline-item
-
-                        {{ $order->status === 'delivered'
-
-                            ? 'completed current'
-
-                            : '' }}
-
-                    "
-
-                >
-
-
-
-                    <div class="timeline-icon-area">
-
-
-
-                        <div class="timeline-icon">
-
-
-
-                            {{ $order->status === 'delivered'
-
-                                ? '🎉'
-
-                                : '6' }}
-
-
-
-                        </div>
-
-
-
-                    </div>
-
-
-
-
-
-                    <div class="timeline-content">
-
-
-
-                        <h3>
-
-                            Delivered
-
-                        </h3>
-
-
-
-                        <p>
-
-                            Your order has been successfully delivered.
-
-                        </p>
-
-
-
-
-
-                        @if($order->status === 'delivered')
-
-
-
-                            <span class="current-status">
-
-                                ● Current Status
-
-                            </span>
-
-
-
-                        @endif
-
-
-
-                    </div>
-
-
-
-                </div>
-
-
-
-
-
-            </div>
-
-
-
-{{-- =========================
-
-     DELIVERY INFORMATION
-
-\========================= --}}
-
-
+@include('partials.navbar')
 
 @php
     $delivery = $order->delivery;
     $rider = $delivery?->rider;
 
-    $riderName = $rider?->name
-        ?: $delivery?->rider_name;
+    $riderName = $rider?->name ?: ($delivery?->rider_name ?? 'Not assigned yet');
+    $riderContact = $rider?->phone ?: ($delivery?->rider_contact ?? 'No contact number');
 
-    // Show the assigned rider's phone number first, not their email.
-    $riderContact = $rider?->phone
-        ?: $delivery?->rider_contact;
+    $orderStatus = strtolower($order->status ?? 'pending');
+    $deliveryStatus = strtolower($delivery?->status ?? 'pending');
+
+    $statusLabels = [
+        'pending' => 'Pending',
+        'confirmed' => 'Confirmed',
+        'preparing' => 'Preparing',
+        'ready_for_delivery' => 'Ready for Delivery',
+        'ready_for_pickup' => 'Ready for Pickup',
+        'picked_up' => 'Picked Up',
+        'out_for_delivery' => 'Out for Delivery',
+        'delivered' => 'Delivered',
+        'cancelled' => 'Cancelled',
+    ];
+
+    $currentStatusLabel = $statusLabels[$orderStatus]
+        ?? ucfirst(str_replace('_', ' ', $orderStatus));
+
+    $timeline = [
+        [
+            'label' => 'Order Placed',
+            'description' => 'Your order has been received.',
+            'statuses' => [
+                'pending',
+                'confirmed',
+                'preparing',
+                'ready_for_delivery',
+                'ready_for_pickup',
+                'picked_up',
+                'out_for_delivery',
+                'delivered',
+            ],
+        ],
+        [
+            'label' => 'Preparing',
+            'description' => 'Your pizza is being prepared.',
+            'statuses' => [
+                'preparing',
+                'ready_for_delivery',
+                'ready_for_pickup',
+                'picked_up',
+                'out_for_delivery',
+                'delivered',
+            ],
+        ],
+        [
+            'label' => 'Ready for Delivery',
+            'description' => 'Your order is ready for delivery.',
+            'statuses' => [
+                'ready_for_delivery',
+                'ready_for_pickup',
+                'picked_up',
+                'out_for_delivery',
+                'delivered',
+            ],
+        ],
+        [
+            'label' => 'Out for Delivery',
+            'description' => 'The rider is on the way to your address.',
+            'statuses' => [
+                'out_for_delivery',
+                'delivered',
+            ],
+        ],
+        [
+            'label' => 'Delivered',
+            'description' => 'Your order has been successfully delivered.',
+            'statuses' => ['delivered'],
+        ],
+    ];
+
+    $isCancelled = $orderStatus === 'cancelled';
+
+    $isDelivered = $deliveryStatus === 'delivered'
+        || $orderStatus === 'delivered';
+
+    $payment = $order->payment;
+
+    $paymentMethod = $payment?->method
+        ?? $order->payment_method
+        ?? 'Not specified';
+
+    $paymentStatus = $payment?->status
+        ?? $order->payment_status
+        ?? 'pending';
+
+    $paymentLabels = [
+        'pending' => 'Pending',
+        'paid' => 'Paid',
+        'failed' => 'Failed',
+        'refunded' => 'Refunded',
+    ];
+
+    $paymentStatusLabel = $paymentLabels[strtolower($paymentStatus)]
+        ?? ucfirst(str_replace('_', ' ', $paymentStatus));
 @endphp
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+    <title>Order Tracking | Abuyog Andrea Pizza</title>
 
-<div class="information-card">
+    <style>
+        :root {
+            --red: #ed1c24;
+            --dark: #171717;
+            --green: #176b3a;
+            --light-green: #eaf7ee;
+            --cream: #fff8ee;
+            --border: #e8e0d7;
+            --muted: #777;
+        }
 
+        * {
+            box-sizing: border-box;
+        }
 
+        body {
+            margin: 0;
+            background: var(--cream);
+            color: #292929;
+            font-family: Arial, Helvetica, sans-serif;
+        }
 
-    <h2>🚚 Delivery Information</h2>
+        .tracking-page {
+            width: 100%;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 30px 18px 50px;
+        }
 
+        .tracking-header {
+            margin-bottom: 25px;
+        }
 
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 18px;
+            padding: 10px 16px;
+            border-radius: 8px;
+            background: var(--green);
+            color: #fff;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 700;
+            transition: background .2s, transform .2s;
+        }
 
-    @if ($delivery)
+        .back-link:hover {
+            background: #10552d;
+            transform: translateY(-1px);
+        }
 
+        .tracking-header h1 {
+            margin: 0 0 8px;
+            color: var(--dark);
+            font-size: clamp(25px, 4vw, 34px);
+        }
 
+        .tracking-header p {
+            margin: 0;
+            color: var(--muted);
+            line-height: 1.6;
+        }
 
-        <div class="information-grid">
+        .order-summary {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 14px;
+            margin-bottom: 22px;
+        }
 
+        .summary-item {
+            padding: 18px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: #fff;
+            overflow-wrap: anywhere;
+        }
 
+        .summary-label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+        }
 
-            <div class="information-item">
+        .summary-value {
+            font-size: 17px;
+            font-weight: 700;
+        }
 
-                <strong>Rider Name</strong>
+        .status-badge {
+            display: inline-block;
+            padding: 7px 12px;
+            border-radius: 30px;
+            background: #fff0d9;
+            color: #875400;
+            font-size: 12px;
+            font-weight: 700;
+        }
 
-                <span>
+        .status-badge.delivered {
+            background: var(--light-green);
+            color: var(--green);
+        }
 
-                    {{ $riderName ?: 'Not assigned yet' }}
+        .status-badge.cancelled {
+            background: #ffe8e8;
+            color: #b42318;
+        }
 
+        .tracking-container {
+            display: grid;
+            grid-template-columns: minmax(0, 1.2fr) minmax(280px, .8fr);
+            align-items: start;
+            gap: 22px;
+        }
+
+        .tracking-main,
+        .tracking-sidebar {
+            display: grid;
+            gap: 22px;
+            min-width: 0;
+        }
+
+        .information-card {
+            padding: 23px;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            background: #fff;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, .035);
+            min-width: 0;
+        }
+
+        .information-card h2 {
+            margin: 0 0 20px;
+            color: var(--dark);
+            font-size: 20px;
+        }
+
+        .timeline {
+            position: relative;
+            display: grid;
+            gap: 0;
+        }
+
+        .timeline-item {
+            position: relative;
+            display: grid;
+            grid-template-columns: 35px minmax(0, 1fr);
+            gap: 13px;
+            min-height: 83px;
+        }
+
+        .timeline-item:last-child {
+            min-height: 40px;
+        }
+
+        .timeline-marker-column {
+            position: relative;
+            display: flex;
+            justify-content: center;
+        }
+
+        .timeline-marker {
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 30px;
+            height: 30px;
+            border: 2px solid #d7d7d7;
+            border-radius: 50%;
+            background: #fff;
+            color: #999;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .timeline-item.completed .timeline-marker {
+            border-color: var(--green);
+            background: var(--green);
+            color: #fff;
+        }
+
+        .timeline-line {
+            position: absolute;
+            top: 30px;
+            bottom: 0;
+            width: 2px;
+            background: #dedede;
+        }
+
+        .timeline-item.completed .timeline-line {
+            background: var(--green);
+        }
+
+        .timeline-content {
+            padding: 4px 0 23px;
+        }
+
+        .timeline-content h3 {
+            margin: 0 0 6px;
+            font-size: 15px;
+        }
+
+        .timeline-content p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .timeline-item:not(.completed) .timeline-content h3 {
+            color: #777;
+        }
+
+        .cancelled-notice {
+            padding: 14px;
+            border: 1px solid #ffcaca;
+            border-radius: 9px;
+            background: #fff0f0;
+            color: #a11;
+            line-height: 1.6;
+        }
+
+        .detail-list {
+            display: grid;
+            gap: 0;
+        }
+
+        .detail-row {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 13px 0;
+            border-bottom: 1px solid #f0ece7;
+        }
+
+        .detail-row:first-child {
+            padding-top: 0;
+        }
+
+        .detail-row:last-child {
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .detail-label {
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .detail-value {
+            max-width: 65%;
+            color: #292929;
+            font-size: 13px;
+            font-weight: 700;
+            text-align: right;
+            overflow-wrap: anywhere;
+        }
+
+        .payment-note {
+            margin-top: 14px;
+            padding: 12px;
+            border-radius: 8px;
+            background: #f7f5f1;
+            color: #555;
+            font-size: 12px;
+            line-height: 1.7;
+        }
+
+        .tracking-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 22px;
+        }
+
+        .action-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 43px;
+            padding: 12px 17px;
+            border: 0;
+            border-radius: 8px;
+            background: var(--red);
+            color: #fff;
+            font-size: 13px;
+            font-weight: 700;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background .2s;
+        }
+
+        .action-button:hover {
+            background: #c9151c;
+        }
+
+        .action-button.secondary {
+            border: 1px solid var(--border);
+            background: #fff;
+            color: #292929;
+        }
+
+        .action-button.secondary:hover {
+            background: #f5f2ee;
+        }
+
+        .tracking-footer {
+            padding: 25px 18px;
+            color: #777;
+            font-size: 12px;
+            text-align: center;
+        }
+
+        @media (max-width: 760px) {
+            .tracking-container {
+                grid-template-columns: 1fr;
+            }
+
+            .order-summary {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .summary-item {
+                padding: 14px;
+            }
+
+            .information-card {
+                padding: 18px;
+            }
+        }
+
+        @media (max-width: 420px) {
+            .tracking-page {
+                padding: 22px 12px 35px;
+            }
+
+            .detail-row {
+                gap: 10px;
+            }
+
+            .detail-value {
+                max-width: 58%;
+            }
+
+            .tracking-actions {
+                flex-direction: column;
+            }
+
+            .action-button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <main class="tracking-page">
+        <header class="tracking-header">
+            <a href="{{ route('orders') }}" class="back-link">
+                <span aria-hidden="true">←</span>
+                Back to My Orders
+            </a>
+
+            <h1>📦 Order Tracking</h1>
+            <p>Track your order from preparation to delivery.</p>
+        </header>
+
+        <section class="order-summary" aria-label="Order summary">
+            <div class="summary-item">
+                <span class="summary-label">Order Number</span>
+                <span class="summary-value">
+                    #{{ $order->order_number ?? $order->id }}
                 </span>
-
             </div>
 
-
-
-            <div class="information-item">
-
-                <strong>Contact Number</strong>
-
-
-
-                @if ($riderContact)
-
-                    <span>
-
-                        <a
-
-                            href="tel:{{ $riderContact }}"
-
-                            style="color:#16a34a; text-decoration:none;"
-
-                        >
-
-                            {{ $riderContact }}
-
-                        </a>
-
-                    </span>
-
-                @else
-
-                    <span>Not available</span>
-
-                @endif
-
-            </div>
-
-
-
-            <div class="information-item">
-
-                <strong>Delivery Status</strong>
-
-                <span>
-
-                    {{ ucwords(str_replace(
-
-                        '_',
-
-                        ' ',
-
-                        $delivery->status ?? 'pending'
-
-                    )) }}
-
+            <div class="summary-item">
+                <span class="summary-label">Order Status</span>
+                <span class="status-badge {{ $isDelivered ? 'delivered' : ($isCancelled ? 'cancelled' : '') }}">
+                    {{ $statusLabels[$orderStatus] ?? $currentStatusLabel }}
                 </span>
-
             </div>
 
-
-
-            @if ($delivery->picked_up_at)
-
-                <div class="information-item">
-
-                    <strong>Picked Up</strong>
-
-                    <span>
-
-                        {{ $delivery->picked_up_at->format('M d, Y h:i A') }}
-
-                    </span>
-
-                </div>
-
-            @endif
-
-
-
-            @if ($delivery->delivered_at)
-
-                <div class="information-item">
-
-                    <strong>Delivered At</strong>
-
-                    <span>
-
-                        {{ $delivery->delivered_at->format('M d, Y h:i A') }}
-
-                    </span>
-
-                </div>
-
-            @endif
-
-
-
-            @if ($delivery->delivery_notes)
-
-                <div class="information-item">
-
-                    <strong>Delivery Notes</strong>
-
-                    <span>
-
-                        {{ $delivery->delivery_notes }}
-
-                    </span>
-
-                </div>
-
-            @endif
-
-
-
-        </div>
-
-
-
-        @if (!$rider && empty($delivery->rider_name))
-
-            <p style="color:#666; font-size:13px; margin-top:14px;">
-
-                No rider has been assigned yet. Rider information
-
-                will appear here once a rider is assigned.
-
-            </p>
-
-        @endif
-
-
-
-    @else
-
-
-
-        <p style="color:#666; font-size:13px;">
-
-            Delivery information will appear here once a delivery
-
-            record has been created for your order.
-
-        </p>
-
-
-
-    @endif
-
-
-
-</div>
-
-
-
-
-
-        {{-- =========================
-
-             PAYMENT INFORMATION
-
-        ========================= --}}
-
-
-
-        <div class="information-card">
-
-
-
-
-
-            <h2>
-
-                💳 Payment Information
-
-            </h2>
-
-
-
-
-
-            @if($order->payment)
-
-
-
-                <div class="information-grid">
-
-
-
-
-
-                    <div class="information-item">
-
-
-
-                        <strong>
-
-                            Payment Method
-
-                        </strong>
-
-
-
-                        <span>
-
-
-
-                            {{ $order->payment->method === 'gcash'
-
-                                ? 'GCash'
-
-                                : 'Cash on Delivery' }}
-
-
-
-                        </span>
-
-
-
-                    </div>
-
-
-
-
-
-                    <div class="information-item">
-
-
-
-                        <strong>
-
-                            Payment Status
-
-                        </strong>
-
-
-
-                        <span>
-
-
-
-                            {{ ucfirst($order->payment->status) }}
-
-
-
-                        </span>
-
-
-
-                    </div>
-
-
-
-
-
-                    @if($order->payment->reference_number)
-
-
-
-                        <div class="information-item">
-
-
-
-                            <strong>
-
-                                Reference Number
-
-                            </strong>
-
-
-
-                            <span>
-
-
-
-                                {{ $order->payment->reference_number }}
-
-
-
+            <div class="summary-item">
+                <span class="summary-label">Order Total</span>
+                <span class="summary-value">
+                    ₱{{ number_format((float) ($order->total ?? 0), 2) }}
+                </span>
+            </div>
+        </section>
+
+        <div class="tracking-container">
+            <div class="tracking-main">
+
+                {{-- DELIVERY PROGRESS --}}
+                <section class="information-card">
+                    <h2>🚚 Delivery Progress</h2>
+
+                    @if ($isCancelled)
+                        <div class="cancelled-notice">
+                            <strong>Order Cancelled</strong><br>
+                            This order has been cancelled. If you have questions about the cancellation or payment, please contact Andrea's Pizza.
+                        </div>
+                    @else
+                        <div class="timeline">
+                            @foreach ($timeline as $index => $step)
+                                @php
+                                    $stepCompleted = in_array($orderStatus, $step['statuses'], true)
+                                        || in_array($deliveryStatus, $step['statuses'], true);
+
+                                    if ($index === 0) {
+                                        $stepCompleted = true;
+                                    }
+                                @endphp
+
+                                <div class="timeline-item {{ $stepCompleted ? 'completed' : '' }}">
+                                    <div class="timeline-marker-column">
+                                        <div class="timeline-marker">
+                                            @if ($stepCompleted)
+                                                ✓
+                                            @else
+                                                {{ $index + 1 }}
+                                            @endif
+                                        </div>
+
+                                        @if ($index < count($timeline) - 1)
+                                            <div class="timeline-line"></div>
+                                        @endif
+                                    </div>
+
+                                    <div class="timeline-content">
+                                        <h3>{{ $step['label'] }}</h3>
+                                        <p>{{ $step['description'] }}</p>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    @endif
+                </section>
+
+                {{-- DELIVERY INFORMATION (NO PROOF PHOTO HERE) --}}
+                <section class="information-card">
+                    <h2>🛵 Delivery Information</h2>
+
+                    <div class="detail-list">
+                        <div class="detail-row">
+                            <span class="detail-label">Delivery Status</span>
+                            <span class="detail-value">
+                                {{ $statusLabels[$deliveryStatus] ?? ucfirst(str_replace('_', ' ', $deliveryStatus)) }}
                             </span>
-
-
-
                         </div>
 
-
-
-                    @endif
-
-
-
-
-
-                    @if($order->payment->paid_at)
-
-
-
-                        <div class="information-item">
-
-
-
-                            <strong>
-
-                                Paid At
-
-                            </strong>
-
-
-
-                            <span>
-
-
-
-                                {{ $order->payment->paid_at->format('M d, Y h:i A') }}
-
-
-
-                            </span>
-
-
-
+                        <div class="detail-row">
+                            <span class="detail-label">Rider Name</span>
+                            <span class="detail-value">{{ $riderName }}</span>
                         </div>
 
+                        <div class="detail-row">
+                            <span class="detail-label">Rider Contact</span>
+                            <span class="detail-value">{{ $riderContact }}</span>
+                        </div>
 
+                        @if ($delivery?->picked_up_at)
+                            <div class="detail-row">
+                                <span class="detail-label">Picked Up At</span>
+                                <span class="detail-value">
+                                    {{ \Illuminate\Support\Carbon::parse($delivery->picked_up_at)->format('M d, Y h:i A') }}
+                                </span>
+                            </div>
+                        @endif
 
-                    @endif
+                        @if ($delivery?->delivered_at)
+                            <div class="detail-row">
+                                <span class="detail-label">Delivered At</span>
+                                <span class="detail-value">
+                                    {{ \Illuminate\Support\Carbon::parse($delivery->delivered_at)->format('M d, Y h:i A') }}
+                                </span>
+                            </div>
+                        @endif
 
+                        @if ($delivery?->notes)
+                            <div class="detail-row">
+                                <span class="detail-label">Delivery Notes</span>
+                                <span class="detail-value">{{ $delivery->notes }}</span>
+                            </div>
+                        @endif
+                    </div>
+                </section>
+            </div>
 
+            <aside class="tracking-sidebar">
 
+                {{-- PAYMENT INFORMATION --}}
+                <section class="information-card">
+                    <h2>💳 Payment Information</h2>
 
+                    <div class="detail-list">
+                        <div class="detail-row">
+                            <span class="detail-label">Payment Method</span>
+                            <span class="detail-value">
+                                {{ ucfirst(str_replace('_', ' ', $paymentMethod)) }}
+                            </span>
+                        </div>
 
-                </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Payment Status</span>
+                            <span class="detail-value">
+                                {{ $paymentStatusLabel }}
+                            </span>
+                        </div>
 
+                        <div class="detail-row">
+                            <span class="detail-label">Order Total</span>
+                            <span class="detail-value">
+                                ₱{{ number_format((float) ($order->total ?? 0), 2) }}
+                            </span>
+                        </div>
 
+                        @if ($payment?->paid_at)
+                            <div class="detail-row">
+                                <span class="detail-label">Paid At</span>
+                                <span class="detail-value">
+                                    {{ \Illuminate\Support\Carbon::parse($payment->paid_at)->format('M d, Y h:i A') }}
+                                </span>
+                            </div>
+                        @endif
+                    </div>
 
-            @else
+                    <div class="payment-note">
+                        If you have questions about your payment or delivery, please contact Andrea's Pizza.
+                    </div>
+                </section>
 
+                {{-- ORDER ITEMS --}}
+                <section class="information-card">
+                    <h2>🍕 Order Summary</h2>
 
+                    <div class="detail-list">
+                        @forelse ($order->orderItems ?? [] as $item)
+                            <div class="detail-row">
+                                <span class="detail-label">
+                                    {{ $item->pizza?->name ?? $item->name ?? 'Pizza' }}
+                                    × {{ $item->quantity ?? 1 }}
+                                </span>
 
-                <p style="color:#666; font-size:13px;">
+                                <span class="detail-value">
+                                    ₱{{ number_format(
+                                        (float) ($item->price ?? 0) * (int) ($item->quantity ?? 1),
+                                        2
+                                    ) }}
+                                </span>
+                            </div>
+                        @empty
+                            <p style="color: #777; font-size: 13px;">
+                                No order items are available.
+                            </p>
+                        @endforelse
 
-
-
-                    Payment information is not yet available.
-
-
-
-                </p>
-
-
-
-            @endif
-
-
-
-
-
+                        <div class="detail-row">
+                            <span class="detail-label"><strong>Total</strong></span>
+                            <span class="detail-value">
+                                ₱{{ number_format((float) ($order->total ?? 0), 2) }}
+                            </span>
+                        </div>
+                    </div>
+                </section>
+            </aside>
         </div>
-
-
-
-
-
-        {{-- =========================
-
-             BUTTONS
-
-        ========================= --}}
-
-
 
         <div class="tracking-actions">
-
-
-
-
-
-            <a
-
-              href="{{ route('orders') }}"
-
-                class="back-btn"
-
-            >
-
-
-
-                ← My Orders
-
-
-
+            <a href="{{ route('orders') }}" class="action-button secondary">
+                ← Back to My Orders
             </a>
 
-
-
-
-
-            <a
-
-                href="{{ route('menu') }}"
-
-                class="order-again-btn"
-
-            >
-
-
-
-                🍕 Order Again
-
-
-
+            <a href="{{ route('menu') }}" class="action-button">
+                Order More Pizza 🍕
             </a>
-
-
-
-
-
         </div>
+    </main>
 
-
-
-
-
-    </div>
-
-
-
-
-
-    {{-- =========================
-
-         FOOTER
-
-    ========================= --}}
-
-
-
-    <footer>
-
-
-
-        © {{ date('Y') }}
-
-
-
-        <span>
-
-            Abuyog Andrea Pizza
-
-        </span>
-
-
-
-        All Rights Reserved.
-
-
-
+    <footer class="tracking-footer">
+        © {{ date('Y') }} Abuyog Andrea Pizza. All rights reserved.
     </footer>
-
-
-
-
-
 </body>
-
-
-
 </html>

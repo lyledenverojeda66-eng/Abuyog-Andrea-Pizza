@@ -12,18 +12,25 @@ class Delivery extends Model
         'rider_id',
         'rider_name',
         'rider_contact',
-        'picked_up_at',
-        'delivered_at',
-        'delivery_notes',
         'status',
         'payment_status',
         'payment_received_at',
+        'picked_up_at',
+        'delivered_at',
+        'delivery_notes',
+        'rider_latitude',
+        'rider_longitude',
+        'rider_location_updated_at',
+        'proof_photo',
     ];
 
     protected $casts = [
         'picked_up_at' => 'datetime',
         'delivered_at' => 'datetime',
         'payment_received_at' => 'datetime',
+        'rider_location_updated_at' => 'datetime',
+        'rider_latitude' => 'float',
+        'rider_longitude' => 'float',
     ];
 
     public function order(): BelongsTo
@@ -37,8 +44,8 @@ class Delivery extends Model
     }
 
     /**
-     * Kunin ang contact number ng assigned rider.
-     * Gamitin ang rider_contact bilang fallback.
+     * Get the assigned rider's phone number.
+     * Falls back to the saved rider contact number.
      */
     public function getRiderPhoneAttribute(): ?string
     {

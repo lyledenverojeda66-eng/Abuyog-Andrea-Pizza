@@ -15,6 +15,9 @@ use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\RiderController;
 use App\Http\Controllers\CustomerProfileController;
 use App\Http\Controllers\ChatbotController;
+use App\Http\Controllers\LiveRiderTrackingController;
+use App\Http\Controllers\DeliveryFeeController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -32,8 +35,6 @@ Route::get('/contact', [HomeController::class, 'contact'])->name('contact');
 |--------------------------------------------------------------------------
 | PUBLIC CUSTOMER CHATBOT
 |--------------------------------------------------------------------------
-| Public menu and customer-safe chatbot responses only.
-| Never return admin reports or private customer/order information here.
 */
 
 Route::post('/chatbot/message', [ChatbotController::class, 'chat'])
@@ -87,8 +88,7 @@ Route::post('/register', [AuthController::class, 'register'])
 |--------------------------------------------------------------------------
 | Requires authentication.
 */
-
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'customer.not-banned'])->group(function () {
 
     // CUSTOMER PROFILE
 
@@ -125,6 +125,15 @@ Route::middleware('auth')->group(function () {
     Route::post('/cart/options', [CartController::class, 'options'])
         ->name('cart.options');
 
+        Route::post('/cart/delivery-address', [CartController::class, 'saveAddress'])
+    ->name('cart.delivery-address');
+
+
+Route::post('/delivery-fee/quote', [
+    DeliveryFeeController::class,
+    'quote',
+])->name('delivery-fee.quote');
+
     // CHECKOUT
 
     Route::get('/checkout', [CheckoutController::class, 'index'])
@@ -143,6 +152,18 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/orders/{orderId}/confirmation', [CustomerController::class, 'confirmation'])
         ->name('customer.orders.confirmation');
+
+    // LIVE RIDER TRACKING - CUSTOMER
+
+    Route::get(
+        '/orders/{orderId}/live-tracking',
+        [LiveRiderTrackingController::class, 'show']
+    )->whereNumber('orderId')->name('orders.live-tracking');
+
+    Route::get(
+        '/orders/{orderId}/live-location',
+        [LiveRiderTrackingController::class, 'location']
+    )->whereNumber('orderId')->name('orders.live-location');
 
     // GCASH
 
@@ -165,7 +186,7 @@ Route::middleware('auth')->group(function () {
 |--------------------------------------------------------------------------
 | ADMIN ROUTES
 |--------------------------------------------------------------------------
-| All routes in this group require authentication and admin middleware.
+| Requires authentication and admin middleware.
 */
 
 Route::middleware(['auth', 'admin'])
@@ -353,4 +374,18 @@ Route::middleware(['auth', 'rider'])
             '/deliveries/{delivery}/status',
             [RiderController::class, 'updateStatus']
         )->name('deliveries.update-status');
+
+        // RIDER LIVE GPS TRACKING PAGE
+
+        Route::get(
+            '/deliveries/{delivery}/live-tracking',
+            [LiveRiderTrackingController::class, 'riderPage']
+        )->name('deliveries.live-tracking');
+
+        // SAVE RIDER GPS LOCATION
+
+        Route::post(
+            '/deliveries/{delivery}/live-location',
+            [LiveRiderTrackingController::class, 'updateLocation']
+        )->name('deliveries.live-location.update');
     });
